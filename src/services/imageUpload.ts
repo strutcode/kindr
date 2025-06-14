@@ -1,4 +1,4 @@
-import { supabase, handleSupabaseResponse, SupabaseError, retryOperation } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 export interface ImageFile {
   id: string
@@ -56,7 +56,9 @@ export class ImageUploadService {
   static validateImageCount(currentCount: number, newCount: number): string | null {
     const totalCount = currentCount + newCount
     if (totalCount > this.MAX_IMAGES) {
-      return `Maximum ${this.MAX_IMAGES} images allowed. You can add ${this.MAX_IMAGES - currentCount} more.`
+      return `Maximum ${this.MAX_IMAGES} images allowed. You can add ${
+        this.MAX_IMAGES - currentCount
+      } more.`
     }
     return null
   }
@@ -77,10 +79,10 @@ export class ImageUploadService {
       img.onload = () => {
         try {
           clearTimeout(timeout)
-          
+
           // Calculate new dimensions while maintaining aspect ratio
           let { width, height } = img
-          
+
           if (width > this.MAX_DIMENSION || height > this.MAX_DIMENSION) {
             const ratio = Math.min(this.MAX_DIMENSION / width, this.MAX_DIMENSION / height)
             width *= ratio
@@ -92,9 +94,9 @@ export class ImageUploadService {
 
           // Draw and compress
           ctx!.drawImage(img, 0, 0, width, height)
-          
+
           canvas.toBlob(
-            (blob) => {
+            blob => {
               if (blob) {
                 resolve(blob)
               } else {
@@ -102,7 +104,7 @@ export class ImageUploadService {
               }
             },
             'image/jpeg',
-            this.COMPRESSION_QUALITY
+            this.COMPRESSION_QUALITY,
           )
         } catch (error) {
           clearTimeout(timeout)
@@ -114,7 +116,7 @@ export class ImageUploadService {
         clearTimeout(timeout)
         reject(new Error('Failed to load image'))
       }
-      
+
       img.src = URL.createObjectURL(file)
     })
   }
@@ -135,97 +137,72 @@ export class ImageUploadService {
   static async uploadImage(
     file: File,
     userId: string,
-    onProgress?: (progress: UploadProgress) => void
+    onProgress?: (progress: UploadProgress) => void,
   ): Promise<{ url: string; path: string }> {
     try {
       console.log('Starting image upload for file:', file.name)
-      
+
       if (!userId) {
-        throw new SupabaseError('User ID is required for image upload', 'VALIDATION_ERROR')
+        throw new Error('User ID is required for image upload')
       }
-      
+
       // Compress the image with timeout
       const compressedBlob = await Promise.race([
         this.compressImage(file),
-        new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Image compression timed out')), 30000)
-        )
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Image compression timed out')), 30000),
+        ),
       ])
-      
+
       console.log('Image compressed successfully, size:', compressedBlob.size)
-      
+
       // Generate unique filename
       const fileName = this.generateFileName(userId, file.name)
       console.log('Generated filename:', fileName)
 
       // Upload to Supabase storage with retry logic
-      const uploadResult = await retryOperation(async () => {
-        console.log('Uploading to Supabase storage...')
-        
-        return await handleSupabaseResponse(
-          () => supabase.storage
-            .from('request-images')
-            .upload(fileName, compressedBlob, {
-              cacheControl: '3600',
-              upsert: false,
-            }),
-          'uploadImage',
-          15000 // 15 second timeout for upload
-        )
-      }, 2, 2000) // Retry twice with 2 second delay
+      const uploadResult = await supabase.storage
+        .from('request-images')
+        .upload(fileName, compressedBlob, {
+          cacheControl: '3600',
+          upsert: false,
+        })
 
       console.log('Supabase upload successful:', uploadResult)
 
-      if (!uploadResult) {
-        throw new SupabaseError('Upload failed: No data returned from Supabase', 'UPLOAD_ERROR')
+      if (!uploadResult || uploadResult.error) {
+        throw new Error('Upload failed: No data returned from Supabase')
       }
 
-      // Get public URL with retry
-      const urlResult = await retryOperation(async () => {
-        console.log('Getting public URL for path:', uploadResult.path)
-        
-        const { data: urlData } = supabase.storage
-          .from('request-images')
-          .getPublicUrl(uploadResult.path)
-
-        console.log('Public URL data:', urlData)
-
-        if (!urlData.publicUrl) {
-          throw new SupabaseError('Failed to get public URL for uploaded image', 'URL_ERROR')
-        }
-
-        return urlData
-      }, 2, 1000)
+      const { data: urlData } = await supabase.storage
+        .from('request-images')
+        .getPublicUrl(uploadResult.data.path)
 
       const result = {
-        url: urlResult.publicUrl,
-        path: uploadResult.path,
+        url: urlData.publicUrl,
+        path: uploadResult.data.path,
       }
 
       console.log('Upload completed successfully:', result)
       return result
-      
     } catch (error) {
       console.error('Image upload error:', error)
-      
-      if (error instanceof SupabaseError) {
+
+      if (error instanceof Error) {
         throw error
       }
-      
+
       // Handle specific error types
       if (error instanceof Error) {
         if (error.message.includes('timed out')) {
-          throw new SupabaseError('Upload timed out. Please try again.', 'TIMEOUT')
+          throw new Error('Upload timed out. Please try again.')
         }
         if (error.message.includes('network') || error.message.includes('fetch')) {
-          throw new SupabaseError('Network error during upload. Please check your connection.', 'NETWORK_ERROR')
+          throw new Error('Network error during upload. Please check your connection.')
         }
       }
-      
-      throw new SupabaseError(
-        error instanceof Error ? error.message : 'Upload failed',
-        'UPLOAD_ERROR'
-      )
+
+      throw new Error(error instanceof Error ? error.message : 'Upload failed')
     }
   }
 
@@ -237,47 +214,46 @@ export class ImageUploadService {
     userId: string,
     onProgress?: (imageId: string, progress: UploadProgress) => void,
     onComplete?: (imageId: string, result: { url: string; path: string }) => void,
-    onError?: (imageId: string, error: string) => void
+    onError?: (imageId: string, error: string) => void,
   ): Promise<{ url: string; path: string }[]> {
     const results: { url: string; path: string }[] = []
-    
+
     console.log(`Starting upload of ${files.length} images for user ${userId}`)
-    
+
     if (!userId) {
       throw new SupabaseError('User ID is required for image upload', 'VALIDATION_ERROR')
     }
-    
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       const imageId = `upload_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 8)}`
-      
+
       console.log(`Processing image ${i + 1}/${files.length}:`, file.name)
-      
+
       try {
         // Report progress start
         onProgress?.(imageId, { loaded: 0, total: 100, percentage: 0 })
-        
-        const result = await this.uploadImage(
-          file,
-          userId,
-          (progress) => onProgress?.(imageId, progress)
+
+        const result = await this.uploadImage(file, userId, progress =>
+          onProgress?.(imageId, progress),
         )
-        
+
         console.log(`Image ${i + 1} uploaded successfully:`, result)
         results.push(result)
         onComplete?.(imageId, result)
-        
+
         // Report progress complete
         onProgress?.(imageId, { loaded: 100, total: 100, percentage: 100 })
-        
       } catch (error) {
         const errorMessage = error instanceof SupabaseError ? error.message : 'Upload failed'
         console.error(`Image ${i + 1} upload failed:`, errorMessage)
         onError?.(imageId, errorMessage)
       }
     }
-    
-    console.log(`Upload process completed. ${results.length}/${files.length} images uploaded successfully`)
+
+    console.log(
+      `Upload process completed. ${results.length}/${files.length} images uploaded successfully`,
+    )
     return results
   }
 
@@ -286,18 +262,10 @@ export class ImageUploadService {
    */
   static async deleteImage(path: string): Promise<void> {
     if (!path) {
-      throw new SupabaseError('Image path is required for deletion', 'VALIDATION_ERROR')
+      throw new Error('Image path is required for deletion')
     }
 
-    await retryOperation(async () => {
-      await handleSupabaseResponse(
-        () => supabase.storage
-          .from('request-images')
-          .remove([path]),
-        'deleteImage',
-        5000
-      )
-    }, 2, 1000)
+    await supabase.storage.from('request-images').remove([path])
   }
 
   /**
@@ -306,15 +274,7 @@ export class ImageUploadService {
   static async deleteImages(paths: string[]): Promise<void> {
     if (paths.length === 0) return
 
-    await retryOperation(async () => {
-      await handleSupabaseResponse(
-        () => supabase.storage
-          .from('request-images')
-          .remove(paths),
-        'deleteImages',
-        8000
-      )
-    }, 2, 1000)
+    await supabase.storage.from('request-images').remove(paths)
   }
 
   /**
@@ -341,24 +301,17 @@ export class ImageUploadService {
   static async cleanupOrphanedImages(userId: string, validPaths: string[]): Promise<void> {
     try {
       if (!userId) {
-        throw new SupabaseError('User ID is required for cleanup', 'VALIDATION_ERROR')
+        throw new Error('User ID is required for cleanup')
       }
 
       // List all images for the user
-      const files = await retryOperation(async () => {
-        return await handleSupabaseResponse(
-          () => supabase.storage
-            .from('request-images')
-            .list(userId),
-          'listUserImages',
-          5000
-        )
-      }, 2, 1000)
+      const { data: files } = await supabase.storage.from('request-images').list(userId)
 
       // Find orphaned files
-      const orphanedPaths = files
-        ?.filter(file => !validPaths.includes(`${userId}/${file.name}`))
-        .map(file => `${userId}/${file.name}`) || []
+      const orphanedPaths =
+        files
+          ?.filter(file => !validPaths.includes(`${userId}/${file.name}`))
+          .map(file => `${userId}/${file.name}`) || []
 
       // Delete orphaned files
       if (orphanedPaths.length > 0) {

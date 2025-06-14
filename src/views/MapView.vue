@@ -25,13 +25,6 @@
       </div>
     </div>
 
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-2">Map View</h1>
-      <p class="text-gray-600">
-        Explore requests in your area on an interactive map with smart clustering
-      </p>
-    </div>
-
     <!-- Filters and Controls -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
       <div class="flex flex-wrap items-center gap-4">
@@ -135,6 +128,7 @@
     <!-- Map Container -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
       <DynamicMap
+        v-if="userLocation"
         :pins="mapPins"
         :min-height="500"
         :initial-position="userLocation"

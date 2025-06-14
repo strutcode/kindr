@@ -79,12 +79,6 @@
   @apply bg-gray-400;
 }
 
-/* Leaflet map fixes */
-.leaflet-container {
-  height: 400px;
-  border-radius: 0.5rem;
-}
-
 /* Loading animations */
 @keyframes shimmer {
   0% {

@@ -1,46 +1,43 @@
 import { defineStore } from 'pinia'
 import { ref, computed, readonly } from 'vue'
-import { supabase, handleSupabaseResponse, SupabaseError, retryOperation, checkAuthStatus } from '@/lib/supabase'
-import type { User, AuthState } from '@/types'
+import { supabase } from '@/lib/supabase'
+import type { User } from '@/types'
+import { createLogger } from '@/lib/logger'
+
+const { log, debug, info, warn, error } = createLogger('AuthStore')
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const session = ref<any | null>(null)
   const loading = ref(false)
-  const error = ref<string>('')
+  const authErr = ref<string>('')
   const initialized = ref(false)
 
-  const isAuthenticated = computed(() => !!session.value && !!user.value)
+  const isAuthenticated = computed(() => session.value && user.value)
 
   const initialize = async () => {
     if (initialized.value) return
 
     loading.value = true
-    error.value = ''
-    
-    try {
-      console.log('Initializing auth store...')
-      
-      // Get current session with timeout and retry
-      const sessionResult = await retryOperation(async () => {
-        return await handleSupabaseResponse(
-          () => supabase.auth.getSession(),
-          'getSession',
-          8000 // 8 second timeout for initial load
-        )
-      }, 2, 1000)
+    authErr.value = ''
 
-      console.log('Session result:', sessionResult)
-      session.value = sessionResult.session
-      
-      if (sessionResult.session?.user) {
-        await fetchUserProfile(sessionResult.session.user.id)
+    try {
+      info('Initializing auth store...')
+
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError) throw new Error(sessionError.message)
+
+      debug('Session result:', sessionData)
+      session.value = sessionData.session
+
+      if (session.value?.user) {
+        debug('Getting user profile for:', session.value.user.id)
+        await fetchUserProfile(session.value.user.id)
       }
 
-      // Listen for auth changes with error handling
       supabase.auth.onAuthStateChange(async (event, newSession) => {
         console.log('Auth state changed:', event, newSession?.user?.id)
-        
+
         try {
           session.value = newSession
           if (newSession?.user) {
@@ -48,47 +45,40 @@ export const useAuthStore = defineStore('auth', () => {
           } else {
             user.value = null
           }
-          error.value = '' // Clear any previous errors on successful auth change
+          authErr.value = '' // Clear any previous errors on successful auth change
         } catch (err) {
           console.error('Error handling auth state change:', err)
-          error.value = err instanceof Error ? err.message : 'Authentication error'
+          authErr.value = err instanceof Error ? err.message : 'Authentication error'
         }
       })
 
       initialized.value = true
     } catch (err) {
-      console.error('Error initializing auth:', err)
-      error.value = err instanceof SupabaseError ? err.message : 'Failed to initialize authentication'
-      
-      // Set initialized to true even on error to prevent infinite retries
-      initialized.value = true
+      error('Error initializing auth:', err)
+      authErr.value = err instanceof Error ? err.message : 'Failed to initialize authentication'
     } finally {
       loading.value = false
+      initialized.value = true
     }
   }
 
   const fetchUserProfile = async (userId: string) => {
     try {
       console.log('Fetching user profile for:', userId)
-      
-      const userData = await retryOperation(async () => {
-        return await handleSupabaseResponse(
-          () => supabase
-            .from('users')
-            .select('*')
-            .eq('id', userId)
-            .maybeSingle(),
-          'fetchUserProfile',
-          5000
-        )
-      }, 2, 500)
 
-      console.log('User profile data:', userData)
-      user.value = userData
+      const { data, error: fetchError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle()
+
+      if (fetchError) throw new Error(fetchError.message)
+
+      console.log('User profile data:', data)
+      user.value = data
     } catch (err) {
       console.error('Error fetching user profile:', err)
-      // Don't throw here - we want to allow the user to be authenticated even if profile fetch fails
-      if (err instanceof SupabaseError && err.code === 'NOT_FOUND') {
+      if (err instanceof Error) {
         console.warn('User profile not found, user may need to complete profile setup')
       }
     }
@@ -96,47 +86,38 @@ export const useAuthStore = defineStore('auth', () => {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     loading.value = true
-    error.value = ''
-    
+    authErr.value = ''
+
     try {
-      const authResult = await retryOperation(async () => {
-        return await handleSupabaseResponse(
-          () => supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: {
-                full_name: fullName,
-              }
-            }
-          }),
-          'signUp',
-          10000
-        )
-      }, 1) // Don't retry signup to avoid duplicate accounts
+      const { data: authResult, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+        },
+      })
+
+      if (signUpError) throw new Error(signUpError.message)
 
       if (authResult.user) {
-        // Create user profile with retry
-        await retryOperation(async () => {
-          await handleSupabaseResponse(
-            () => supabase
-              .from('users')
-              .insert([{
-                id: authResult.user!.id,
-                email: authResult.user!.email!,
-                full_name: fullName,
-                notification_radius: 2,
-              }]),
-            'createUserProfile',
-            5000
-          )
-        }, 2, 1000)
+        const { error: profileError } = await supabase.from('users').insert([
+          {
+            id: authResult.user.id,
+            email: authResult.user.email!,
+            full_name: fullName,
+            notification_radius: 2,
+          },
+        ])
+
+        if (profileError) throw new Error(profileError.message)
       }
 
       return { data: authResult, error: null }
     } catch (err) {
-      const errorMessage = err instanceof SupabaseError ? err.message : 'Sign up failed'
-      error.value = errorMessage
+      const errorMessage = err instanceof Error ? err.message : 'Sign up failed'
+      authErr.value = errorMessage
       return { data: null, error: errorMessage }
     } finally {
       loading.value = false
@@ -145,24 +126,20 @@ export const useAuthStore = defineStore('auth', () => {
 
   const signIn = async (email: string, password: string) => {
     loading.value = true
-    error.value = ''
-    
+    authErr.value = ''
+
     try {
-      const authResult = await retryOperation(async () => {
-        return await handleSupabaseResponse(
-          () => supabase.auth.signInWithPassword({
-            email,
-            password,
-          }),
-          'signIn',
-          8000
-        )
-      }, 2, 1000)
+      const { data: authResult, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (signInError) throw new Error(signInError.message)
 
       return { data: authResult, error: null }
     } catch (err) {
-      const errorMessage = err instanceof SupabaseError ? err.message : 'Sign in failed'
-      error.value = errorMessage
+      const errorMessage = err instanceof Error ? err.message : 'Sign in failed'
+      authErr.value = errorMessage
       return { data: null, error: errorMessage }
     } finally {
       loading.value = false
@@ -171,24 +148,22 @@ export const useAuthStore = defineStore('auth', () => {
 
   const signInWithGoogle = async () => {
     loading.value = true
-    error.value = ''
-    
+    authErr.value = ''
+
     try {
-      const authResult = await handleSupabaseResponse(
-        () => supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: `${window.location.origin}/auth/callback`
-          }
-        }),
-        'signInWithGoogle',
-        5000
-      )
+      const { data: authResult, error: googleError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (googleError) throw new Error(googleError.message)
 
       return { data: authResult, error: null }
     } catch (err) {
-      const errorMessage = err instanceof SupabaseError ? err.message : 'Google sign in failed'
-      error.value = errorMessage
+      const errorMessage = err instanceof Error ? err.message : 'Google sign in failed'
+      authErr.value = errorMessage
       return { data: null, error: errorMessage }
     } finally {
       loading.value = false
@@ -197,24 +172,18 @@ export const useAuthStore = defineStore('auth', () => {
 
   const signOut = async () => {
     loading.value = true
-    error.value = ''
-    
+    authErr.value = ''
+
     try {
-      await retryOperation(async () => {
-        await handleSupabaseResponse(
-          () => supabase.auth.signOut(),
-          'signOut',
-          5000
-        )
-      }, 2, 500)
-      
+      const { error: signOutError } = await supabase.auth.signOut()
+      if (signOutError) throw new Error(signOutError.message)
+
       user.value = null
       session.value = null
     } catch (err) {
       console.error('Error signing out:', err)
-      error.value = err instanceof SupabaseError ? err.message : 'Sign out failed'
-      
-      // Force clear local state even if API call fails
+      authErr.value = err instanceof Error ? err.message : 'Sign out failed'
+
       user.value = null
       session.value = null
     } finally {
@@ -226,70 +195,61 @@ export const useAuthStore = defineStore('auth', () => {
     const currentUser = user.value || session.value?.user
     if (!currentUser) {
       const errorMsg = 'No authenticated user found'
-      error.value = errorMsg
+      authErr.value = errorMsg
       return { error: errorMsg, data: null }
     }
-    
+
     loading.value = true
-    error.value = ''
-    
+    authErr.value = ''
+
     try {
-      // Check if profile exists first
-      const existingProfile = await retryOperation(async () => {
-        return await handleSupabaseResponse(
-          () => supabase
-            .from('users')
-            .select('*')
-            .eq('id', currentUser.id)
-            .maybeSingle(),
-          'checkExistingProfile',
-          5000
-        )
-      }, 2, 500)
+      const { data: existingProfile, error: profileError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', currentUser.id)
+        .maybeSingle()
+
+      if (profileError) throw new Error(profileError.message)
 
       let result
       if (existingProfile) {
-        // Update existing profile
-        result = await retryOperation(async () => {
-          return await handleSupabaseResponse(
-            () => supabase
-              .from('users')
-              .update({
-                ...updates,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('id', currentUser.id)
-              .select()
-              .single(),
-            'updateProfile',
-            5000
-          )
-        }, 2, 1000)
+        const { data, error: updateError } = await supabase
+          .from('users')
+          .update({
+            ...updates,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', currentUser.id)
+          .select()
+          .single()
+
+        if (updateError) throw new Error(updateError.message)
+
+        result = data
       } else {
-        // Create new profile
-        result = await retryOperation(async () => {
-          return await handleSupabaseResponse(
-            () => supabase
-              .from('users')
-              .insert([{
-                id: currentUser.id,
-                email: currentUser.email || session.value?.user?.email,
-                notification_radius: 2,
-                ...updates,
-              }])
-              .select()
-              .single(),
-            'createProfile',
-            5000
-          )
-        }, 2, 1000)
+        const { data, error: createError } = await supabase
+          .from('users')
+          .insert([
+            {
+              id: currentUser.id,
+              email: currentUser.email || session.value?.user?.email,
+              notification_radius: 2,
+              ...updates,
+            },
+          ])
+          .select()
+          .single()
+
+        if (createError) throw new Error(createError.message)
+
+        result = data
       }
-      
+
       user.value = result
       return { data: result, error: null }
     } catch (err) {
-      const errorMessage = err instanceof SupabaseError ? err.message : 'Failed to update profile'
-      error.value = errorMessage
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update profile'
+      authErr.value = errorMessage
       return { data: null, error: errorMessage }
     } finally {
       loading.value = false
@@ -298,7 +258,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Method to clear errors
   const clearError = () => {
-    error.value = ''
+    authErr.value = ''
   }
 
   // Method to check if session is still valid
@@ -314,7 +274,7 @@ export const useAuthStore = defineStore('auth', () => {
     user: readonly(user),
     session: readonly(session),
     loading: readonly(loading),
-    error: readonly(error),
+    error: readonly(authErr),
     initialized: readonly(initialized),
     isAuthenticated,
     initialize,

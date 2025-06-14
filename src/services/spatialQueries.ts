@@ -1,4 +1,4 @@
-import { supabase, handleSupabaseResponse, SupabaseError, retryOperation } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import type { Request } from '@/types'
 
 /**
@@ -40,21 +40,21 @@ export class SpatialQueryService {
 
     // Check if bounds are valid
     if (north <= south) {
-      throw new SupabaseError('Invalid bounds: north must be greater than south', 'VALIDATION_ERROR')
+      throw new Error('Invalid bounds: north must be greater than south')
     }
 
     if (east <= west && Math.abs(east - west) < 180) {
-      throw new SupabaseError('Invalid bounds: east must be greater than west', 'VALIDATION_ERROR')
+      throw new Error('Invalid bounds: east must be greater than west')
     }
 
     // Check latitude bounds
     if (north < -90 || north > 90 || south < -90 || south > 90) {
-      throw new SupabaseError('Invalid latitude bounds: must be between -90 and 90', 'VALIDATION_ERROR')
+      throw new Error('Invalid latitude bounds: must be between -90 and 90')
     }
 
     // Check longitude bounds
     if (east < -180 || east > 180 || west < -180 || west > 180) {
-      throw new SupabaseError('Invalid longitude bounds: must be between -180 and 180', 'VALIDATION_ERROR')
+      throw new Error('Invalid longitude bounds: must be between -180 and 180')
     }
   }
 
@@ -63,15 +63,15 @@ export class SpatialQueryService {
    */
   static validateRadius(lat: number, lng: number, radiusMeters: number): void {
     if (lat < -90 || lat > 90) {
-      throw new SupabaseError('Invalid latitude: must be between -90 and 90', 'VALIDATION_ERROR')
+      throw new Error('Invalid latitude: must be between -90 and 90')
     }
 
     if (lng < -180 || lng > 180) {
-      throw new SupabaseError('Invalid longitude: must be between -180 and 180', 'VALIDATION_ERROR')
+      throw new Error('Invalid longitude: must be between -180 and 180')
     }
 
     if (radiusMeters <= 0 || radiusMeters > 50000) {
-      throw new SupabaseError('Invalid radius: must be between 1 and 50000 meters', 'VALIDATION_ERROR')
+      throw new Error('Invalid radius: must be between 1 and 50000 meters')
     }
   }
 
@@ -96,12 +96,14 @@ export class SpatialQueryService {
       updated_at: item.updated_at,
       expires_at: item.expires_at,
       distance_meters: item.distance_meters,
-      user: item.user_full_name ? {
-        id: item.user_id,
-        full_name: item.user_full_name,
-        avatar_url: item.user_avatar_url,
-        email: item.user_email,
-      } : undefined
+      user: item.user_full_name
+        ? {
+            id: item.user_id,
+            full_name: item.user_full_name,
+            avatar_url: item.user_avatar_url,
+            email: item.user_email,
+          }
+        : undefined,
     }))
   }
 
@@ -110,7 +112,7 @@ export class SpatialQueryService {
    */
   static async getRequestsInBounds(
     bounds: MapBounds,
-    options: SpatialQueryOptions = {}
+    options: SpatialQueryOptions = {},
   ): Promise<RequestWithDistance[]> {
     try {
       console.log('Fetching requests in bounds:', bounds, options)
@@ -121,38 +123,28 @@ export class SpatialQueryService {
       const { category, subcategory, status = 'active', limit = 100 } = options
 
       // Call PostGIS function with retry logic
-      const data = await retryOperation(async () => {
-        return await handleSupabaseResponse(
-          () => supabase.rpc('get_requests_in_bounds', {
-            north: bounds.north,
-            south: bounds.south,
-            east: bounds.east,
-            west: bounds.west,
-            p_category: category || null,
-            p_subcategory: subcategory || null,
-            p_status: status,
-            p_limit: limit
-          }),
-          'getRequestsInBounds',
-          10000 // 10 second timeout for spatial queries
-        )
-      }, 2, 1000)
+      const { data } = await supabase.rpc('get_requests_in_bounds', {
+        north: bounds.north,
+        south: bounds.south,
+        east: bounds.east,
+        west: bounds.west,
+        p_category: category || null,
+        p_subcategory: subcategory || null,
+        p_status: status,
+        p_limit: limit,
+      })
 
       console.log(`Found ${data?.length || 0} requests in bounds`)
 
       return this.transformRequestData(data || [])
     } catch (error) {
       console.error('Error fetching requests in bounds:', error)
-      
-      if (error instanceof SupabaseError) {
+
+      if (error instanceof Error) {
         throw error
       }
-      
-      throw new SupabaseError(
-        'Failed to fetch requests in map bounds',
-        'SPATIAL_QUERY_ERROR',
-        { bounds, options, originalError: error }
-      )
+
+      throw new Error('Failed to fetch requests in map bounds')
     }
   }
 
@@ -163,7 +155,7 @@ export class SpatialQueryService {
     centerLat: number,
     centerLng: number,
     radiusMeters: number,
-    options: SpatialQueryOptions = {}
+    options: SpatialQueryOptions = {},
   ): Promise<RequestWithDistance[]> {
     try {
       console.log('Fetching requests in radius:', { centerLat, centerLng, radiusMeters }, options)
@@ -174,37 +166,27 @@ export class SpatialQueryService {
       const { category, subcategory, status = 'active', limit = 100 } = options
 
       // Call PostGIS function with retry logic
-      const data = await retryOperation(async () => {
-        return await handleSupabaseResponse(
-          () => supabase.rpc('get_requests_in_radius', {
-            center_lat: centerLat,
-            center_lng: centerLng,
-            radius_meters: radiusMeters,
-            p_category: category || null,
-            p_subcategory: subcategory || null,
-            p_status: status,
-            p_limit: limit
-          }),
-          'getRequestsInRadius',
-          10000 // 10 second timeout for spatial queries
-        )
-      }, 2, 1000)
+      const { data } = await supabase.rpc('get_requests_in_radius', {
+        center_lat: centerLat,
+        center_lng: centerLng,
+        radius_meters: radiusMeters,
+        p_category: category || null,
+        p_subcategory: subcategory || null,
+        p_status: status,
+        p_limit: limit,
+      })
 
       console.log(`Found ${data?.length || 0} requests in radius`)
 
       return this.transformRequestData(data || [])
     } catch (error) {
       console.error('Error fetching requests in radius:', error)
-      
-      if (error instanceof SupabaseError) {
+
+      if (error instanceof Error) {
         throw error
       }
-      
-      throw new SupabaseError(
-        'Failed to fetch requests in radius',
-        'SPATIAL_QUERY_ERROR',
-        { centerLat, centerLng, radiusMeters, options, originalError: error }
-      )
+
+      throw new Error('Failed to fetch requests in radius')
     }
   }
 
@@ -228,11 +210,11 @@ export class SpatialQueryService {
   static calculateBoundsFromRadius(
     centerLat: number,
     centerLng: number,
-    radiusMiles: number
+    radiusMiles: number,
   ): MapBounds {
     // Approximate degrees per mile (varies by latitude)
     const latDegreesPerMile = 1 / 69
-    const lngDegreesPerMile = 1 / (69 * Math.cos(centerLat * Math.PI / 180))
+    const lngDegreesPerMile = 1 / (69 * Math.cos((centerLat * Math.PI) / 180))
 
     const latOffset = radiusMiles * latDegreesPerMile
     const lngOffset = radiusMiles * lngDegreesPerMile
@@ -241,7 +223,7 @@ export class SpatialQueryService {
       north: Math.min(90, centerLat + latOffset),
       south: Math.max(-90, centerLat - latOffset),
       east: centerLng + lngOffset,
-      west: centerLng - lngOffset
+      west: centerLng - lngOffset,
     }
   }
 
@@ -273,23 +255,13 @@ export class SpatialQueryService {
     try {
       console.log('Validating request geometries...')
 
-      const data = await retryOperation(async () => {
-        return await handleSupabaseResponse(
-          () => supabase.rpc('validate_request_geometries'),
-          'validateRequestGeometries',
-          30000 // 30 second timeout for validation
-        )
-      }, 1) // Don't retry validation
+      const { data } = await supabase.rpc('validate_request_geometries')
 
       console.log('Geometry validation completed:', data)
       return data || []
     } catch (error) {
       console.error('Error validating geometries:', error)
-      throw new SupabaseError(
-        'Failed to validate request geometries',
-        'VALIDATION_ERROR',
-        { originalError: error }
-      )
+      throw new Error('Failed to validate request geometries')
     }
   }
 }
