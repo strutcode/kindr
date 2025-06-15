@@ -1,5 +1,8 @@
 import Supercluster from 'supercluster'
 import type { RequestWithDistance } from './spatialQueries'
+import { createLogger } from '@/lib/logger'
+
+const { log, debug, info, warn, error } = createLogger('Clustering')
 
 /**
  * Point data for clustering
@@ -68,7 +71,7 @@ export class MapClusteringService {
       radius: 60,
       maxPointsPerCluster: 100,
       minDistance: 40,
-      ...options
+      ...options,
     }
 
     this.supercluster = new Supercluster({
@@ -93,8 +96,8 @@ export class MapClusteringService {
         },
         geometry: {
           type: 'Point' as const,
-          coordinates: [request.location.longitude, request.location.latitude]
-        }
+          coordinates: [request.location.longitude, request.location.latitude],
+        },
       }))
   }
 
@@ -102,12 +105,12 @@ export class MapClusteringService {
    * Load requests into the clustering engine
    */
   loadRequests(requests: RequestWithDistance[]): void {
-    console.log(`Loading ${requests.length} requests into clustering engine`)
-    
+    info(`Loading ${requests.length} requests into clustering engine`)
+
     this.points = this.requestsToPoints(requests)
     this.supercluster.load(this.points)
-    
-    console.log(`Loaded ${this.points.length} valid points for clustering`)
+
+    info(`Loaded ${this.points.length} valid points for clustering`)
   }
 
   /**
@@ -115,7 +118,7 @@ export class MapClusteringService {
    */
   getClusters(
     bounds: [number, number, number, number], // [west, south, east, north]
-    zoom: number
+    zoom: number,
   ): ClusterFeature[] {
     if (this.points.length === 0) {
       return []
@@ -123,17 +126,20 @@ export class MapClusteringService {
 
     try {
       // Ensure zoom is within valid range
-      const clampedZoom = Math.max(this.options.minZoom, Math.min(this.options.maxZoom, Math.floor(zoom)))
-      
-      console.log(`Getting clusters for zoom ${clampedZoom}, bounds:`, bounds)
-      
+      const clampedZoom = Math.max(
+        this.options.minZoom,
+        Math.min(this.options.maxZoom, Math.floor(zoom)),
+      )
+
+      debug(`Getting clusters for zoom ${clampedZoom}, bounds:`, bounds)
+
       const clusters = this.supercluster.getClusters(bounds, clampedZoom)
-      
-      console.log(`Found ${clusters.length} clusters/points at zoom ${clampedZoom}`)
-      
+
+      info(`Found ${clusters.length} clusters/points at zoom ${clampedZoom}`)
+
       return clusters as ClusterFeature[]
-    } catch (error) {
-      console.error('Error getting clusters:', error)
+    } catch (e) {
+      error('Error getting clusters:', e)
       return []
     }
   }
@@ -144,11 +150,9 @@ export class MapClusteringService {
   getClusterExpansionPoints(clusterId: number): RequestWithDistance[] {
     try {
       const leaves = this.supercluster.getLeaves(clusterId, Infinity)
-      return leaves
-        .map(leaf => leaf.properties.request)
-        .filter(Boolean) as RequestWithDistance[]
-    } catch (error) {
-      console.error('Error getting cluster expansion points:', error)
+      return leaves.map(leaf => leaf.properties.request).filter(Boolean) as RequestWithDistance[]
+    } catch (e) {
+      error('Error getting cluster expansion points:', e)
       return []
     }
   }
@@ -159,8 +163,8 @@ export class MapClusteringService {
   getClusterExpansionZoom(clusterId: number): number {
     try {
       return this.supercluster.getClusterExpansionZoom(clusterId)
-    } catch (error) {
-      console.error('Error getting cluster expansion zoom:', error)
+    } catch (e) {
+      error('Error getting cluster expansion zoom:', e)
       return this.options.maxZoom
     }
   }
@@ -181,7 +185,7 @@ export class MapClusteringService {
     options: ClusterOptions
   } {
     const clustersAtZoom: Record<number, number> = {}
-    
+
     // Calculate clusters at different zoom levels
     for (let zoom = this.options.minZoom; zoom <= this.options.maxZoom; zoom++) {
       try {
@@ -189,6 +193,7 @@ export class MapClusteringService {
         const clusters = this.supercluster.getClusters(bounds, zoom)
         clustersAtZoom[zoom] = clusters.length
       } catch (error) {
+        warn(`Error calculating clusters at zoom ${zoom}:`, error)
         clustersAtZoom[zoom] = 0
       }
     }
@@ -196,7 +201,7 @@ export class MapClusteringService {
     return {
       totalPoints: this.points.length,
       clustersAtZoom,
-      options: this.options
+      options: this.options,
     }
   }
 
@@ -205,7 +210,7 @@ export class MapClusteringService {
    */
   updateOptions(newOptions: Partial<ClusterOptions>): void {
     this.options = { ...this.options, ...newOptions }
-    
+
     // Recreate supercluster with new options
     this.supercluster = new Supercluster({
       radius: this.options.radius,

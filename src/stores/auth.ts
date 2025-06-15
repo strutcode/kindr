@@ -13,7 +13,7 @@ export const useAuthStore = defineStore('auth', () => {
   const authErr = ref<string>('')
   const initialized = ref(false)
 
-  const isAuthenticated = computed(() => session.value && user.value)
+  const isAuthenticated = computed(() => Boolean(session.value && user.value))
 
   const initialize = async () => {
     if (initialized.value) return
@@ -24,9 +24,11 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       info('Initializing auth store...')
 
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-      if (sessionError) throw new Error(sessionError.message)
+      const res = await supabase.auth.getSession()
 
+      if (res.error) throw res.error
+
+      const sessionData = res.data
       debug('Session result:', sessionData)
       session.value = sessionData.session
 
@@ -36,19 +38,28 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       supabase.auth.onAuthStateChange(async (event, newSession) => {
-        console.log('Auth state changed:', event, newSession?.user?.id)
+        debug('Auth state changed:', event, newSession?.user?.id)
 
-        try {
-          session.value = newSession
-          if (newSession?.user) {
-            await fetchUserProfile(newSession.user.id)
-          } else {
-            user.value = null
+        if (event === 'SIGNED_IN') {
+          try {
+            session.value = newSession
+            if (newSession?.user) {
+              await fetchUserProfile(newSession.user.id)
+            } else {
+              user.value = null
+            }
+            authErr.value = '' // Clear any previous errors on successful auth change
+          } catch (err) {
+            error('Error handling auth state change:', err)
+            authErr.value = err instanceof Error ? err.message : 'Authentication error'
           }
-          authErr.value = '' // Clear any previous errors on successful auth change
-        } catch (err) {
-          console.error('Error handling auth state change:', err)
-          authErr.value = err instanceof Error ? err.message : 'Authentication error'
+        }
+
+        if (event === 'SIGNED_OUT') {
+          debug('User signed out, clearing session and user data')
+          session.value = null
+          user.value = null
+          authErr.value = '' // Clear any previous errors on sign out
         }
       })
 
@@ -64,7 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      console.log('Fetching user profile for:', userId)
+      debug('Fetching user profile for:', userId)
 
       const { data, error: fetchError } = await supabase
         .from('users')
@@ -74,12 +85,13 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (fetchError) throw new Error(fetchError.message)
 
-      console.log('User profile data:', data)
+      log('User profile data:', data)
       user.value = data
     } catch (err) {
-      console.error('Error fetching user profile:', err)
+      error('Error fetching user profile:', err)
+
       if (err instanceof Error) {
-        console.warn('User profile not found, user may need to complete profile setup')
+        warn('User profile not found, user may need to complete profile setup')
       }
     }
   }
@@ -181,7 +193,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null
       session.value = null
     } catch (err) {
-      console.error('Error signing out:', err)
+      error('Error signing out:', err)
       authErr.value = err instanceof Error ? err.message : 'Sign out failed'
 
       user.value = null
@@ -261,15 +273,6 @@ export const useAuthStore = defineStore('auth', () => {
     authErr.value = ''
   }
 
-  // Method to check if session is still valid
-  const validateSession = async (): Promise<boolean> => {
-    try {
-      return await checkAuthStatus(3000)
-    } catch {
-      return false
-    }
-  }
-
   return {
     user: readonly(user),
     session: readonly(session),
@@ -285,6 +288,5 @@ export const useAuthStore = defineStore('auth', () => {
     updateProfile,
     fetchUserProfile,
     clearError,
-    validateSession,
   }
 })

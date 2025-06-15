@@ -1,17 +1,20 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Anonymous User Banner -->
-    <div v-if="!authStore.isAuthenticated" class="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6">
+    <div
+      v-if="!authStore.isAuthenticated"
+      class="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6"
+    >
       <div class="flex items-start justify-between">
         <div class="flex items-start">
           <InformationCircleIcon class="w-5 h-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" />
           <div>
             <h3 class="text-sm font-medium text-primary-800">Viewing as Guest</h3>
             <p class="text-sm text-primary-700 mt-1">
-              To respond to this request or contact the poster, please 
+              To respond to this request or contact the poster, please
               <router-link to="/auth" class="font-medium underline hover:no-underline">
-                sign in or join the community
-              </router-link>.
+                sign in or join the community </router-link
+              >.
             </p>
           </div>
         </div>
@@ -26,14 +29,14 @@
     </div>
 
     <div v-else-if="error" class="text-center py-12">
-      <div class="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div
+        class="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4"
+      >
         <ExclamationTriangleIcon class="w-8 h-8 text-error-600" />
       </div>
       <h3 class="text-lg font-medium text-gray-900 mb-2">Request not found</h3>
       <p class="text-gray-600 mb-6">{{ error }}</p>
-      <router-link to="/requests" class="btn btn-primary">
-        Back to Requests
-      </router-link>
+      <router-link to="/requests" class="btn btn-primary"> Back to Requests </router-link>
     </div>
 
     <div v-else-if="request" class="space-y-8">
@@ -42,18 +45,28 @@
         <div class="flex items-start justify-between mb-6">
           <div class="flex-1">
             <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ request.title }}</h1>
-            
+
             <div class="flex flex-wrap items-center gap-3 mb-4">
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
+              <span
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800"
+              >
                 {{ getCategoryLabel(request.category) }}
               </span>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+              <span
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800"
+              >
                 {{ getSubcategoryLabel(request.category, request.subcategory) }}
               </span>
-              <span v-if="request.duration_estimate" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-accent-100 text-accent-800">
+              <span
+                v-if="request.duration_estimate"
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-accent-100 text-accent-800"
+              >
                 {{ getDurationLabel(request.duration_estimate) }}
               </span>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" :class="getStatusColor(request.status)">
+              <span
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                :class="getStatusColor(request.status)"
+              >
                 {{ request.status.charAt(0).toUpperCase() + request.status.slice(1) }}
               </span>
             </div>
@@ -80,9 +93,13 @@
                 <UserIcon class="w-6 h-6 text-gray-600" />
               </div>
               <div>
-                <p class="font-medium text-gray-900">{{ request.user?.full_name || 'Anonymous' }}</p>
+                <p class="font-medium text-gray-900">
+                  {{ request.user?.full_name || 'Anonymous' }}
+                </p>
                 <!-- Hide email for anonymous users -->
-                <p v-if="authStore.isAuthenticated" class="text-sm text-gray-500">{{ request.user?.email }}</p>
+                <p v-if="authStore.isAuthenticated" class="text-sm text-gray-500">
+                  {{ request.user?.email }}
+                </p>
                 <p v-else class="text-sm text-gray-500">Community Member</p>
               </div>
             </div>
@@ -118,8 +135,8 @@
         <div v-if="request.skills_required?.length" class="mt-6">
           <h3 class="text-lg font-semibold text-gray-900 mb-3">Skills Required</h3>
           <div class="flex flex-wrap gap-2">
-            <span 
-              v-for="skill in request.skills_required" 
+            <span
+              v-for="skill in request.skills_required"
               :key="skill"
               class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-secondary-100 text-secondary-800"
             >
@@ -150,7 +167,7 @@
                 Delete Request
               </button>
             </div>
-            
+
             <!-- Response Actions -->
             <div class="flex space-x-3">
               <!-- Authenticated User Response -->
@@ -162,7 +179,7 @@
                 <ChatBubbleLeftIcon class="w-4 h-4 mr-2" />
                 Respond to Request
               </button>
-              
+
               <!-- Anonymous User Prompt -->
               <router-link
                 v-else-if="canRespond && !authStore.isAuthenticated"
@@ -178,28 +195,29 @@
       </div>
 
       <!-- User Reputation - Only show for authenticated users -->
-      <div v-if="userReputation && authStore.isAuthenticated" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div
+        v-if="userReputation && authStore.isAuthenticated"
+        class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      >
         <h3 class="text-lg font-semibold text-gray-900 mb-4">User Reputation</h3>
         <ReputationBar :reputation="userReputation" />
       </div>
 
       <!-- Anonymous User Call-to-Action -->
-      <div v-if="!authStore.isAuthenticated" class="bg-gradient-to-r from-primary-50 to-secondary-50 rounded-lg p-6 border border-primary-200">
+      <div
+        v-if="!authStore.isAuthenticated"
+        class="bg-gradient-to-r from-primary-50 to-secondary-50 rounded-lg p-6 border border-primary-200"
+      >
         <div class="text-center">
           <h3 class="text-lg font-semibold text-gray-900 mb-2">Join the Kindr Community</h3>
           <p class="text-gray-600 mb-4">
             Connect with neighbors, offer help, and build stronger communities together.
           </p>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <router-link 
-              :to="`/auth?redirect=/requests/${request.id}`"
-              class="btn btn-primary"
-            >
+            <router-link :to="`/auth?redirect=/requests/${request.id}`" class="btn btn-primary">
               Sign Up to Respond
             </router-link>
-            <router-link to="/requests" class="btn btn-outline">
-              Browse More Requests
-            </router-link>
+            <router-link to="/requests" class="btn btn-outline"> Browse More Requests </router-link>
           </div>
         </div>
       </div>
@@ -223,9 +241,12 @@
         >
           <XMarkIcon class="w-5 h-5" />
         </button>
-        
+
         <!-- Navigation arrows for multiple images -->
-        <div v-if="request && request.images && request.images.length > 1" class="absolute inset-y-0 left-4 flex items-center">
+        <div
+          v-if="request && request.images && request.images.length > 1"
+          class="absolute inset-y-0 left-4 flex items-center"
+        >
           <button
             @click.stop="previousImage"
             class="w-10 h-10 bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full flex items-center justify-center text-white"
@@ -233,7 +254,10 @@
             <ChevronLeftIcon class="w-6 h-6" />
           </button>
         </div>
-        <div v-if="request && request.images && request.images.length > 1" class="absolute inset-y-0 right-4 flex items-center">
+        <div
+          v-if="request && request.images && request.images.length > 1"
+          class="absolute inset-y-0 right-4 flex items-center"
+        >
           <button
             @click.stop="nextImage"
             class="w-10 h-10 bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full flex items-center justify-center text-white"
@@ -247,180 +271,181 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { formatDistanceToNow } from 'date-fns'
-import { 
-  MapPinIcon, 
-  ClockIcon, 
-  UserIcon, 
-  PencilIcon, 
-  TrashIcon, 
-  ChatBubbleLeftIcon,
-  ExclamationTriangleIcon,
-  XMarkIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  InformationCircleIcon,
-  UserPlusIcon
-} from '@heroicons/vue/24/outline'
-import { useRequestsStore } from '@/stores/requests'
-import { useAuthStore } from '@/stores/auth'
-import { useReputationStore } from '@/stores/reputation'
-import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import ReputationBar from '@/components/common/ReputationBar.vue'
-import type { Request } from '@/types'
+  import { ref, computed, onMounted } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+  import { formatDistanceToNow } from 'date-fns'
+  import {
+    MapPinIcon,
+    ClockIcon,
+    UserIcon,
+    PencilIcon,
+    TrashIcon,
+    ChatBubbleLeftIcon,
+    ExclamationTriangleIcon,
+    XMarkIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    InformationCircleIcon,
+    UserPlusIcon,
+  } from '@heroicons/vue/24/outline'
+  import { useRequestsStore } from '@/stores/requests'
+  import { useAuthStore } from '@/stores/auth'
+  import { useReputationStore } from '@/stores/reputation'
+  import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
+  import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+  import ReputationBar from '@/components/common/ReputationBar.vue'
+  import type { Request } from '@/types'
+  import { createLogger } from '@/lib/logger'
 
-const route = useRoute()
-const router = useRouter()
-const requestsStore = useRequestsStore()
-const authStore = useAuthStore()
-const reputationStore = useReputationStore()
+  const { debug, error } = createLogger('RequestDetails')
 
-const request = ref<Request | null>(null)
-const loading = ref(true)
-const error = ref('')
-const selectedImage = ref<{ url: string; index: number } | null>(null)
+  const route = useRoute()
+  const router = useRouter()
+  const requestsStore = useRequestsStore()
+  const authStore = useAuthStore()
+  const reputationStore = useReputationStore()
 
-const userReputation = computed(() => {
-  if (!request.value?.user_id) return null
-  return reputationStore.getReputationDisplay(request.value.user_id)
-})
+  const request = ref<Request | null>(null)
+  const loading = ref(true)
+  const errorMessage = ref('')
+  const selectedImage = ref<{ url: string; index: number } | null>(null)
 
-const canEdit = computed(() => 
-  authStore.isAuthenticated && authStore.user?.id === request.value?.user_id
-)
+  const userReputation = computed(() => {
+    if (!request.value?.user_id) return null
+    return reputationStore.getReputationDisplay(request.value.user_id)
+  })
 
-const canDelete = computed(() => 
-  authStore.isAuthenticated && authStore.user?.id === request.value?.user_id
-)
+  const canEdit = computed(
+    () => authStore.isAuthenticated && authStore.user?.id === request.value?.user_id,
+  )
 
-const canRespond = computed(() => 
-  authStore.user?.id !== request.value?.user_id && request.value?.status === 'active'
-)
+  const canDelete = computed(
+    () => authStore.isAuthenticated && authStore.user?.id === request.value?.user_id,
+  )
 
-const canTakeAction = computed(() => 
-  canEdit.value || canDelete.value || canRespond.value
-)
+  const canRespond = computed(
+    () => authStore.user?.id !== request.value?.user_id && request.value?.status === 'active',
+  )
 
-const getCategoryLabel = (category: string) => {
-  return CATEGORIES.find(cat => cat.value === category)?.label || category
-}
+  const canTakeAction = computed(() => canEdit.value || canDelete.value || canRespond.value)
 
-const getSubcategoryLabel = (category: string, subcategory: string) => {
-  const cat = CATEGORIES.find(cat => cat.value === category)
-  return cat?.subcategories.find(sub => sub.value === subcategory)?.label || subcategory
-}
-
-const getDurationLabel = (duration: string) => {
-  return DURATION_OPTIONS.find(opt => opt.value === duration)?.label || duration
-}
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'active':
-      return 'bg-success-100 text-success-800'
-    case 'in-progress':
-      return 'bg-warning-100 text-warning-800'
-    case 'completed':
-      return 'bg-primary-100 text-primary-800'
-    case 'cancelled':
-      return 'bg-error-100 text-error-800'
-    default:
-      return 'bg-gray-100 text-gray-800'
+  const getCategoryLabel = (category: string) => {
+    return CATEGORIES.find(cat => cat.value === category)?.label || category
   }
-}
 
-const formatRelativeTime = (dateString: string) => {
-  return formatDistanceToNow(new Date(dateString), { addSuffix: true })
-}
-
-const openImageModal = (imageUrl: string, index: number) => {
-  selectedImage.value = { url: imageUrl, index }
-}
-
-const closeImageModal = () => {
-  selectedImage.value = null
-}
-
-const previousImage = () => {
-  if (!selectedImage.value || !request.value?.images) return
-  
-  const currentIndex = selectedImage.value.index
-  const newIndex = currentIndex > 0 ? currentIndex - 1 : request.value.images.length - 1
-  selectedImage.value = {
-    url: request.value.images[newIndex],
-    index: newIndex
+  const getSubcategoryLabel = (category: string, subcategory: string) => {
+    const cat = CATEGORIES.find(cat => cat.value === category)
+    return cat?.subcategories.find(sub => sub.value === subcategory)?.label || subcategory
   }
-}
 
-const nextImage = () => {
-  if (!selectedImage.value || !request.value?.images) return
-  
-  const currentIndex = selectedImage.value.index
-  const newIndex = currentIndex < request.value.images.length - 1 ? currentIndex + 1 : 0
-  selectedImage.value = {
-    url: request.value.images[newIndex],
-    index: newIndex
+  const getDurationLabel = (duration: string) => {
+    return DURATION_OPTIONS.find(opt => opt.value === duration)?.label || duration
   }
-}
 
-const fetchRequest = async () => {
-  const requestId = route.params.id as string
-  loading.value = true
-  error.value = ''
-  
-  try {
-    // Use the new getRequestById method from the store
-    const foundRequest = await requestsStore.getRequestById(requestId)
-    
-    if (!foundRequest) {
-      error.value = 'Request not found'
-      return
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-success-100 text-success-800'
+      case 'in-progress':
+        return 'bg-warning-100 text-warning-800'
+      case 'completed':
+        return 'bg-primary-100 text-primary-800'
+      case 'cancelled':
+        return 'bg-error-100 text-error-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
     }
-    
-    request.value = foundRequest
-    
-    // Fetch user reputation only for authenticated users
-    if (foundRequest.user_id && authStore.isAuthenticated) {
-      await reputationStore.fetchReputation(foundRequest.user_id)
-    }
-  } catch (err: any) {
-    console.error('Error fetching request:', err)
-    error.value = err.message || 'Failed to load request'
-  } finally {
-    loading.value = false
   }
-}
 
-const deleteRequest = async () => {
-  if (!request.value || !confirm('Are you sure you want to delete this request?')) return
-  
-  try {
-    const result = await requestsStore.deleteRequest(request.value.id)
-    if (result.error) {
-      console.error('Error deleting request:', result.error)
-      return
-    }
-    router.push('/requests')
-  } catch (err: any) {
-    console.error('Error deleting request:', err)
+  const formatRelativeTime = (dateString: string) => {
+    return formatDistanceToNow(new Date(dateString), { addSuffix: true })
   }
-}
 
-const respondToRequest = () => {
-  // This would open a response modal or navigate to a response form
-  console.log('Responding to request:', request.value?.id)
-}
+  const openImageModal = (imageUrl: string, index: number) => {
+    selectedImage.value = { url: imageUrl, index }
+  }
 
-onMounted(() => {
-  fetchRequest()
-})
+  const closeImageModal = () => {
+    selectedImage.value = null
+  }
+
+  const previousImage = () => {
+    if (!selectedImage.value || !request.value?.images) return
+
+    const currentIndex = selectedImage.value.index
+    const newIndex = currentIndex > 0 ? currentIndex - 1 : request.value.images.length - 1
+    selectedImage.value = {
+      url: request.value.images[newIndex],
+      index: newIndex,
+    }
+  }
+
+  const nextImage = () => {
+    if (!selectedImage.value || !request.value?.images) return
+
+    const currentIndex = selectedImage.value.index
+    const newIndex = currentIndex < request.value.images.length - 1 ? currentIndex + 1 : 0
+    selectedImage.value = {
+      url: request.value.images[newIndex],
+      index: newIndex,
+    }
+  }
+
+  const fetchRequest = async () => {
+    const requestId = route.params.id as string
+    loading.value = true
+    errorMessage.value = ''
+
+    try {
+      // Use the new getRequestById method from the store
+      const foundRequest = await requestsStore.getRequestById(requestId)
+
+      if (!foundRequest) {
+        errorMessage.value = 'Request not found'
+        return
+      }
+
+      request.value = foundRequest
+
+      // Fetch user reputation only for authenticated users
+      if (foundRequest.user_id && authStore.isAuthenticated) {
+        await reputationStore.fetchReputation(foundRequest.user_id)
+      }
+    } catch (err: any) {
+      error('Error fetching request:', err)
+      errorMessage.value = err.message || 'Failed to load request'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const deleteRequest = async () => {
+    if (!request.value || !confirm('Are you sure you want to delete this request?')) return
+
+    try {
+      const result = await requestsStore.deleteRequest(request.value.id)
+      if (result.error) {
+        error('Error deleting request:', result.error)
+        return
+      }
+      router.push('/requests')
+    } catch (err: any) {
+      error('Error deleting request:', err)
+    }
+  }
+
+  const respondToRequest = () => {
+    // This would open a response modal or navigate to a response form
+    debug('Responding to request:', request.value?.id)
+  }
+
+  onMounted(() => {
+    fetchRequest()
+  })
 </script>
 
 <style scoped>
-.aspect-square {
-  aspect-ratio: 1 / 1;
-}
+  .aspect-square {
+    aspect-ratio: 1 / 1;
+  }
 </style>

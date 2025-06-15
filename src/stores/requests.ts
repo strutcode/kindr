@@ -7,13 +7,16 @@ import {
   type RequestWithDistance,
 } from '@/services/spatialQueries'
 import type { Request, RequestFilters } from '@/types'
+import { createLogger } from '@/lib/logger'
+
+const { debug, warn, error } = createLogger('Requests')
 
 export const useRequestsStore = defineStore('requests', () => {
   const requests = ref<Request[]>([])
   const userRequests = ref<Request[]>([])
   const spatialRequests = ref<RequestWithDistance[]>([])
   const loading = ref(false)
-  const error = ref<string>('')
+  const errorMessage = ref<string>('')
   const filters = ref<RequestFilters>({
     radius: 2,
   })
@@ -26,10 +29,10 @@ export const useRequestsStore = defineStore('requests', () => {
 
   const fetchRequests = async (filterOptions?: RequestFilters) => {
     loading.value = true
-    error.value = ''
+    errorMessage.value = ''
 
     try {
-      console.log('Fetching requests with filters:', filterOptions)
+      debug('Fetching requests with filters:', filterOptions)
 
       let query = supabase
         .from('requests')
@@ -59,7 +62,7 @@ export const useRequestsStore = defineStore('requests', () => {
       const { data, error: fetchError } = await query
       if (fetchError) throw new Error(fetchError.message)
 
-      console.log(`Fetched ${data?.length || 0} requests`)
+      debug(`Fetched ${data?.length || 0} requests`)
 
       // Transform the data to match our Request type
       requests.value = (data || []).map(item => ({
@@ -75,7 +78,7 @@ export const useRequestsStore = defineStore('requests', () => {
       }))
     } catch (err) {
       console.error('Error fetching requests:', err)
-      error.value = err instanceof Error ? err.message : 'Failed to load requests'
+      errorMessage.value = err instanceof Error ? err.message : 'Failed to load requests'
       requests.value = []
     } finally {
       loading.value = false
@@ -87,10 +90,10 @@ export const useRequestsStore = defineStore('requests', () => {
     filterOptions?: { category?: string; subcategory?: string; limit?: number },
   ) => {
     loading.value = true
-    error.value = ''
+    errorMessage.value = ''
 
     try {
-      console.log('Fetching requests in bounds:', bounds, filterOptions)
+      debug('Fetching requests in bounds:', bounds, filterOptions)
 
       const spatialRequestsData = await SpatialQueryService.getRequestsInBounds(bounds, {
         category: filterOptions?.category,
@@ -99,13 +102,14 @@ export const useRequestsStore = defineStore('requests', () => {
         limit: filterOptions?.limit || 200,
       })
 
-      console.log(`Fetched ${spatialRequestsData.length} spatial requests`)
+      debug(`Fetched ${spatialRequestsData.length} spatial requests`)
       spatialRequests.value = spatialRequestsData
 
       return spatialRequestsData
     } catch (err) {
       console.error('Error fetching requests in bounds:', err)
-      error.value = err instanceof Error ? err.message : 'Failed to load requests in map bounds'
+      errorMessage.value =
+        err instanceof Error ? err.message : 'Failed to load requests in map bounds'
       spatialRequests.value = []
       return []
     } finally {
@@ -120,14 +124,10 @@ export const useRequestsStore = defineStore('requests', () => {
     filterOptions?: { category?: string; subcategory?: string; limit?: number },
   ) => {
     loading.value = true
-    error.value = ''
+    errorMessage.value = ''
 
     try {
-      console.log(
-        'Fetching requests in radius:',
-        { centerLat, centerLng, radiusMiles },
-        filterOptions,
-      )
+      debug('Fetching requests in radius:', { centerLat, centerLng, radiusMiles }, filterOptions)
 
       const radiusMeters = SpatialQueryService.milesToMeters(radiusMiles)
       const spatialRequestsData = await SpatialQueryService.getRequestsInRadius(
@@ -142,13 +142,13 @@ export const useRequestsStore = defineStore('requests', () => {
         },
       )
 
-      console.log(`Fetched ${spatialRequestsData.length} spatial requests in radius`)
+      debug(`Fetched ${spatialRequestsData.length} spatial requests in radius`)
       spatialRequests.value = spatialRequestsData
 
       return spatialRequestsData
     } catch (err) {
       console.error('Error fetching requests in radius:', err)
-      error.value = err instanceof Error ? err.message : 'Failed to load requests in radius'
+      errorMessage.value = err instanceof Error ? err.message : 'Failed to load requests in radius'
       spatialRequests.value = []
       return []
     } finally {
@@ -158,15 +158,15 @@ export const useRequestsStore = defineStore('requests', () => {
 
   const fetchUserRequests = async (userId: string) => {
     if (!userId) {
-      error.value = 'User ID is required'
+      errorMessage.value = 'User ID is required'
       return
     }
 
     loading.value = true
-    error.value = ''
+    errorMessage.value = ''
 
     try {
-      console.log('Fetching user requests for:', userId)
+      debug('Fetching user requests for:', userId)
 
       const { data, error: fetchError } = await supabase
         .from('requests')
@@ -177,11 +177,11 @@ export const useRequestsStore = defineStore('requests', () => {
 
       if (fetchError) throw new Error(fetchError.message)
 
-      console.log(`Fetched ${data?.length || 0} user requests`)
+      debug(`Fetched ${data?.length || 0} user requests`)
       userRequests.value = data || []
     } catch (err) {
       console.error('Error fetching user requests:', err)
-      error.value = err instanceof Error ? err.message : 'Failed to load your requests'
+      errorMessage.value = err instanceof Error ? err.message : 'Failed to load your requests'
       userRequests.value = []
     } finally {
       loading.value = false
@@ -190,14 +190,14 @@ export const useRequestsStore = defineStore('requests', () => {
 
   const createRequest = async (requestData: Omit<Request, 'id' | 'created_at' | 'updated_at'>) => {
     loading.value = true
-    error.value = ''
+    errorMessage.value = ''
 
     try {
       if (!requestData.user_id) {
         throw new Error('User ID is required to create a request')
       }
 
-      console.log('Creating request:', requestData.title)
+      debug('Creating request:', requestData.title)
 
       const cleanedData = { ...requestData }
       if (cleanedData.duration_estimate === undefined) {
@@ -222,7 +222,7 @@ export const useRequestsStore = defineStore('requests', () => {
 
       if (createError) throw new Error(createError.message)
 
-      console.log('Request created successfully:', data.id)
+      debug('Request created successfully:', data.id)
 
       const transformedData = {
         ...data,
@@ -245,7 +245,7 @@ export const useRequestsStore = defineStore('requests', () => {
     } catch (err) {
       console.error('Error creating request:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to create request'
-      error.value = errorMessage
+      errorMessage.value = errorMessage
       return { data: null, error: errorMessage }
     } finally {
       loading.value = false
@@ -255,15 +255,15 @@ export const useRequestsStore = defineStore('requests', () => {
   const updateRequest = async (id: string, updates: Partial<Request>) => {
     if (!id) {
       const errorMsg = 'Request ID is required'
-      error.value = errorMsg
+      errorMessage.value = errorMsg
       return { data: null, error: errorMsg }
     }
 
     loading.value = true
-    error.value = ''
+    errorMessage.value = ''
 
     try {
-      console.log('Updating request:', id)
+      debug('Updating request:', id)
 
       const cleanedUpdates = { ...updates }
       if (cleanedUpdates.duration_estimate === undefined) {
@@ -289,7 +289,7 @@ export const useRequestsStore = defineStore('requests', () => {
 
       if (updateError) throw new Error(updateError.message)
 
-      console.log('Request updated successfully:', id)
+      debug('Request updated successfully:', id)
 
       const transformedData = {
         ...data,
@@ -317,7 +317,7 @@ export const useRequestsStore = defineStore('requests', () => {
     } catch (err) {
       console.error('Error updating request:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to update request'
-      error.value = errorMessage
+      errorMessage.value = errorMessage
       return { data: null, error: errorMessage }
     } finally {
       loading.value = false
@@ -327,21 +327,21 @@ export const useRequestsStore = defineStore('requests', () => {
   const deleteRequest = async (id: string) => {
     if (!id) {
       const errorMsg = 'Request ID is required'
-      error.value = errorMsg
+      errorMessage.value = errorMsg
       return { error: errorMsg }
     }
 
     loading.value = true
-    error.value = ''
+    errorMessage.value = ''
 
     try {
-      console.log('Deleting request:', id)
+      debug('Deleting request:', id)
 
       const { error: deleteError } = await supabase.from('requests').delete().eq('id', id)
 
       if (deleteError) throw new Error(deleteError.message)
 
-      console.log('Request deleted successfully:', id)
+      debug('Request deleted successfully:', id)
 
       // Remove from local state
       requests.value = requests.value.filter(req => req.id !== id)
@@ -352,7 +352,7 @@ export const useRequestsStore = defineStore('requests', () => {
     } catch (err) {
       console.error('Error deleting request:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete request'
-      error.value = errorMessage
+      errorMessage.value = errorMessage
       return { error: errorMessage }
     } finally {
       loading.value = false
@@ -361,7 +361,7 @@ export const useRequestsStore = defineStore('requests', () => {
 
   const getRequestById = async (id: string): Promise<Request | null> => {
     if (!id) {
-      console.warn('Request ID is required')
+      warn('Request ID is required')
       return null
     }
 
@@ -371,11 +371,11 @@ export const useRequestsStore = defineStore('requests', () => {
         requests.value.find(req => req.id === id) ||
         spatialRequests.value.find(req => req.id === id)
       if (localRequest) {
-        console.log('Found request in local state:', id)
+        debug('Found request in local state:', id)
         return localRequest
       }
 
-      console.log('Fetching request from database:', id)
+      debug('Fetching request from database:', id)
 
       // If not found locally, fetch from database
       const requestData = await retryOperation(
@@ -405,7 +405,7 @@ export const useRequestsStore = defineStore('requests', () => {
         500,
       )
 
-      console.log('Request fetched successfully:', id)
+      debug('Request fetched successfully:', id)
 
       // Transform the data to match our Request type
       return {
@@ -440,7 +440,7 @@ export const useRequestsStore = defineStore('requests', () => {
 
   // Method to clear errors
   const clearError = () => {
-    error.value = ''
+    errorMessage.value = ''
   }
 
   // Method to refresh requests
@@ -458,12 +458,51 @@ export const useRequestsStore = defineStore('requests', () => {
     }
   }
 
+  // Define missing functions and types
+  const retryOperation = async <T>(
+    operation: () => Promise<T>,
+    retries: number,
+    delay: number,
+  ): Promise<T> => {
+    let attempt = 0
+    while (attempt < retries) {
+      try {
+        return await operation()
+      } catch (error) {
+        if (attempt === retries - 1) throw error
+        await new Promise(resolve => setTimeout(resolve, delay))
+        attempt++
+      }
+    }
+    throw new Error('Operation failed after maximum retries')
+  }
+
+  const handleSupabaseResponse = async <T>(
+    operation: () => Promise<T>,
+    context: string,
+    timeout: number,
+  ): Promise<T> => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
+    try {
+      return await operation()
+    } finally {
+      clearTimeout(timeoutId)
+    }
+  }
+
+  class SupabaseError extends Error {
+    constructor(public code: string, message: string) {
+      super(message)
+    }
+  }
+
   return {
     requests: readonly(requests),
     userRequests: readonly(userRequests),
     spatialRequests: readonly(spatialRequests),
     loading: readonly(loading),
-    error: readonly(error),
+    error: readonly(errorMessage),
     filters: readonly(filters),
     activeRequests,
     activeSpatialRequests,

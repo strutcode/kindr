@@ -309,6 +309,9 @@
   import DynamicMap from '@/components/common/DynamicMap.vue'
   import RequestList from '@/components/requests/RequestList.vue'
   import type { MapPin } from '@/components/common/DynamicMap.vue'
+  import { createLogger } from '@/lib/logger'
+
+  const { log, debug, info, warn, error } = createLogger('MapView')
 
   const router = useRouter()
   const authStore = useAuthStore()
@@ -386,8 +389,8 @@
       }
       recenterMap(position.latitude, position.longitude)
       locationStatus.value = position.source === 'fallback' ? 'fallback' : 'success'
-    } catch (error: any) {
-      console.warn('Location access failed, using default location:', error)
+    } catch (e: any) {
+      warn('Location access failed, using default location:', e)
       userLocation.value = DEFAULT_LOCATION
       recenterMap(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)
       locationStatus.value = 'fallback'
@@ -425,7 +428,7 @@
   const fetchRequestsInBounds = async (bounds: MapBounds) => {
     try {
       localLoading.value = true
-      console.log('Fetching requests in bounds:', bounds)
+      info('Fetching requests in bounds:', bounds)
 
       const spatialRequests = await SpatialQueryService.getRequestsInBounds(bounds, {
         category: filters.category || undefined,
@@ -434,10 +437,10 @@
         limit: 200,
       })
 
-      console.log(`Loaded ${spatialRequests.length} requests from spatial query`)
+      info(`Loaded ${spatialRequests.length} requests from spatial query`)
       requests.value = spatialRequests
-    } catch (error) {
-      console.error('Error fetching requests in bounds:', error)
+    } catch (e) {
+      error('Error fetching requests in bounds:', e)
       requests.value = []
     } finally {
       localLoading.value = false
@@ -536,8 +539,8 @@
     try {
       // Initialize location
       await requestLocation()
-    } catch (error) {
-      console.error('Error during initialization:', error)
+    } catch (e) {
+      error('Error during initialization:', e)
     }
   })
 </script>

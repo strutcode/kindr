@@ -1,5 +1,8 @@
+import { createLogger } from '@/lib/logger'
 import { supabase } from '@/lib/supabase'
 import type { Request } from '@/types'
+
+const { log, debug, info, warn, error } = createLogger('Spatial')
 
 /**
  * Map bounds interface for spatial queries
@@ -115,7 +118,7 @@ export class SpatialQueryService {
     options: SpatialQueryOptions = {},
   ): Promise<RequestWithDistance[]> {
     try {
-      console.log('Fetching requests in bounds:', bounds, options)
+      info('Fetching requests in bounds:', bounds, options)
 
       // Validate bounds
       this.validateBounds(bounds)
@@ -134,11 +137,11 @@ export class SpatialQueryService {
         p_limit: limit,
       })
 
-      console.log(`Found ${data?.length || 0} requests in bounds`)
+      info(`Found ${data?.length || 0} requests in bounds`)
 
       return this.transformRequestData(data || [])
     } catch (error) {
-      console.error('Error fetching requests in bounds:', error)
+      error('Error fetching requests in bounds:', error)
 
       if (error instanceof Error) {
         throw error
@@ -158,7 +161,7 @@ export class SpatialQueryService {
     options: SpatialQueryOptions = {},
   ): Promise<RequestWithDistance[]> {
     try {
-      console.log('Fetching requests in radius:', { centerLat, centerLng, radiusMeters }, options)
+      info('Fetching requests in radius:', { centerLat, centerLng, radiusMeters }, options)
 
       // Validate parameters
       this.validateRadius(centerLat, centerLng, radiusMeters)
@@ -176,11 +179,11 @@ export class SpatialQueryService {
         p_limit: limit,
       })
 
-      console.log(`Found ${data?.length || 0} requests in radius`)
+      info(`Found ${data?.length || 0} requests in radius`)
 
       return this.transformRequestData(data || [])
     } catch (error) {
-      console.error('Error fetching requests in radius:', error)
+      error('Error fetching requests in radius:', error)
 
       if (error instanceof Error) {
         throw error
@@ -253,14 +256,14 @@ export class SpatialQueryService {
    */
   static async validateRequestGeometries(): Promise<any[]> {
     try {
-      console.log('Validating request geometries...')
+      info('Validating request geometries...')
 
       const { data } = await supabase.rpc('validate_request_geometries')
 
-      console.log('Geometry validation completed:', data)
+      info('Geometry validation completed:', data)
       return data || []
     } catch (error) {
-      console.error('Error validating geometries:', error)
+      error('Error validating geometries:', error)
       throw new Error('Failed to validate request geometries')
     }
   }

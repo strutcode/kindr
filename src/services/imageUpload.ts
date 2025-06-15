@@ -1,4 +1,7 @@
+import { createLogger } from '@/lib/logger'
 import { supabase } from '@/lib/supabase'
+
+const { log, debug, info, warn, error } = createLogger('ImageUpload')
 
 export interface ImageFile {
   id: string
@@ -140,7 +143,7 @@ export class ImageUploadService {
     onProgress?: (progress: UploadProgress) => void,
   ): Promise<{ url: string; path: string }> {
     try {
-      console.log('Starting image upload for file:', file.name)
+      info('Starting image upload for file:', file.name)
 
       if (!userId) {
         throw new Error('User ID is required for image upload')
@@ -154,11 +157,11 @@ export class ImageUploadService {
         ),
       ])
 
-      console.log('Image compressed successfully, size:', compressedBlob.size)
+      info('Image compressed successfully, size:', compressedBlob.size)
 
       // Generate unique filename
       const fileName = this.generateFileName(userId, file.name)
-      console.log('Generated filename:', fileName)
+      debug('Generated filename:', fileName)
 
       // Upload to Supabase storage with retry logic
       const uploadResult = await supabase.storage
@@ -168,7 +171,7 @@ export class ImageUploadService {
           upsert: false,
         })
 
-      console.log('Supabase upload successful:', uploadResult)
+      debug('Supabase upload successful:', uploadResult)
 
       if (!uploadResult || uploadResult.error) {
         throw new Error('Upload failed: No data returned from Supabase')
@@ -183,26 +186,26 @@ export class ImageUploadService {
         path: uploadResult.data.path,
       }
 
-      console.log('Upload completed successfully:', result)
+      info('Upload completed successfully:', result)
       return result
-    } catch (error) {
-      console.error('Image upload error:', error)
+    } catch (err) {
+      error('Image upload error:', err)
 
-      if (error instanceof Error) {
-        throw error
+      if (err instanceof Error) {
+        throw err
       }
 
       // Handle specific error types
-      if (error instanceof Error) {
-        if (error.message.includes('timed out')) {
+      if (err instanceof Error) {
+        if (err.message.includes('timed out')) {
           throw new Error('Upload timed out. Please try again.')
         }
-        if (error.message.includes('network') || error.message.includes('fetch')) {
+        if (err.message.includes('network') || err.message.includes('fetch')) {
           throw new Error('Network error during upload. Please check your connection.')
         }
       }
 
-      throw new Error(error instanceof Error ? error.message : 'Upload failed')
+      throw new Error(err instanceof Error ? err.message : 'Upload failed')
     }
   }
 
@@ -218,17 +221,17 @@ export class ImageUploadService {
   ): Promise<{ url: string; path: string }[]> {
     const results: { url: string; path: string }[] = []
 
-    console.log(`Starting upload of ${files.length} images for user ${userId}`)
+    info(`Starting upload of ${files.length} images for user ${userId}`)
 
     if (!userId) {
-      throw new SupabaseError('User ID is required for image upload', 'VALIDATION_ERROR')
+      throw new Error('User ID is required for image upload')
     }
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       const imageId = `upload_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 8)}`
 
-      console.log(`Processing image ${i + 1}/${files.length}:`, file.name)
+      debug(`Processing image ${i + 1}/${files.length}:`, file.name)
 
       try {
         // Report progress start
@@ -238,22 +241,20 @@ export class ImageUploadService {
           onProgress?.(imageId, progress),
         )
 
-        console.log(`Image ${i + 1} uploaded successfully:`, result)
+        info(`Image ${i + 1} uploaded successfully:`, result)
         results.push(result)
         onComplete?.(imageId, result)
 
         // Report progress complete
         onProgress?.(imageId, { loaded: 100, total: 100, percentage: 100 })
-      } catch (error) {
-        const errorMessage = error instanceof SupabaseError ? error.message : 'Upload failed'
-        console.error(`Image ${i + 1} upload failed:`, errorMessage)
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Upload failed'
+        error(`Image ${i + 1} upload failed:`, errorMessage)
         onError?.(imageId, errorMessage)
       }
     }
 
-    console.log(
-      `Upload process completed. ${results.length}/${files.length} images uploaded successfully`,
-    )
+    info(`Upload process completed. ${results.length}/${files.length} images uploaded successfully`)
     return results
   }
 
@@ -316,10 +317,10 @@ export class ImageUploadService {
       // Delete orphaned files
       if (orphanedPaths.length > 0) {
         await this.deleteImages(orphanedPaths)
-        console.log(`Cleaned up ${orphanedPaths.length} orphaned images`)
+        info(`Cleaned up ${orphanedPaths.length} orphaned images`)
       }
-    } catch (error) {
-      console.error('Failed to cleanup orphaned images:', error)
+    } catch (err) {
+      error('Failed to cleanup orphaned images:', err)
       // Don't throw here - cleanup is not critical
     }
   }

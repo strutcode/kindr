@@ -9,15 +9,15 @@
     </div>
 
     <!-- Error State Overlay -->
-    <div v-if="error" class="map-overlay map-error" :style="{ minHeight: `${minHeight}px` }">
+    <div v-if="mapErr" class="map-overlay map-error" :style="{ minHeight: `${minHeight}px` }">
       <ExclamationTriangleIcon class="w-12 h-12 text-error-500 mx-auto mb-4" />
       <h3 class="text-lg font-medium text-gray-900 mb-2">Map Error</h3>
-      <p class="text-gray-600 mb-4">{{ error }}</p>
+      <p class="text-gray-600 mb-4">{{ mapErr }}</p>
       <button @click="initializeMap" class="btn btn-primary">Retry</button>
     </div>
 
     <!-- Map Info Overlay -->
-    <div v-if="showMapInfo && !isLoading && !error" class="map-info-overlay">
+    <div v-if="showMapInfo && !isLoading && !mapErr" class="map-info-overlay">
       <div class="bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-gray-200">
         <div class="text-sm text-gray-700">
           <div class="flex items-center space-x-4">
@@ -64,6 +64,9 @@
   import ClusterPopup from './ClusterPopup.vue'
   import { MapClusteringService, type ClusterFeature } from '@/services/mapClustering'
   import type { MapBounds, RequestWithDistance } from '@/services/spatialQueries'
+  import { createLogger } from '@/lib/logger'
+
+  const { log, debug, info, warn, error } = createLogger('Clustering')
 
   /**
    * Pin location interface for map markers
@@ -148,7 +151,7 @@
   const map = ref<Map>()
   const vectorLayer = ref<VectorLayer<VectorSource>>()
   const isLoading = ref(true)
-  const error = ref('')
+  const mapErr = ref('')
   const currentBounds = ref<MapBounds | null>(null)
   const currentZoom = ref(props.initialZoom)
   const lastUpdateTime = ref<Date | null>(null)
@@ -185,7 +188,7 @@
       maxPointsPerCluster: 100,
     })
 
-    console.log('Clustering service initialized')
+    info('Clustering service initialized')
   }
 
   /**
@@ -305,7 +308,7 @@
           zoom,
         )
 
-        console.log(`Rendering ${clusters.length} clusters/markers at zoom ${zoom}`)
+        info(`Rendering ${clusters.length} clusters/markers at zoom ${zoom}`)
 
         // Create features for clusters
         const features = clusters.map(cluster => {
@@ -390,7 +393,7 @@
         const clusterId = cluster.properties.cluster_id!
         const requests = clusteringService.value?.getClusterExpansionPoints(clusterId) || []
 
-        console.log(`Cluster clicked with ${requests.length} requests`)
+        info(`Cluster clicked with ${requests.length} requests`)
 
         clusterPopupRequests.value = requests
         showClusterPopup.value = true
@@ -435,7 +438,7 @@
         north: topRight[1],
       }
     } catch (err) {
-      console.warn('Error getting map bounds:', err)
+      warn('Error getting map bounds:', err)
       return null
     }
   }
@@ -496,7 +499,7 @@
       }
 
       isLoading.value = true
-      error.value = ''
+      mapErr.value = ''
 
       // Initialize clustering if enabled
       if (clusteringEnabled.value) {
@@ -586,7 +589,7 @@
           } else if (attempts < maxAttempts) {
             setTimeout(checkReady, 100)
           } else {
-            console.warn('Map initialization timeout, continuing...')
+            warn('Map initialization timeout, continuing...')
             resolve()
           }
         }
@@ -619,8 +622,8 @@
 
       emit('map-ready', newMap)
     } catch (err: any) {
-      error.value = err.message || 'Failed to initialize map'
-      console.error('Map initialization error:', err)
+      mapErr.value = err.message || 'Failed to initialize map'
+      error('Map initialization error:', err)
     } finally {
       isLoading.value = false
     }
@@ -701,7 +704,7 @@
         })
       }
     } catch (err) {
-      console.warn('Error fitting map to pins:', err)
+      warn('Error fitting map to pins:', err)
     }
   }
 

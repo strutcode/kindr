@@ -1,5 +1,8 @@
 import type { LocationFilter } from '@/types'
 import { supabase } from '@/lib/supabase'
+import { createLogger } from '@/lib/logger'
+
+const { log, debug, info, warn, error } = createLogger('Location')
 
 // Standardized location data interface
 interface LocationData {
@@ -20,26 +23,22 @@ export class LocationService {
   static async getCurrentPosition(): Promise<LocationData> {
     try {
       // Try GPS/browser geolocation first
-      console.log('Attempting to get GPS location...')
-      
+      info('Attempting to get GPS location...')
+
       if (!navigator.geolocation) {
         throw new Error('Geolocation is not supported by this browser')
       }
 
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-          resolve,
-          reject,
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 5 * 60 * 1000, // 5 minutes
-          }
-        )
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 5 * 60 * 1000, // 5 minutes
+        })
       })
 
-      console.log('GPS location successful:', position.coords)
-      
+      info('GPS location successful:', position.coords)
+
       return {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
@@ -51,8 +50,8 @@ export class LocationService {
         source: 'gps',
       }
     } catch (gpsError) {
-      console.warn('GPS location failed, trying Supabase fallback:', gpsError)
-      
+      warn('GPS location failed, trying Supabase fallback:', gpsError)
+
       try {
         // Fallback to Supabase edge function using the configured client
         const { data, error } = await supabase.functions.invoke('get-user-location')
@@ -64,7 +63,7 @@ export class LocationService {
         if (!data) {
           throw new Error('No data received from Supabase function')
         }
-        
+
         // Validate response data
         if (!data.latitude || !data.longitude) {
           throw new Error('Invalid response: Missing latitude or longitude data')
@@ -85,7 +84,7 @@ export class LocationService {
           throw new Error('Invalid response: Longitude out of valid range (-180 to 180)')
         }
 
-        console.log('Supabase location successful:', data)
+        info('Supabase location successful:', data)
 
         return {
           latitude,
@@ -98,10 +97,10 @@ export class LocationService {
           source: 'ip',
         }
       } catch (supabaseError) {
-        console.warn('Supabase location also failed:', supabaseError)
-        
+        warn('Supabase location also failed:', supabaseError)
+
         // Final fallback to default location (Los Angeles, CA)
-        console.warn('All location methods failed, using default location')
+        warn('All location methods failed, using default location')
         return {
           latitude: 34.0522,
           longitude: -118.2437,
@@ -117,23 +116,18 @@ export class LocationService {
   }
 
   // Keep existing utility methods for compatibility
-  static calculateDistance(
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ): number {
+  static calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 3959 // Earth's radius in miles
     const dLat = this.toRadians(lat2 - lat1)
     const dLon = this.toRadians(lon2 - lon1)
-    
+
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(this.toRadians(lat1)) *
         Math.cos(this.toRadians(lat2)) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2)
-    
+
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     return R * c
   }
@@ -160,14 +154,14 @@ export class LocationService {
 
   static filterRequestsByLocation<T extends { location: { latitude: number; longitude: number } }>(
     requests: T[],
-    filter: LocationFilter
+    filter: LocationFilter,
   ): T[] {
     return requests.filter(request => {
       const distance = this.calculateDistance(
         filter.latitude,
         filter.longitude,
         request.location.latitude,
-        request.location.longitude
+        request.location.longitude,
       )
       return distance <= filter.radius
     })
