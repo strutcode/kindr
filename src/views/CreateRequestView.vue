@@ -65,26 +65,25 @@
               required
               placeholder="Select a subcategory"
             />
-          </div>
 
-          <!-- Conditional Duration Field - Only for Help Needed -->
-          <Dropdown
-            v-if="showDurationField"
-            id="duration"
-            v-model="form.duration_estimate"
-            :options="DURATION_OPTIONS"
-            label="Estimated Duration"
-            :required="isDurationRequired"
-            placeholder="Select duration"
-            class="md:w-1/2"
-          />
-          <p v-if="showDurationField" class="text-xs text-gray-500 mt-1">
-            How long do you estimate this task will take?
-          </p>
+            <!-- Conditional Duration Field - Only for Help Needed -->
+            <Dropdown
+              v-if="showDurationField"
+              id="duration"
+              v-model="form.duration_estimate"
+              :options="DURATION_OPTIONS"
+              label="Estimated Duration"
+              helper="How long do you estimate this task will take?"
+              :required="isDurationRequired"
+              placeholder="Select duration"
+            />
+          </div>
 
           <div>
             <Tags
+              id="tags"
               v-model="form.skills_required"
+              label="Skills Required (Optional)"
               placeholder="e.g., driving, heavy lifting, computer skills (press Enter to add)"
             />
           </div>

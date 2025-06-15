@@ -1,6 +1,9 @@
 <template>
   <label v-if="label" :for="id" class="block text-sm font-medium text-gray-700 mb-2">
     {{ label }}<span v-if="required" class="text-error-600">*</span>
+    <p v-if="helper" class="text-xs text-gray-400 mt-1">
+      {{ helper }}
+    </p>
   </label>
   <select
     :id="id"
@@ -27,6 +30,7 @@
     modelValue: string | number | null
     options: Option[]
     label?: string
+    helper?: string
     id?: string
     required?: boolean
     placeholder?: string

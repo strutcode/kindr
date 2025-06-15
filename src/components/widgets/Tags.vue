@@ -1,5 +1,17 @@
 <template>
-  <div>
+  <div class="space-y-2">
+    <label v-if="label" :for="id" class="block text-sm font-medium text-gray-700 mb-2">
+      {{ label }}<span v-if="required" class="text-error-600">*</span>
+    </label>
+    <input
+      v-model="input"
+      :id="id"
+      :placeholder="placeholder"
+      class="input"
+      @keydown.enter.prevent="addTag"
+      @blur="addTag"
+      type="text"
+    />
     <div class="flex flex-wrap gap-2 mb-2">
       <span
         v-for="(tag, index) in modelValue"
@@ -25,14 +37,6 @@
         </button>
       </span>
     </div>
-    <input
-      v-model="input"
-      :placeholder="placeholder"
-      class="input"
-      @keydown.enter.prevent="addTag"
-      @blur="addTag"
-      type="text"
-    />
   </div>
 </template>
 
@@ -40,6 +44,9 @@
   import { ref, watch } from 'vue'
 
   interface Props {
+    id: string
+    label?: string
+    required?: boolean
     modelValue: string[]
     placeholder?: string
   }
