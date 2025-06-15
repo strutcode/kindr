@@ -15,334 +15,55 @@
         <p class="text-gray-600">Share what you need or offer help to your community</p>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="space-y-8">
-        <!-- Basic Information -->
-        <div class="space-y-6">
-          <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
-            Basic Information
-          </h2>
-
-          <Text
-            id="title"
-            v-model="form.title"
-            label="Title"
-            required
-            placeholder="Brief description of your request"
-          />
-
-          <TextBox
-            id="description"
-            v-model="form.description"
-            label="Description"
-            required
-            placeholder="Provide detailed information about what you need or offer"
-          />
-        </div>
-
-        <!-- Category and Details -->
-        <div class="space-y-6">
-          <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
-            Category & Details
-          </h2>
-
-          <div class="grid md:grid-cols-2 gap-6">
-            <Dropdown
-              id="category"
-              v-model="form.category"
-              :options="CATEGORIES"
-              label="Category"
-              required
-              placeholder="Select a category"
-              @change="handleCategoryChange"
-            />
-
-            <Dropdown
-              v-if="form.category"
-              id="subcategory"
-              v-model="form.subcategory"
-              :options="selectedCategorySubcategories"
-              label="Subcategory"
-              required
-              placeholder="Select a subcategory"
-            />
-
-            <!-- Conditional Duration Field - Only for Help Needed -->
-            <Dropdown
-              v-if="showDurationField"
-              id="duration"
-              v-model="form.duration_estimate"
-              :options="DURATION_OPTIONS"
-              label="Estimated Duration"
-              helper="How long do you estimate this task will take?"
-              :required="isDurationRequired"
-              placeholder="Select duration"
-            />
-          </div>
-
-          <div>
-            <Tags
-              id="tags"
-              v-model="form.skills_required"
-              label="Skills Required (Optional)"
-              placeholder="e.g., driving, heavy lifting, computer skills (press Enter to add)"
-            />
-          </div>
-
-          <Text
-            id="compensation"
-            v-model="form.compensation"
-            label="Compensation (Optional)"
-            placeholder="e.g., $20, Coffee & snacks, Gas money"
-          />
-        </div>
-
-        <!-- Images -->
-        <div class="space-y-6">
-          <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
-            Images (Optional)
-          </h2>
-
-          <div>
-            <p class="text-sm text-gray-600 mb-4">
-              Add images to help others understand your request better. You can upload up to 8
-              images.
-            </p>
-
-            <ImageUpload
-              ref="imageUploadRef"
-              :max-images="8"
-              @images-changed="handleImagesChanged"
-              @upload-error="handleImageUploadError"
-            />
-          </div>
-        </div>
-
-        <!-- Location -->
-        <div class="space-y-6">
-          <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
-            Location
-          </h2>
-
-          <div v-if="locationStatus === 'loading'" class="p-4 bg-gray-50 rounded-md">
-            <LoadingSpinner text="Getting your location..." />
-          </div>
-
-          <div v-else-if="locationStatus === 'error'" class="mb-4">
-            <StatusBanner type="error">
-              <div class="flex items-center">
-                <ExclamationTriangleIcon class="w-5 h-5 text-error-600 mr-3 flex-shrink-0" />
-                <div>
-                  <p class="text-sm text-error-700 mb-2">{{ locationError }}</p>
-                  <Button variant="outline" size="sm" type="button" @click="requestLocation">
-                    Try Again
-                  </Button>
-                </div>
-              </div>
-            </StatusBanner>
-          </div>
-
-          <div v-else-if="form.location" class="p-4 bg-success-50 rounded-md">
-            <p class="text-sm text-success-700">✓ Location set: {{ form.location.address }}</p>
-          </div>
-        </div>
-
-        <!-- Submit -->
-        <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+      <RequestCreateUpdateForm
+        :is-submitting="isSubmitting"
+        submit-label="Create Request"
+        @submit="handleFormSubmit"
+      >
+        <template #cancel>
           <router-link to="/requests">
             <Button variant="outline" type="button">Cancel</Button>
           </router-link>
-
-          <Button
-            type="submit"
-            :disabled="isSubmitting || !isFormValid || isUploadingImages"
-            :loading="isSubmitting"
-            variant="primary"
-          >
-            <template v-if="isUploadingImages">Uploading Images...</template>
-            <template v-else>Create Request</template>
-          </Button>
-        </div>
-      </form>
+        </template>
+      </RequestCreateUpdateForm>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted, reactive, watch } from 'vue'
+  import { ref } from 'vue'
   import { useRouter } from 'vue-router'
-  import { XMarkIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
+  import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
   import { useRequestsStore } from '@/stores/requests'
   import { useAuthStore } from '@/stores/auth'
-  import { LocationService } from '@/services/location'
-  import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
-  import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-  import ImageUpload from '@/components/common/ImageUpload.vue'
   import StatusBanner from '@/components/common/StatusBanner.vue'
   import Button from '@/components/widgets/Button.vue'
-  import Dropdown from '@/components/widgets/Dropdown.vue'
-  import Text from '@/components/widgets/Text.vue'
-  import TextBox from '@/components/widgets/TextBox.vue'
-  import Tags from '@/components/widgets/Tags.vue'
-  import type { Request, RequestCategory, DurationEstimate } from '@/types'
+  import RequestCreateUpdateForm from '@/components/requests/RequestCreateUpdateForm.vue'
 
   const router = useRouter()
   const requestsStore = useRequestsStore()
   const authStore = useAuthStore()
 
   const isSubmitting = ref(false)
-  const skillsInput = ref('')
-  const locationStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const locationError = ref('')
   const submitError = ref('')
-  const imageUploadRef = ref<InstanceType<typeof ImageUpload>>()
-  const uploadedImageUrls = ref<string[]>([])
 
-  const form = reactive({
-    title: '',
-    description: '',
-    category: '' as RequestCategory | '',
-    subcategory: '',
-    duration_estimate: '' as DurationEstimate | '',
-    skills_required: [] as string[],
-    compensation: '',
-    location: null as { latitude: number; longitude: number; address: string } | null,
-  })
-
-  const selectedCategorySubcategories = computed(() => {
-    if (!form.category) return []
-    return CATEGORIES.find(cat => cat.value === form.category)?.subcategories || []
-  })
-
-  // Show duration field only for "help-needed" category
-  const showDurationField = computed(() => {
-    return form.category === 'help-needed'
-  })
-
-  // Duration is required only for "help-needed" category
-  const isDurationRequired = computed(() => {
-    return form.category === 'help-needed'
-  })
-
-  const isUploadingImages = computed(() => {
-    return imageUploadRef.value?.isUploading() || false
-  })
-
-  const isFormValid = computed(() => {
-    const baseValidation = !!(
-      form.title &&
-      form.description &&
-      form.category &&
-      form.subcategory &&
-      form.location &&
-      !isUploadingImages.value
-    )
-
-    // Additional validation for duration when it's required
-    if (isDurationRequired.value) {
-      return baseValidation && !!form.duration_estimate
-    }
-
-    return baseValidation
-  })
-
-  const requestLocation = async () => {
-    locationStatus.value = 'loading'
-    locationError.value = ''
-
-    try {
-      const position = await LocationService.getCurrentPosition()
-      const address = await LocationService.reverseGeocode(position.latitude, position.longitude)
-
-      form.location = {
-        latitude: position.latitude,
-        longitude: position.longitude,
-        address,
-      }
-
-      locationStatus.value = 'success'
-    } catch (error: any) {
-      locationStatus.value = 'error'
-      locationError.value =
-        error.message || 'Unable to get your location. Please ensure location services are enabled.'
-      console.error('Location error:', error)
-    }
-  }
-
-  const addSkill = () => {
-    const skill = skillsInput.value.trim()
-    if (skill && !form.skills_required.includes(skill)) {
-      form.skills_required.push(skill)
-      skillsInput.value = ''
-    }
-  }
-
-  const removeSkill = (index: number) => {
-    form.skills_required.splice(index, 1)
-  }
-
-  const handleCategoryChange = () => {
-    // Clear subcategory when category changes
-    form.subcategory = ''
-
-    // Clear duration when switching away from help-needed
-    if (form.category !== 'help-needed') {
-      form.duration_estimate = ''
-    }
-  }
-
-  const handleImagesChanged = (urls: string[]) => {
-    uploadedImageUrls.value = urls
-  }
-
-  const handleImageUploadError = (errors: string[]) => {
-    console.error('Image upload errors:', errors)
-    // Errors are already displayed in the ImageUpload component
-  }
-
-  const handleSubmit = async () => {
+  const handleFormSubmit = async (formData: any) => {
     if (!authStore.user) {
       submitError.value = 'Not authenticated'
       return
     }
-
-    if (!isFormValid.value) {
-      submitError.value = 'Please fill in all required fields'
-      return
-    }
-
-    // Wait for any pending image uploads
-    if (isUploadingImages.value) {
-      submitError.value = 'Please wait for image uploads to complete'
-      return
-    }
-
     isSubmitting.value = true
     submitError.value = ''
-
     try {
       const requestData = {
         user_id: authStore.user.id,
-        title: form.title,
-        description: form.description,
-        category: form.category as RequestCategory,
-        subcategory: form.subcategory,
-        // Only include duration_estimate if it's required and provided
-        duration_estimate: isDurationRequired.value
-          ? (form.duration_estimate as DurationEstimate)
-          : undefined,
-        skills_required: form.skills_required,
-        compensation: form.compensation || undefined,
-        images: uploadedImageUrls.value,
-        location: form.location!,
-        status: 'active' as const,
+        ...formData,
+        status: 'active',
       }
-
       const result = await requestsStore.createRequest(requestData)
-
       if (result.error) {
         throw new Error(result.error)
       }
-
       router.push('/requests')
     } catch (error: any) {
       submitError.value = error.message || 'Failed to create request'
@@ -351,20 +72,4 @@
       isSubmitting.value = false
     }
   }
-
-  onMounted(() => {
-    requestLocation()
-  })
-
-  // Clear subcategory when category changes
-  watch(
-    () => form.category,
-    () => {
-      form.subcategory = ''
-      // Clear duration when switching away from help-needed
-      if (form.category !== 'help-needed') {
-        form.duration_estimate = ''
-      }
-    },
-  )
 </script>
