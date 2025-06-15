@@ -1,11 +1,8 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Anonymous User Banner -->
-    <div
-      v-if="!authStore.isAuthenticated"
-      class="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6"
-    >
-      <div class="flex items-start justify-between">
+    <StatusBanner v-if="!authStore.isAuthenticated" type="info">
+      <div class="flex items-start justify-between w-full">
         <div class="flex items-start">
           <InformationCircleIcon class="w-5 h-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" />
           <div>
@@ -23,7 +20,7 @@
           Join Community
         </router-link>
       </div>
-    </div>
+    </StatusBanner>
 
     <!-- Filters and Controls -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
@@ -106,10 +103,7 @@
     </div>
 
     <!-- Location Status Banner -->
-    <div
-      v-if="locationStatus === 'fallback'"
-      class="bg-warning-50 border border-warning-200 rounded-lg p-4 mb-6"
-    >
+    <StatusBanner v-if="locationStatus === 'fallback'" type="warning" class="mb-6">
       <div class="flex items-start">
         <ExclamationTriangleIcon class="w-5 h-5 text-warning-600 mt-0.5 mr-3 flex-shrink-0" />
         <div class="flex-1">
@@ -123,7 +117,7 @@
           </p>
         </div>
       </div>
-    </div>
+    </StatusBanner>
 
     <!-- Map Container -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
@@ -287,17 +281,6 @@
 <script setup lang="ts">
   import { ref, computed, onMounted, reactive, watch } from 'vue'
   import { useRouter } from 'vue-router'
-  import { formatDistanceToNow } from 'date-fns'
-  import {
-    ExclamationTriangleIcon,
-    XMarkIcon,
-    MapPinIcon,
-    ClockIcon,
-    UserIcon,
-    InformationCircleIcon,
-    ArrowPathIcon,
-    MagnifyingGlassIcon,
-  } from '@heroicons/vue/24/outline'
   import { useAuthStore } from '@/stores/auth'
   import { LocationService } from '@/services/location'
   import {
@@ -305,11 +288,13 @@
     type MapBounds,
     type RequestWithDistance,
   } from '@/services/spatialQueries'
-  import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
+  import { CATEGORIES } from '@/constants/categories'
   import DynamicMap from '@/components/common/DynamicMap.vue'
   import RequestList from '@/components/requests/RequestList.vue'
-  import type { MapPin } from '@/components/common/DynamicMap.vue'
   import { createLogger } from '@/lib/logger'
+  import { useRequestFormatting } from '@/composables/useRequestFormatting'
+  import UserInfo from '@/components/common/UserInfo.vue'
+  import StatusBanner from '@/components/common/StatusBanner.vue'
 
   const { log, debug, info, warn, error } = createLogger('MapView')
 
@@ -459,18 +444,8 @@
     }
   }
 
-  const getCategoryLabel = (category: string) => {
-    return CATEGORIES.find(cat => cat.value === category)?.label || category
-  }
-
-  const getSubcategoryLabel = (category: string, subcategory: string) => {
-    const cat = CATEGORIES.find(cat => cat.value === category)
-    return cat?.subcategories.find(sub => sub.value === subcategory)?.label || subcategory
-  }
-
-  const getDurationLabel = (duration: string) => {
-    return DURATION_OPTIONS.find(opt => opt.value === duration)?.label || duration
-  }
+  const { getCategoryLabel, getSubcategoryLabel, getDurationLabel, formatRelativeTime } =
+    useRequestFormatting()
 
   const formatDistance = (meters: number) => {
     const miles = SpatialQueryService.metersToMiles(meters)
@@ -481,10 +456,6 @@
     } else {
       return `${miles.toFixed(1)} mi`
     }
-  }
-
-  const formatRelativeTime = (dateString: string) => {
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true })
   }
 
   const canRespond = (request: RequestWithDistance) => {

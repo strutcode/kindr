@@ -1,11 +1,7 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Anonymous User Banner -->
-    <div
-      v-if="!authStore.isAuthenticated"
-      class="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6"
-    >
-      <div class="flex items-start justify-between">
+    <StatusBanner v-if="!authStore.isAuthenticated" type="info">
+      <div class="flex items-start justify-between w-full">
         <div class="flex items-start">
           <InformationCircleIcon class="w-5 h-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" />
           <div>
@@ -22,20 +18,20 @@
           Join Community
         </router-link>
       </div>
-    </div>
+    </StatusBanner>
 
     <div v-if="loading" class="text-center py-12">
       <LoadingSpinner size="lg" text="Loading request..." />
     </div>
 
-    <div v-else-if="error" class="text-center py-12">
+    <div v-else-if="errorMessage" class="text-center py-12">
       <div
         class="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4"
       >
         <ExclamationTriangleIcon class="w-8 h-8 text-error-600" />
       </div>
       <h3 class="text-lg font-medium text-gray-900 mb-2">Request not found</h3>
-      <p class="text-gray-600 mb-6">{{ error }}</p>
+      <p class="text-gray-600 mb-6">{{ errorMessage }}</p>
       <router-link to="/requests" class="btn btn-primary"> Back to Requests </router-link>
     </div>
 
@@ -147,50 +143,14 @@
 
         <!-- Actions -->
         <div v-if="canTakeAction" class="mt-8 pt-6 border-t border-gray-200">
-          <div class="flex items-center justify-between">
-            <!-- Owner Actions (Edit/Delete) -->
-            <div v-if="authStore.isAuthenticated" class="flex space-x-3">
-              <router-link
-                v-if="canEdit"
-                :to="`/requests/${request.id}/edit`"
-                class="btn btn-outline"
-              >
-                <PencilIcon class="w-4 h-4 mr-2" />
-                Edit Request
-              </router-link>
-              <button
-                v-if="canDelete"
-                @click="deleteRequest"
-                class="btn btn-outline text-error-600 border-error-300 hover:bg-error-50"
-              >
-                <TrashIcon class="w-4 h-4 mr-2" />
-                Delete Request
-              </button>
-            </div>
-
-            <!-- Response Actions -->
-            <div class="flex space-x-3">
-              <!-- Authenticated User Response -->
-              <button
-                v-if="canRespond && authStore.isAuthenticated"
-                @click="respondToRequest"
-                class="btn btn-primary"
-              >
-                <ChatBubbleLeftIcon class="w-4 h-4 mr-2" />
-                Respond to Request
-              </button>
-
-              <!-- Anonymous User Prompt -->
-              <router-link
-                v-else-if="canRespond && !authStore.isAuthenticated"
-                :to="`/auth?redirect=/requests/${request.id}`"
-                class="btn btn-primary"
-              >
-                <UserPlusIcon class="w-4 h-4 mr-2" />
-                Sign In to Respond
-              </router-link>
-            </div>
-          </div>
+          <RequestActions
+            :request="request"
+            :can-edit="canEdit"
+            :can-delete="canDelete"
+            :can-respond="canRespond"
+            @delete="deleteRequest"
+            @respond="respondToRequest"
+          />
         </div>
       </div>
 
@@ -273,7 +233,6 @@
 <script setup lang="ts">
   import { ref, computed, onMounted } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
-  import { formatDistanceToNow } from 'date-fns'
   import {
     MapPinIcon,
     ClockIcon,
@@ -291,9 +250,13 @@
   import { useRequestsStore } from '@/stores/requests'
   import { useAuthStore } from '@/stores/auth'
   import { useReputationStore } from '@/stores/reputation'
-  import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
   import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
   import ReputationBar from '@/components/common/ReputationBar.vue'
+  import { useRequestFormatting } from '@/composables/useRequestFormatting'
+  import UserInfo from '@/components/common/UserInfo.vue'
+  import StatusBanner from '@/components/common/StatusBanner.vue'
+  import RequestActions from '@/components/common/RequestActions.vue'
+  import { useStatusColor } from '@/composables/useStatusColor'
   import type { Request } from '@/types'
   import { createLogger } from '@/lib/logger'
 
@@ -309,6 +272,10 @@
   const loading = ref(true)
   const errorMessage = ref('')
   const selectedImage = ref<{ url: string; index: number } | null>(null)
+
+  const { getCategoryLabel, getSubcategoryLabel, getDurationLabel, formatRelativeTime } =
+    useRequestFormatting()
+  const { getStatusColor } = useStatusColor()
 
   const userReputation = computed(() => {
     if (!request.value?.user_id) return null
@@ -328,38 +295,6 @@
   )
 
   const canTakeAction = computed(() => canEdit.value || canDelete.value || canRespond.value)
-
-  const getCategoryLabel = (category: string) => {
-    return CATEGORIES.find(cat => cat.value === category)?.label || category
-  }
-
-  const getSubcategoryLabel = (category: string, subcategory: string) => {
-    const cat = CATEGORIES.find(cat => cat.value === category)
-    return cat?.subcategories.find(sub => sub.value === subcategory)?.label || subcategory
-  }
-
-  const getDurationLabel = (duration: string) => {
-    return DURATION_OPTIONS.find(opt => opt.value === duration)?.label || duration
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-success-100 text-success-800'
-      case 'in-progress':
-        return 'bg-warning-100 text-warning-800'
-      case 'completed':
-        return 'bg-primary-100 text-primary-800'
-      case 'cancelled':
-        return 'bg-error-100 text-error-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const formatRelativeTime = (dateString: string) => {
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true })
-  }
 
   const openImageModal = (imageUrl: string, index: number) => {
     selectedImage.value = { url: imageUrl, index }

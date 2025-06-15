@@ -87,25 +87,10 @@
               </div>
             </div>
 
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-              <div class="flex space-x-2">
-                <router-link :to="`/requests/${request.id}/edit`" class="btn btn-outline btn-sm">
-                  <PencilIcon class="w-4 h-4 mr-2" />
-                  Edit
-                </router-link>
-                <button
-                  @click="handleDeleteRequest(request)"
-                  class="btn btn-outline btn-sm text-error-600 border-error-300 hover:bg-error-50"
-                >
-                  <TrashIcon class="w-4 h-4 mr-2" />
-                  Delete
-                </button>
-              </div>
-
-              <router-link :to="`/requests/${request.id}`" class="btn btn-primary btn-sm">
-                View Details
-              </router-link>
-            </div>
+            <RequestActions
+              :request="request"
+              class="flex items-center justify-between pt-4 border-t border-gray-100"
+            />
           </div>
         </div>
       </div>
@@ -115,29 +100,26 @@
 
 <script setup lang="ts">
   import { computed, onMounted } from 'vue'
-  import { formatDistanceToNow } from 'date-fns'
-  import {
-    PlusIcon,
-    DocumentTextIcon,
-    MapPinIcon,
-    ClockIcon,
-    PencilIcon,
-    TrashIcon,
-  } from '@heroicons/vue/24/outline'
   import { useAuthStore } from '@/stores/auth'
   import { useRequestsStore } from '@/stores/requests'
   import { useReputationStore } from '@/stores/reputation'
+  import { useRequestFormatting } from '@/composables/useRequestFormatting'
   import { CATEGORIES } from '@/constants/categories'
   import UserProfileForm from '@/components/common/UserProfileForm.vue'
   import ReputationBar from '@/components/common/ReputationBar.vue'
+  import RequestActions from '@/components/common/RequestActions.vue'
+  import { useStatusColor } from '@/composables/useStatusColor'
   import type { Request, User } from '@/types'
   import { createLogger } from '@/lib/logger'
+  import { PlusIcon, DocumentTextIcon, MapPinIcon, ClockIcon } from '@heroicons/vue/24/outline'
 
   const { debug, error } = createLogger('ProfileView')
 
   const authStore = useAuthStore()
   const requestsStore = useRequestsStore()
   const reputationStore = useReputationStore()
+  const { getCategoryLabel, getSubcategoryLabel, formatRelativeTime } = useRequestFormatting()
+  const { getStatusColor } = useStatusColor()
 
   const userReputation = computed(() => {
     if (!authStore.user) {
@@ -153,34 +135,6 @@
     }
     return reputationStore.getReputationDisplay(authStore.user.id)
   })
-
-  const getCategoryLabel = (category: string) => {
-    return CATEGORIES.find(cat => cat.value === category)?.label || category
-  }
-
-  const getSubcategoryLabel = (category: string, subcategory: string) => {
-    const cat = CATEGORIES.find(cat => cat.value === category)
-    return cat?.subcategories.find(sub => sub.value === subcategory)?.label || subcategory
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-success-100 text-success-800'
-      case 'in-progress':
-        return 'bg-warning-100 text-warning-800'
-      case 'completed':
-        return 'bg-primary-100 text-primary-800'
-      case 'cancelled':
-        return 'bg-error-100 text-error-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const formatRelativeTime = (dateString: string) => {
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true })
-  }
 
   const handleProfileSuccess = (profile: User) => {
     debug('Profile saved successfully:', profile)

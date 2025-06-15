@@ -1,11 +1,7 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Anonymous User Banner -->
-    <div
-      v-if="!authStore.isAuthenticated"
-      class="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6"
-    >
-      <div class="flex items-start justify-between">
+    <StatusBanner v-if="!authStore.isAuthenticated" type="info">
+      <div class="flex items-start justify-between w-full">
         <div class="flex items-start">
           <InformationCircleIcon class="w-5 h-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" />
           <div>
@@ -23,7 +19,7 @@
           Join Community
         </router-link>
       </div>
-    </div>
+    </StatusBanner>
 
     <div class="flex flex-col lg:flex-row gap-8">
       <!-- Filters Sidebar -->
@@ -106,10 +102,7 @@
 
           <!-- Location Status -->
           <div class="mb-6">
-            <div
-              v-if="locationStatus === 'fallback'"
-              class="p-3 bg-warning-50 rounded-md border border-warning-200"
-            >
+            <StatusBanner v-if="locationStatus === 'fallback'" type="warning">
               <div class="flex items-start">
                 <ExclamationTriangleIcon
                   class="w-4 h-4 text-warning-600 mt-0.5 mr-2 flex-shrink-0"
@@ -127,16 +120,16 @@
                   </button>
                 </div>
               </div>
-            </div>
-            <div v-else-if="locationStatus === 'loading'" class="p-3 bg-gray-50 rounded-md">
+            </StatusBanner>
+            <StatusBanner v-else-if="locationStatus === 'loading'" type="info">
               <p class="text-sm text-gray-700">Getting your location...</p>
-            </div>
-            <div v-else-if="locationStatus === 'success'" class="p-3 bg-success-50 rounded-md">
+            </StatusBanner>
+            <StatusBanner v-else-if="locationStatus === 'success'" type="success">
               <p class="text-sm text-success-700">✓ Location enabled</p>
-            </div>
-            <div v-else-if="locationStatus === 'custom'" class="p-3 bg-blue-50 rounded-md">
+            </StatusBanner>
+            <StatusBanner v-else-if="locationStatus === 'custom'" type="info">
               <p class="text-sm text-blue-700">✓ Custom location selected</p>
-            </div>
+            </StatusBanner>
           </div>
 
           <!-- Clear Filters -->
@@ -217,6 +210,7 @@
   import LocationPickerModal, {
     type LocationSelection,
   } from '@/components/common/LocationPickerModal.vue'
+  import StatusBanner from '@/components/common/StatusBanner.vue'
   import type { Request, RequestFilters } from '@/types'
   import { createLogger } from '@/lib/logger'
 
