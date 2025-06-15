@@ -378,14 +378,10 @@ export const useRequestsStore = defineStore('requests', () => {
       debug('Fetching request from database:', id)
 
       // If not found locally, fetch from database
-      const requestData = await retryOperation(
-        async () => {
-          return await handleSupabaseResponse(
-            () =>
-              supabase
-                .from('requests')
-                .select(
-                  `
+      const { data: requestData } = await supabase
+        .from('requests')
+        .select(
+          `
               *,
               user:users!requests_user_id_fkey(
                 id, 
@@ -394,16 +390,9 @@ export const useRequestsStore = defineStore('requests', () => {
                 email
               )
             `,
-                )
-                .eq('id', id)
-                .single(),
-            'getRequestById',
-            5000,
-          )
-        },
-        2,
-        500,
-      )
+        )
+        .eq('id', id)
+        .single()
 
       debug('Request fetched successfully:', id)
 

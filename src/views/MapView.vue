@@ -295,6 +295,16 @@
   import { useRequestFormatting } from '@/composables/useRequestFormatting'
   import UserInfo from '@/components/common/UserInfo.vue'
   import StatusBanner from '@/components/common/StatusBanner.vue'
+  import {
+    InformationCircleIcon,
+    ArrowPathIcon,
+    MagnifyingGlassIcon,
+    ExclamationTriangleIcon,
+    XMarkIcon,
+    MapPinIcon,
+    ClockIcon,
+    UserIcon,
+  } from '@heroicons/vue/24/outline'
 
   const { log, debug, info, warn, error } = createLogger('MapView')
 

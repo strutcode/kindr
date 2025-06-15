@@ -22,33 +22,21 @@
             Basic Information
           </h2>
 
-          <div>
-            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-              Title *
-            </label>
-            <input
-              id="title"
-              v-model="form.title"
-              type="text"
-              required
-              class="input"
-              placeholder="Brief description of your request"
-            />
-          </div>
+          <Text
+            id="title"
+            v-model="form.title"
+            label="Title"
+            required
+            placeholder="Brief description of your request"
+          />
 
-          <div>
-            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-              Description *
-            </label>
-            <textarea
-              id="description"
-              v-model="form.description"
-              rows="4"
-              required
-              class="input"
-              placeholder="Provide detailed information about what you need or offer"
-            />
-          </div>
+          <TextBox
+            id="description"
+            v-model="form.description"
+            label="Description"
+            required
+            placeholder="Provide detailed information about what you need or offer"
+          />
         </div>
 
         <!-- Category and Details -->
@@ -58,110 +46,55 @@
           </h2>
 
           <div class="grid md:grid-cols-2 gap-6">
-            <div>
-              <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
-                Category *
-              </label>
-              <select
-                id="category"
-                v-model="form.category"
-                required
-                class="input"
-                @change="handleCategoryChange"
-              >
-                <option value="">Select a category</option>
-                <option
-                  v-for="category in CATEGORIES"
-                  :key="category.value"
-                  :value="category.value"
-                >
-                  {{ category.label }}
-                </option>
-              </select>
-            </div>
+            <Dropdown
+              id="category"
+              v-model="form.category"
+              :options="CATEGORIES"
+              label="Category"
+              required
+              placeholder="Select a category"
+              @change="handleCategoryChange"
+            />
 
-            <div v-if="form.category">
-              <label for="subcategory" class="block text-sm font-medium text-gray-700 mb-2">
-                Subcategory *
-              </label>
-              <select id="subcategory" v-model="form.subcategory" required class="input">
-                <option value="">Select a subcategory</option>
-                <option
-                  v-for="subcategory in selectedCategorySubcategories"
-                  :key="subcategory.value"
-                  :value="subcategory.value"
-                >
-                  {{ subcategory.label }}
-                </option>
-              </select>
-            </div>
+            <Dropdown
+              v-if="form.category"
+              id="subcategory"
+              v-model="form.subcategory"
+              :options="selectedCategorySubcategories"
+              label="Subcategory"
+              required
+              placeholder="Select a subcategory"
+            />
           </div>
 
           <!-- Conditional Duration Field - Only for Help Needed -->
-          <div v-if="showDurationField" class="transition-all duration-300 ease-in-out">
-            <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">
-              Estimated Duration *
-            </label>
-            <select
-              id="duration"
-              v-model="form.duration_estimate"
-              :required="isDurationRequired"
-              class="input md:w-1/2"
-            >
-              <option value="">Select duration</option>
-              <option
-                v-for="duration in DURATION_OPTIONS"
-                :key="duration.value"
-                :value="duration.value"
-              >
-                {{ duration.label }}
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1">How long do you estimate this task will take?</p>
-          </div>
+          <Dropdown
+            v-if="showDurationField"
+            id="duration"
+            v-model="form.duration_estimate"
+            :options="DURATION_OPTIONS"
+            label="Estimated Duration"
+            :required="isDurationRequired"
+            placeholder="Select duration"
+            class="md:w-1/2"
+          />
+          <p v-if="showDurationField" class="text-xs text-gray-500 mt-1">
+            How long do you estimate this task will take?
+          </p>
 
           <div>
-            <label for="skills" class="block text-sm font-medium text-gray-700 mb-2">
-              Skills Required
-            </label>
-            <input
-              id="skills"
-              v-model="skillsInput"
-              type="text"
-              class="input"
+            <Tags
+              v-model="form.skills_required"
               placeholder="e.g., driving, heavy lifting, computer skills (press Enter to add)"
-              @keydown.enter.prevent="addSkill"
             />
-            <div v-if="form.skills_required.length" class="mt-2 flex flex-wrap gap-2">
-              <span
-                v-for="(skill, index) in form.skills_required"
-                :key="index"
-                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800"
-              >
-                {{ skill }}
-                <button
-                  type="button"
-                  @click="removeSkill(index)"
-                  class="ml-2 text-primary-600 hover:text-primary-500"
-                >
-                  <XMarkIcon class="w-4 h-4" />
-                </button>
-              </span>
-            </div>
           </div>
 
-          <div>
-            <label for="compensation" class="block text-sm font-medium text-gray-700 mb-2">
-              Compensation (Optional)
-            </label>
-            <input
-              id="compensation"
-              v-model="form.compensation"
-              type="text"
-              class="input"
-              placeholder="e.g., $20, Coffee & snacks, Gas money"
-            />
-          </div>
+          <Text
+            id="compensation"
+            v-model="form.compensation"
+            label="Compensation (Optional)"
+            placeholder="e.g., $20, Coffee & snacks, Gas money"
+          />
         </div>
 
         <!-- Images -->
@@ -201,9 +134,9 @@
                 <ExclamationTriangleIcon class="w-5 h-5 text-error-600 mr-3 flex-shrink-0" />
                 <div>
                   <p class="text-sm text-error-700 mb-2">{{ locationError }}</p>
-                  <button type="button" @click="requestLocation" class="btn btn-outline btn-sm">
+                  <Button variant="outline" size="sm" type="button" @click="requestLocation">
                     Try Again
-                  </button>
+                  </Button>
                 </div>
               </div>
             </StatusBanner>
@@ -216,17 +149,19 @@
 
         <!-- Submit -->
         <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-          <router-link to="/requests" class="btn btn-outline"> Cancel </router-link>
+          <router-link to="/requests">
+            <Button variant="outline" type="button">Cancel</Button>
+          </router-link>
 
-          <button
+          <Button
             type="submit"
             :disabled="isSubmitting || !isFormValid || isUploadingImages"
-            class="btn btn-primary"
+            :loading="isSubmitting"
+            variant="primary"
           >
-            <LoadingSpinner v-if="isSubmitting" size="sm" />
-            <span v-if="isUploadingImages">Uploading Images...</span>
-            <span v-else>Create Request</span>
-          </button>
+            <template v-if="isUploadingImages">Uploading Images...</template>
+            <template v-else>Create Request</template>
+          </Button>
         </div>
       </form>
     </div>
@@ -244,6 +179,11 @@
   import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
   import ImageUpload from '@/components/common/ImageUpload.vue'
   import StatusBanner from '@/components/common/StatusBanner.vue'
+  import Button from '@/components/widgets/Button.vue'
+  import Dropdown from '@/components/widgets/Dropdown.vue'
+  import Text from '@/components/widgets/Text.vue'
+  import TextBox from '@/components/widgets/TextBox.vue'
+  import Tags from '@/components/widgets/Tags.vue'
   import type { Request, RequestCategory, DurationEstimate } from '@/types'
 
   const router = useRouter()
