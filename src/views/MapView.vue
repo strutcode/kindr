@@ -1,151 +1,58 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Anonymous User Banner -->
-    <StatusBanner v-if="!authStore.isAuthenticated" type="info">
-      <div class="flex items-start justify-between w-full">
-        <div class="flex items-start">
-          <InformationCircleIcon class="w-5 h-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" />
-          <div>
-            <h3 class="text-sm font-medium text-primary-800">Browsing as Guest</h3>
-            <p class="text-sm text-primary-700 mt-1">
-              You can view all community requests on the map.
-              <router-link to="/auth" class="font-medium underline hover:no-underline">
-                Sign in or join
-              </router-link>
-              to create requests and respond to others.
-            </p>
-          </div>
-        </div>
-        <router-link to="/auth" class="btn btn-primary btn-sm ml-4 flex-shrink-0">
-          Join Community
-        </router-link>
-      </div>
-    </StatusBanner>
+  <div class="mapview-root">
+    <!-- Header (AppHeader) -->
+    <AppHeader @toggle-filters="toggleFiltersPopover" />
 
-    <!-- Filters and Controls -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-      <div class="flex flex-wrap items-center gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-          <select v-model="filters.category" class="input w-48" @change="handleFiltersChange">
-            <option value="">All Categories</option>
-            <option v-for="category in CATEGORIES" :key="category.value" :value="category.value">
-              {{ category.label }}
-            </option>
-          </select>
-        </div>
+    <!-- Filters Popover -->
+    <FiltersPopover
+      v-if="showFiltersPopover"
+      :filters="filters"
+      :categories="CATEGORIES"
+      :selected-category-subcategories="selectedCategorySubcategories"
+      @update:filters="onFiltersUpdate"
+      @close="showFiltersPopover = false"
+    />
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Subcategory</label>
-          <select
-            v-model="filters.subcategory"
-            class="input w-48"
-            :disabled="!filters.category"
-            @change="handleFiltersChange"
-          >
-            <option value="">All Subcategories</option>
-            <option
-              v-for="subcategory in selectedCategorySubcategories"
-              :key="subcategory.value"
-              :value="subcategory.value"
-            >
-              {{ subcategory.label }}
-            </option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Clustering</label>
-          <div class="flex items-center space-x-4">
-            <label class="flex items-center">
-              <input
-                v-model="clusteringEnabled"
-                type="checkbox"
-                class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                @change="handleClusteringToggle"
-              />
-              <span class="ml-2 text-sm text-gray-700">Enable clustering</span>
-            </label>
-            <div v-if="clusteringEnabled" class="flex items-center space-x-2">
-              <label class="text-sm text-gray-600">Radius:</label>
-              <input
-                v-model.number="clusteringOptions.radius"
-                type="range"
-                min="30"
-                max="100"
-                step="10"
-                class="w-20"
-                @input="handleClusteringOptionsChange"
-              />
-              <span class="text-sm text-gray-500">{{ clusteringOptions.radius }}px</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-end space-x-2">
-          <button @click="clearFilters" class="btn btn-outline">Clear Filters</button>
-
-          <button @click="refreshRequests" :disabled="isLoading" class="btn btn-secondary">
-            <ArrowPathIcon class="w-4 h-4 mr-2" :class="{ 'animate-spin': isLoading }" />
-            Refresh
-          </button>
-
-          <button
-            @click="fitToAllMarkers"
-            :disabled="filteredRequests.length === 0"
-            class="btn btn-outline"
-          >
-            <MagnifyingGlassIcon class="w-4 h-4 mr-2" />
-            Fit All
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Location Status Banner -->
-    <StatusBanner v-if="locationStatus === 'fallback'" type="warning" class="mb-6">
-      <div class="flex items-start">
-        <ExclamationTriangleIcon class="w-5 h-5 text-warning-600 mt-0.5 mr-3 flex-shrink-0" />
-        <div class="flex-1">
-          <h3 class="text-sm font-medium text-warning-800">Using Default Location</h3>
-          <p class="text-sm text-warning-700 mt-1">
-            We couldn't access your precise location, so we're showing requests around Los Angeles,
-            CA.
-            <button @click="requestLocation" class="font-medium underline hover:no-underline">
-              Try enabling location again
-            </button>
-          </p>
-        </div>
-      </div>
-    </StatusBanner>
-
-    <!-- Map Container -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
-      <DynamicMap
-        v-if="userLocation"
-        :pins="mapPins"
-        :min-height="500"
-        :initial-position="userLocation"
-        :initial-zoom="12"
-        :show-map-info="true"
-        :enable-bounds-queries="true"
-        :bounds-change-delay="300"
-        :enable-clustering="clusteringEnabled"
-        :clustering-options="clusteringOptions"
-        @pin-click="handlePinClick"
-        @map-click="handleMapClick"
-        @bounds-change="handleBoundsChange"
-        @view-change="handleViewChange"
-        @map-ready="handleMapReady"
-        ref="mapComponent"
+    <!-- Map and Sidebar Layout -->
+    <div class="mapview-content">
+      <!-- Requests Sidebar -->
+      <RequestsSidebar
+        :requests="filteredRequests"
+        :clusters="clusters"
+        :loading="isLoading"
+        :selected-request-id="selectedRequest?.id"
+        @request-click="selectRequest"
+        @show-more-cluster="zoomToCluster"
       />
+
+      <!-- Map Container -->
+      <div class="mapview-map-container">
+        <DynamicMap
+          v-if="userLocation"
+          :pins="mapPins"
+          :min-height="500"
+          :initial-position="userLocation"
+          :initial-zoom="12"
+          :show-map-info="true"
+          :enable-bounds-queries="true"
+          :bounds-change-delay="300"
+          :enable-clustering="clusteringEnabled"
+          :clustering-options="clusteringOptions"
+          :numbered-pins="true"
+          :pin-numbers="pinNumbers"
+          @pin-click="handlePinClick"
+          @map-click="handleMapClick"
+          @bounds-change="handleBoundsChange"
+          @view-change="handleViewChange"
+          @map-ready="handleMapReady"
+          @clusters-change="onClustersChange"
+          ref="mapComponent"
+        />
+      </div>
     </div>
 
-    <!-- Selected Request Details -->
-    <div
-      v-if="selectedRequest"
-      class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8"
-    >
+    <!-- Selected Request Details (overlay, optional) -->
+    <div v-if="selectedRequest" class="mapview-request-details-overlay">
       <div class="flex items-start justify-between mb-4">
         <h3 class="text-lg font-semibold text-gray-900">Selected Request</h3>
         <button @click="selectedRequest = null" class="text-gray-400 hover:text-gray-600">
@@ -247,34 +154,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Requests List -->
-    <div>
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-900">
-          {{ isLoading ? 'Loading requests...' : `Visible Requests (${filteredRequests.length})` }}
-        </h2>
-        <div class="text-sm text-gray-500">
-          {{
-            currentBounds ? 'Showing requests in current map view' : 'Move the map to load requests'
-          }}
-          <span v-if="clusteringEnabled && mapComponent?.getClusterStats()">
-            • {{ mapComponent.getClusterStats()?.clusters || 0 }} clusters
-          </span>
-        </div>
-      </div>
-
-      <!-- Request List Component -->
-      <RequestList
-        :requests="filteredRequests"
-        :loading="isLoading"
-        :selected-request-id="selectedRequest?.id"
-        variant="map"
-        empty-message="Move the map to explore requests in different areas."
-        :show-actions="authStore.isAuthenticated"
-        @request-click="selectRequest"
-      />
-    </div>
   </div>
 </template>
 
@@ -295,6 +174,9 @@
   import { useRequestFormatting } from '@/composables/useRequestFormatting'
   import UserInfo from '@/components/common/UserInfo.vue'
   import StatusBanner from '@/components/common/StatusBanner.vue'
+  import AppHeader from '@/components/common/AppHeader.vue'
+  import FiltersPopover from '@/components/common/FiltersPopover.vue'
+  import RequestsSidebar from '@/components/requests/RequestsSidebar.vue'
   import {
     InformationCircleIcon,
     ArrowPathIcon,
@@ -524,18 +406,108 @@
       error('Error during initialization:', e)
     }
   })
+
+  const showFiltersPopover = ref(false)
+  const toggleFiltersPopover = () => {
+    showFiltersPopover.value = !showFiltersPopover.value
+  }
+
+  const onFiltersUpdate = (newFilters: typeof filters) => {
+    filters.category = newFilters.category
+    filters.subcategory = newFilters.subcategory
+    showFiltersPopover.value = false
+    handleFiltersChange()
+  }
+
+  // For sidebar and map pin numbering
+  const pinNumbers = ref<Record<string, number>>({})
+
+  // Clusters for sidebar grouping (to be provided by DynamicMap or clustering logic)
+  const clusters = ref([])
+
+  function onClustersChange(newClusters: any[]) {
+    clusters.value = newClusters
+    // Build pinNumbers map for both clusters and requests
+    const map: Record<string, number> = {}
+    newClusters.forEach((cluster, idx) => {
+      if (cluster.isCluster) {
+        map[cluster.id] = idx + 1
+        cluster.requests.forEach(req => {
+          map[req.id] = idx + 1
+        })
+      } else {
+        map[cluster.id] = idx + 1
+      }
+    })
+    pinNumbers.value = map
+  }
+
+  function zoomToCluster(clusterId: string) {
+    mapComponent.value?.zoomToCluster(clusterId)
+  }
 </script>
 
 <style scoped>
-  /* Additional styles for map view specific components */
-  .map-container {
-    min-height: 500px;
+  .mapview-root {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
   }
 
-  /* Responsive adjustments */
-  @media (max-width: 640px) {
-    .map-container {
-      min-height: 400px;
-    }
+  .mapview-content {
+    flex: 1 1 0;
+    display: flex;
+    height: calc(100vh - 64px); /* header height */
+    width: 100vw;
+    overflow: hidden;
+  }
+
+  .mapview-map-container {
+    flex: 1 1 0;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+  }
+
+  /* Sidebar overlay styles */
+  .mapview-requests-sidebar {
+    width: 380px;
+    max-width: 100vw;
+    height: 100%;
+    background: white;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  /* Filters popover overlay */
+  .filters-popover {
+    position: absolute;
+    top: 64px;
+    left: 50px;
+    z-index: 20;
+    background: white;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    min-width: 320px;
+  }
+
+  .mapview-request-details-overlay {
+    position: absolute;
+    right: 400px;
+    top: 80px;
+    z-index: 30;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    padding: 2rem;
+    max-width: 420px;
   }
 </style>

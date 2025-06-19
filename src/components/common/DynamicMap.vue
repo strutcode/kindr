@@ -111,6 +111,8 @@
       minDistance?: number
       maxZoom?: number
     }
+    /** Map of request/cluster id to pin number for sidebar sync */
+    pinNumbers?: Record<string, number>
   }
 
   interface Emits {
@@ -124,6 +126,8 @@
     (e: 'bounds-change', bounds: MapBounds): void
     /** Emitted when map view changes (move, zoom) */
     (e: 'view-change', center: { lat: number; lng: number }, zoom: number): void
+    /** Emitted when clusters are updated for sidebar sync */
+    (e: 'clusters-change', clusters: any[]): void
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -142,6 +146,7 @@
       minDistance: 40,
       maxZoom: 16,
     }),
+    pinNumbers: () => ({}),
   })
 
   const emit = defineEmits<Emits>()
@@ -330,6 +335,9 @@
           clusters: clusterCount,
           points: requests.length,
         }
+
+        // Emit clusters for sidebar
+        emitClustersForSidebar(clusters, requests)
       }
     } else {
       // Use individual markers (original behavior)
@@ -374,6 +382,16 @@
 
       source.addFeatures(features)
       clusterStats.value = { clusters: 0, points: validPins.length }
+
+      // Emit all as single-item clusters for sidebar
+      const result = validPins.map((pin, idx) => ({
+        id: pin.id,
+        requests: [pin.data],
+        coordinates: [pin.lng, pin.lat],
+        isCluster: false,
+        pinNumber: props.pinNumbers[pin.id] || idx + 1,
+      }))
+      emit('clusters-change', result)
     }
 
     // Update last update time
@@ -789,6 +807,54 @@
     cleanup()
   })
 
+  // --- CLUSTER DATA EMISSION ---
+  /**
+   * Emit clusters and their requests for sidebar sync
+   */
+  function emitClustersForSidebar(clusters: ClusterFeature[], requests: RequestWithDistance[]) {
+    // Each cluster: { id, requests, coordinates, isCluster }
+    const result = clusters.map((cluster, idx) => {
+      if (cluster.properties.cluster) {
+        // Cluster: get all requests in this cluster
+        const clusterId = cluster.properties.cluster_id
+        const clusterRequests = clusteringService.value?.getClusterExpansionPoints(clusterId) || []
+        return {
+          id: `cluster-${clusterId}`,
+          requests: clusterRequests,
+          coordinates: cluster.geometry.coordinates,
+          isCluster: true,
+          pinNumber: props.pinNumbers[`cluster-${clusterId}`] || idx + 1,
+        }
+      } else {
+        // Single request
+        const req = cluster.properties.request
+        return {
+          id: req.id,
+          requests: [req],
+          coordinates: cluster.geometry.coordinates,
+          isCluster: false,
+          pinNumber: props.pinNumbers[req.id] || idx + 1,
+        }
+      }
+    })
+    emit('clusters-change', result)
+  }
+
+  // --- ZOOM TO CLUSTER ---
+  function zoomToCluster(clusterId: string) {
+    if (!clusteringService.value || !map.value) return
+    // clusterId is 'cluster-<id>'
+    const id = Number(clusterId.replace('cluster-', ''))
+    const zoom = clusteringService.value.getClusterExpansionZoom(id)
+    // Get cluster coordinates
+    const clusters = clusteringService.value.getClusters([-180, -85, 180, 85], currentZoom.value)
+    const cluster = clusters.find(c => c.properties.cluster && c.properties.cluster_id === id)
+    if (cluster) {
+      const [lng, lat] = cluster.geometry.coordinates
+      map.value.getView().animate({ center: fromLonLat([lng, lat]), zoom, duration: 800 })
+    }
+  }
+
   // Expose methods to parent components
   defineExpose({
     recenter,
@@ -796,6 +862,7 @@
     fitMapToPins,
     updateMarkers: updateMapMarkers,
     getClusterStats: () => clusterStats.value,
+    zoomToCluster,
   })
 </script>
 
