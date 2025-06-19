@@ -867,81 +867,94 @@
 </script>
 
 <style scoped>
-  .dynamic-map-container {
-    @apply relative w-full rounded-lg overflow-hidden border border-gray-200;
-  }
+.dynamic-map-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
 
-  .map-container {
-    @apply w-full bg-gray-100;
-  }
+.map-container {
+  flex: 1 1 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: #f3f4f6;
+  position: relative;
+}
 
-  .map-overlay {
-    @apply absolute inset-0 z-10;
-  }
+.map-overlay {
+  @apply absolute inset-0 z-10;
+}
 
-  .map-loading {
-    @apply flex items-center justify-center bg-gray-50;
-  }
+.map-loading {
+  @apply flex items-center justify-center bg-gray-50;
+}
 
-  .map-error {
-    @apply flex flex-col items-center justify-center bg-gray-50 text-center p-8;
-  }
+.map-error {
+  @apply flex flex-col items-center justify-center bg-gray-50 text-center p-8;
+}
 
-  .map-info-overlay {
-    @apply absolute top-4 right-4 z-20 pointer-events-none;
-  }
+.map-info-overlay {
+  @apply absolute top-4 right-4 z-20 pointer-events-none;
+}
 
-  /* OpenLayers specific styles */
-  :deep(.ol-viewport) {
-    position: absolute !important;
-  }
+/* OpenLayers specific styles */
+:deep(.ol-viewport) {
+  position: absolute !important;
+}
 
+:deep(.ol-zoom) {
+  @apply top-4 left-4;
+}
+
+:deep(.ol-zoom button) {
+  @apply bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+:deep(.ol-attribution) {
+  @apply text-xs bg-white/90 backdrop-blur-sm;
+}
+
+:deep(.ol-attribution ul) {
+  @apply text-gray-600;
+}
+
+:deep(.ol-layer) {
+  @apply opacity-100;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
   :deep(.ol-zoom) {
-    @apply top-4 left-4;
+    @apply top-2 left-2;
   }
 
   :deep(.ol-zoom button) {
-    @apply bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500;
+    @apply text-sm;
   }
 
-  :deep(.ol-attribution) {
-    @apply text-xs bg-white/90 backdrop-blur-sm;
+  .map-info-overlay {
+    @apply top-2 right-2;
   }
+}
 
-  :deep(.ol-attribution ul) {
-    @apply text-gray-600;
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .map-container {
+    @apply border-2 border-gray-900;
   }
+}
 
-  :deep(.ol-layer) {
-    @apply opacity-100;
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  :deep(.ol-viewport) {
+    transition: none !important;
   }
-
-  /* Responsive adjustments */
-  @media (max-width: 640px) {
-    :deep(.ol-zoom) {
-      @apply top-2 left-2;
-    }
-
-    :deep(.ol-zoom button) {
-      @apply text-sm;
-    }
-
-    .map-info-overlay {
-      @apply top-2 right-2;
-    }
-  }
-
-  /* High contrast mode support */
-  @media (prefers-contrast: high) {
-    .map-container {
-      @apply border-2 border-gray-900;
-    }
-  }
-
-  /* Reduced motion support */
-  @media (prefers-reduced-motion: reduce) {
-    :deep(.ol-viewport) {
-      transition: none !important;
-    }
-  }
+}
 </style>
