@@ -115,6 +115,22 @@
       </div>
     </div>
 
+    <!-- Expiry Period -->
+    <div class="space-y-6">
+      <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+        Auto-Expire After
+      </h2>
+      <Dropdown
+        id="expiry_seconds"
+        v-model="form.expiry_seconds"
+        :options="EXPIRY_OPTIONS"
+        label="Auto-Expire After"
+        required
+        placeholder="Select expiry period"
+        helper="Your request will be automatically marked inactive after this period."
+      />
+    </div>
+
     <!-- Submit -->
     <div class="flex items-center justify-between pt-6 border-t border-gray-200">
       <slot name="cancel"></slot>
@@ -135,6 +151,22 @@
   import { ref, computed, reactive, watch, onMounted } from 'vue'
   import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
   import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
+  // Add expiry options
+  const EXPIRY_OPTIONS = [
+    { label: '1 hour', value: 3600 },
+    { label: '2 hours', value: 7200 },
+    { label: '4 hours', value: 14400 },
+    { label: '8 hours', value: 28800 },
+    { label: '12 hours', value: 43200 },
+    { label: '1 day', value: 86400 },
+    { label: '2 days', value: 172800 },
+    { label: '3 days', value: 259200 },
+    { label: '5 days', value: 432000 },
+    { label: '7 days', value: 604800 },
+    { label: '2 weeks', value: 1209600 },
+    { label: '3 weeks', value: 1814400 },
+    { label: '4 weeks', value: 2419200 },
+  ]
   import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
   import ImageUpload from '@/components/common/ImageUpload.vue'
   import StatusBanner from '@/components/common/StatusBanner.vue'
@@ -171,6 +203,7 @@
     compensation: props.initialValues.compensation || '',
     images: props.initialValues.images ? [...props.initialValues.images] : [],
     location: props.initialValues.location ? { ...props.initialValues.location } : null,
+    expiry_seconds: props.initialValues.expiry_seconds || 86400, // default 1 day
   })
 
   const locationStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
@@ -197,7 +230,7 @@
     if (isDurationRequired.value) {
       return baseValidation && !!form.duration_estimate
     }
-    return baseValidation
+    return baseValidation && form.expiry_seconds > 0
   })
 
   const handleCategoryChange = () => {
@@ -234,7 +267,11 @@
   }
   const onSubmit = () => {
     if (!isFormValid.value) return
-    emit('submit', { ...form, images: uploadedImageUrls.value })
+    emit('submit', {
+      ...form,
+      images: uploadedImageUrls.value,
+      expiry_seconds: form.expiry_seconds,
+    })
   }
   onMounted(() => {
     if (!form.location) requestLocation()
