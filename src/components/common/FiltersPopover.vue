@@ -9,7 +9,6 @@
       </button>
     </div>
     <form @submit.prevent="applyFilters" class="flex flex-col gap-6 flex-1">
-      <LocationFilterControl />
       <div>
         <label class="block text-sm font-medium mb-2">Category</label>
         <select v-model="localFilters.category" class="form-select w-full">
@@ -40,7 +39,6 @@
   import { ref, watch, computed } from 'vue'
   import { useRequestsStore } from '@/stores/requests'
   import { CATEGORIES } from '@/constants/categories'
-  import LocationFilterControl from '@/components/common/LocationFilterControl.vue'
 
   const requestsStore = useRequestsStore()
   const localFilters = ref({ ...requestsStore.filters })
@@ -59,8 +57,8 @@
   })
 
   const clearFilters = () => {
-    localFilters.value = { category: '', subcategory: '' }
-    requestsStore.updateFilters(localFilters.value)
+    localFilters.value = { category: undefined, subcategory: undefined }
+    requestsStore.updateFilters({ ...localFilters.value })
   }
 
   const applyFilters = () => {

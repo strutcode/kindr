@@ -84,12 +84,14 @@
     UserIcon,
   } from '@heroicons/vue/24/outline'
   import { useRequestsStore } from '@/stores/requests'
+  import { useLocationStore } from '@/stores/location'
 
   const { log, debug, info, warn, error } = createLogger('MapView')
 
   const router = useRouter()
   const authStore = useAuthStore()
   const requestsStore = useRequestsStore()
+  const locationStore = useLocationStore()
 
   const userLocation = ref<{ latitude: number; longitude: number } | null>(null)
   const locationStatus = ref<'loading' | 'success' | 'fallback'>('loading')
@@ -270,7 +272,14 @@
     await fetchRequestsInBounds(bounds)
   }
 
-  const handleViewChange = (center: { lat: number; lng: number }, zoom: number) => {}
+  const handleViewChange = (center: { lat: number; lng: number }, zoom: number) => {
+    // Save current map center to location store
+    locationStore.setViewingLocation({
+      latitude: center.lat,
+      longitude: center.lng,
+      source: 'manual',
+    })
+  }
 
   const handleMapReady = (map: any) => {}
 
@@ -298,8 +307,24 @@
 
   onMounted(async () => {
     try {
-      // Initialize location
-      await requestLocation()
+      // Use location from store if available, otherwise get current position
+      if (locationStore.viewingLocation) {
+        userLocation.value = {
+          latitude: locationStore.viewingLocation.latitude,
+          longitude: locationStore.viewingLocation.longitude,
+        }
+        locationStatus.value = locationStore.viewingLocation.source || 'success'
+        recenterMap(userLocation.value.latitude, userLocation.value.longitude)
+      } else {
+        await requestLocation()
+        if (userLocation.value) {
+          locationStore.setViewingLocation({
+            latitude: userLocation.value.latitude,
+            longitude: userLocation.value.longitude,
+            source: locationStatus.value,
+          })
+        }
+      }
     } catch (e) {
       error('Error during initialization:', e)
     }
