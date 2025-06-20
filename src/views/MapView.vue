@@ -38,7 +38,6 @@
           :numbered-pins="true"
           :pin-numbers="pinNumbers"
           @pin-click="handlePinClick"
-          @map-click="handleMapClick"
           @bounds-change="handleBoundsChange"
           @view-change="handleViewChange"
           @map-ready="handleMapReady"
@@ -71,26 +70,13 @@
     type MapBounds,
     type RequestWithDistance,
   } from '@/services/spatialQueries'
-  import { CATEGORIES } from '@/constants/categories'
   import DynamicMap from '@/components/common/DynamicMap.vue'
-  import RequestList from '@/components/requests/RequestList.vue'
   import { createLogger } from '@/lib/logger'
   import { useRequestFormatting } from '@/composables/useRequestFormatting'
-  import UserInfo from '@/components/common/UserInfo.vue'
-  import StatusBanner from '@/components/common/StatusBanner.vue'
   import FiltersPopover from '@/components/common/FiltersPopover.vue'
   import RequestsSidebar from '@/components/requests/RequestsSidebar.vue'
   import SelectedRequestOverlay from '@/components/requests/SelectedRequestOverlay.vue'
-  import {
-    InformationCircleIcon,
-    ArrowPathIcon,
-    MagnifyingGlassIcon,
-    ExclamationTriangleIcon,
-    XMarkIcon,
-    MapPinIcon,
-    ClockIcon,
-    UserIcon,
-  } from '@heroicons/vue/24/outline'
+  import { MapPinIcon } from '@heroicons/vue/24/outline'
   import { useRequestsStore } from '@/stores/requests'
   import { useLocationStore } from '@/stores/location'
 
@@ -130,11 +116,6 @@
 
   // Combine loading states
   const isLoading = computed(() => localLoading.value)
-
-  const selectedCategorySubcategories = computed(() => {
-    if (!filters.category) return []
-    return CATEGORIES.find(cat => cat.value === filters.category)?.subcategories || []
-  })
 
   const filteredRequests = computed(() => {
     let filtered = [...requests.value]
@@ -184,32 +165,6 @@
     }
   }
 
-  const handleFiltersChange = async () => {
-    // Clear subcategory if category changed
-    if (!filters.category) {
-      filters.subcategory = ''
-    }
-
-    // Refresh requests with current bounds
-    if (currentBounds.value) {
-      await fetchRequestsInBounds(currentBounds.value)
-    }
-  }
-
-  const clearFilters = async () => {
-    filters.category = ''
-    filters.subcategory = ''
-    await handleFiltersChange()
-  }
-
-  const handleClusteringToggle = () => {
-    // Map will automatically update due to reactive props
-  }
-
-  const handleClusteringOptionsChange = () => {
-    // Map will automatically update due to reactive props
-  }
-
   const fetchRequestsInBounds = async (bounds: MapBounds) => {
     try {
       localLoading.value = true
@@ -229,18 +184,6 @@
       requests.value = []
     } finally {
       localLoading.value = false
-    }
-  }
-
-  const refreshRequests = async () => {
-    if (currentBounds.value) {
-      await fetchRequestsInBounds(currentBounds.value)
-    }
-  }
-
-  const fitToAllMarkers = () => {
-    if (mapComponent.value && filteredRequests.value.length > 0) {
-      mapComponent.value.fitMapToPins(mapPins.value)
     }
   }
 
@@ -273,8 +216,6 @@
     }
   }
 
-  const handleMapClick = (coordinates: { lat: number; lng: number }) => {}
-
   const handleBoundsChange = async (bounds: MapBounds) => {
     currentBounds.value = bounds
     await fetchRequestsInBounds(bounds)
@@ -290,14 +231,6 @@
   }
 
   const handleMapReady = (map: any) => {}
-
-  const handleRespond = (request: RequestWithDistance) => {
-    if (!authStore.isAuthenticated) {
-      router.push(`/auth?redirect=/requests/${request.id}`)
-      return
-    }
-    router.push(`/requests/${request.id}`)
-  }
 
   const recenterMap = (latitude: number, longitude: number) => {
     mapComponent.value?.recenter(latitude, longitude)
