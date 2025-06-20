@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { LocationService } from '@/services/location'
 
 export interface Location {
@@ -19,6 +19,30 @@ export const useLocationStore = defineStore('location', () => {
   const viewingLocation = ref<Location | null>(null)
   // For request creation
   const creationLocation = ref<Location | null>(null)
+
+  // Load viewingLocation from localStorage if available
+  const LOCAL_STORAGE_KEY = 'kindr_viewing_location'
+  const stored = localStorage.getItem(LOCAL_STORAGE_KEY)
+  if (stored) {
+    try {
+      viewingLocation.value = JSON.parse(stored)
+    } catch (e) {
+      // Ignore parse errors
+    }
+  }
+
+  // Watcher to persist viewingLocation changes
+  watch(
+    viewingLocation,
+    loc => {
+      if (loc) {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(loc))
+      } else {
+        localStorage.removeItem(LOCAL_STORAGE_KEY)
+      }
+    },
+    { deep: true },
+  )
 
   // Setters
   function setViewingLocation(loc: Location | null) {
