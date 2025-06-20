@@ -94,25 +94,46 @@
     <!-- Location -->
     <div class="space-y-6">
       <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Location</h2>
-      <div v-if="locationStatus === 'loading'" class="p-4 bg-gray-50 rounded-md">
-        <LoadingSpinner text="Getting your location..." />
+      <div
+        v-if="form.location"
+        class="p-4 bg-success-50 rounded-md flex items-center justify-between gap-2"
+      >
+        <div>
+          <p class="text-sm text-success-700">
+            ✓ Location set:
+            {{
+              form.location.address ||
+              `${form.location.latitude.toFixed(4)}, ${form.location.longitude.toFixed(4)}`
+            }}
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <Button variant="outline" size="sm" type="button" @click="showLocationModal = true"
+            >Edit</Button
+          >
+          <Button variant="outline" size="sm" type="button" @click="clearLocation">Clear</Button>
+        </div>
       </div>
-      <div v-else-if="locationStatus === 'error'" class="mb-4">
+      <div v-else>
+        <Button variant="outline" type="button" @click="openLocationModal">Choose Location</Button>
+      </div>
+      <div v-if="locationStatus === 'error'" class="mb-4">
         <StatusBanner type="error">
           <div class="flex items-center">
             <ExclamationTriangleIcon class="w-5 h-5 text-error-600 mr-3 flex-shrink-0" />
             <div>
               <p class="text-sm text-error-700 mb-2">{{ locationError }}</p>
-              <Button variant="outline" size="sm" type="button" @click="requestLocation">
-                Try Again
-              </Button>
             </div>
           </div>
         </StatusBanner>
       </div>
-      <div v-else-if="form.location" class="p-4 bg-success-50 rounded-md">
-        <p class="text-sm text-success-700">✓ Location set: {{ form.location.address }}</p>
-      </div>
+      <LocationPickerModal
+        :is-visible="showLocationModal"
+        :current-location="modalInitialLocation"
+        mode="creation"
+        @close="showLocationModal = false"
+        @location-selected="handleLocationSelected"
+      />
     </div>
 
     <!-- Expiry Period -->
@@ -148,7 +169,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, reactive, watch, onMounted } from 'vue'
+  import { ref, computed, reactive, watch } from 'vue'
   import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
   import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
   // Add expiry options
@@ -177,6 +198,7 @@
   import Tags from '@/components/widgets/Tags.vue'
   import { LocationService } from '@/services/location'
   import type { RequestCategory, DurationEstimate } from '@/types'
+  import LocationPickerModal from '@/components/common/LocationPickerModal.vue'
 
   const props = defineProps({
     initialValues: {
@@ -210,6 +232,9 @@
   const locationError = ref('')
   const imageUploadRef = ref<InstanceType<typeof ImageUpload>>()
   const uploadedImageUrls = ref<string[]>([...form.images])
+  const showLocationModal = ref(false)
+  const modalInitialLocation = ref<{ latitude: number; longitude: number } | null>(null)
+  const isModalLoading = ref(false)
 
   const selectedCategorySubcategories = computed(() => {
     if (!form.category) return []
@@ -265,17 +290,52 @@
         error.message || 'Unable to get your location. Please ensure location services are enabled.'
     }
   }
+  function clearLocation() {
+    form.location = null
+  }
+  function handleLocationSelected(location: {
+    latitude: number
+    longitude: number
+    address?: string
+  }) {
+    form.location = {
+      latitude: location.latitude,
+      longitude: location.longitude,
+      address: location.address,
+    }
+    locationStatus.value = 'success'
+    locationError.value = ''
+  }
+  const openLocationModal = async () => {
+    showLocationModal.value = true
+    if (form.location) {
+      modalInitialLocation.value = { ...form.location }
+      isModalLoading.value = false
+    } else {
+      isModalLoading.value = true
+      try {
+        const approx = await LocationService.getCurrentPosition()
+        modalInitialLocation.value = {
+          latitude: approx.latitude,
+          longitude: approx.longitude,
+        }
+      } catch (e) {
+        modalInitialLocation.value = { latitude: 34.0522, longitude: -118.2437 }
+      } finally {
+        isModalLoading.value = false
+      }
+    }
+  }
   const onSubmit = () => {
     if (!isFormValid.value) return
     emit('submit', {
       ...form,
       images: uploadedImageUrls.value,
       expiry_seconds: form.expiry_seconds,
+      duration_estimate:
+        isDurationRequired.value && form.duration_estimate ? form.duration_estimate : null,
     })
   }
-  onMounted(() => {
-    if (!form.location) requestLocation()
-  })
   watch(
     () => form.category,
     () => {

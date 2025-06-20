@@ -182,6 +182,7 @@
   import DynamicMap from './DynamicMap.vue'
   import LoadingSpinner from './LoadingSpinner.vue'
   import { useLocationStore } from '@/stores/location'
+  import { LocationService } from '@/services/location'
 
   export interface LocationSelection {
     latitude: number
