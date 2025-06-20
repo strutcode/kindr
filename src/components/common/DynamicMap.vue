@@ -16,24 +16,6 @@
       <button @click="initializeMap" class="btn btn-primary">Retry</button>
     </div>
 
-    <!-- Map Info Overlay -->
-    <div v-if="showMapInfo && !isLoading && !mapErr" class="map-info-overlay">
-      <div class="bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-gray-200">
-        <div class="text-sm text-gray-700">
-          <div class="flex items-center space-x-4">
-            <span>{{ visibleRequestsCount }} requests visible</span>
-            <span v-if="clusteringEnabled && clusterStats">
-              {{ clusterStats.clusters }} clusters
-            </span>
-            <span v-if="lastUpdateTime"> Updated {{ formatRelativeTime(lastUpdateTime) }} </span>
-          </div>
-          <div v-if="currentBounds" class="text-xs text-gray-500 mt-1">
-            Zoom: {{ currentZoom }} | Bounds: {{ formatBounds(currentBounds) }}
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Cluster Popup -->
     <ClusterPopup
       :requests="clusterPopupRequests"
@@ -58,7 +40,6 @@
   import { Style, Icon, Text, Fill, Stroke, Circle } from 'ol/style'
   import { fromLonLat, toLonLat } from 'ol/proj'
   import { getBottomLeft, getBottomRight, getTopLeft, getTopRight } from 'ol/extent'
-  import { formatDistanceToNow } from 'date-fns'
   import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
   import LoadingSpinner from './LoadingSpinner.vue'
   import ClusterPopup from './ClusterPopup.vue'
@@ -97,8 +78,6 @@
     showZoomControls?: boolean
     /** Whether to enable map interactions */
     interactive?: boolean
-    /** Whether to show map info overlay */
-    showMapInfo?: boolean
     /** Whether to enable bounds-based queries */
     enableBoundsQueries?: boolean
     /** Debounce delay for bounds change events (ms) */
@@ -137,7 +116,6 @@
     initialZoom: 10,
     showZoomControls: true,
     interactive: true,
-    showMapInfo: false,
     enableBoundsQueries: true,
     boundsChangeDelay: 500,
     enableClustering: true,
@@ -170,14 +148,6 @@
 
   // Debounce timer for bounds changes
   let boundsChangeTimer: NodeJS.Timeout | null = null
-
-  // Computed properties
-  const visibleRequestsCount = computed(() => {
-    if (clusteringEnabled.value && clusterStats.value) {
-      return clusterStats.value.points
-    }
-    return props.pins.length
-  })
 
   /**
    * Initialize clustering service
@@ -765,22 +735,6 @@
     fitMapToPins(pins)
   }
 
-  /**
-   * Format bounds for display
-   */
-  const formatBounds = (bounds: MapBounds): string => {
-    return `N:${bounds.north.toFixed(3)} S:${bounds.south.toFixed(3)} E:${bounds.east.toFixed(
-      3,
-    )} W:${bounds.west.toFixed(3)}`
-  }
-
-  /**
-   * Format relative time
-   */
-  const formatRelativeTime = (date: Date): string => {
-    return formatDistanceToNow(date, { addSuffix: true })
-  }
-
   // Watch for pin changes
   watch(() => props.pins, updateMapMarkers, { deep: true })
 
@@ -903,10 +857,6 @@
     @apply flex flex-col items-center justify-center bg-gray-50 text-center p-8;
   }
 
-  .map-info-overlay {
-    @apply absolute top-4 right-4 z-20 pointer-events-none;
-  }
-
   /* OpenLayers specific styles */
   :deep(.ol-viewport) {
     position: absolute !important;
@@ -940,10 +890,6 @@
 
     :deep(.ol-zoom button) {
       @apply text-sm;
-    }
-
-    .map-info-overlay {
-      @apply top-2 right-2;
     }
   }
 
