@@ -26,7 +26,8 @@
                 :class="{ 'bg-primary-50': request.id === selectedRequestId }"
                 @click="$emit('request-click', request)"
               >
-                <span class="request-number">{{ idx + 1 }}</span>
+                <!-- Hide number for requests in a group -->
+                <span v-if="false" class="request-number">{{ idx + 1 }}</span>
                 <div class="flex-1 ml-2">
                   <div class="font-medium text-gray-900">{{ request.title }}</div>
                   <div class="text-xs text-gray-500 truncate">{{ request.description }}</div>

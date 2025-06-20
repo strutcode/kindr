@@ -52,108 +52,17 @@
     </div>
 
     <!-- Selected Request Details (overlay, optional) -->
-    <div v-if="selectedRequest" class="mapview-request-details-overlay">
-      <div class="flex items-start justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">Selected Request</h3>
-        <button @click="selectedRequest = null" class="text-gray-400 hover:text-gray-600">
-          <XMarkIcon class="w-5 h-5" />
-        </button>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-6">
-        <div>
-          <h4 class="font-semibold text-gray-900 mb-2">
-            {{ selectedRequest.title }}
-          </h4>
-          <p class="text-gray-600 mb-4">{{ selectedRequest.description }}</p>
-
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
-            >
-              {{ getCategoryLabel(selectedRequest.category) }}
-            </span>
-            <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-            >
-              {{ getSubcategoryLabel(selectedRequest.category, selectedRequest.subcategory) }}
-            </span>
-            <span
-              v-if="selectedRequest.duration_estimate"
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent-100 text-accent-800"
-            >
-              {{ getDurationLabel(selectedRequest.duration_estimate) }}
-            </span>
-            <span
-              v-if="selectedRequest.distance_meters"
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary-100 text-secondary-800"
-            >
-              {{ formatDistance(selectedRequest.distance_meters) }}
-            </span>
-          </div>
-
-          <div class="flex items-center text-sm text-gray-500 space-x-4">
-            <div class="flex items-center space-x-1">
-              <MapPinIcon class="w-4 h-4" />
-              <span>{{ selectedRequest.location.address || 'Location provided' }}</span>
-            </div>
-            <div class="flex items-center space-x-1">
-              <ClockIcon class="w-4 h-4" />
-              <span>{{ formatRelativeTime(selectedRequest.created_at) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-col justify-between">
-          <div>
-            <div class="flex items-center space-x-3 mb-4">
-              <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                <UserIcon class="w-6 h-6 text-gray-600" />
-              </div>
-              <div>
-                <p class="font-medium text-gray-900">
-                  {{ selectedRequest.user?.full_name || 'Anonymous' }}
-                </p>
-                <!-- Hide email for anonymous users -->
-                <p v-if="authStore.isAuthenticated" class="text-sm text-gray-500">
-                  {{ selectedRequest.user?.email }}
-                </p>
-                <p v-else class="text-sm text-gray-500">Community Member</p>
-              </div>
-            </div>
-
-            <div v-if="selectedRequest.compensation" class="text-secondary-600 font-medium mb-4">
-              Compensation: {{ selectedRequest.compensation }}
-            </div>
-          </div>
-
-          <div class="flex space-x-3">
-            <button
-              @click="router.push(`/requests/${selectedRequest.id}`)"
-              class="btn btn-primary flex-1"
-            >
-              View Details
-            </button>
-            <!-- Authenticated user response -->
-            <button
-              v-if="canRespond(selectedRequest) && authStore.isAuthenticated"
-              @click="handleRespond(selectedRequest)"
-              class="btn btn-secondary flex-1"
-            >
-              Respond
-            </button>
-            <!-- Anonymous user prompt -->
-            <router-link
-              v-else-if="canRespond(selectedRequest) && !authStore.isAuthenticated"
-              :to="`/auth?redirect=/requests/${selectedRequest.id}`"
-              class="btn btn-secondary flex-1"
-            >
-              Sign In to Respond
-            </router-link>
-          </div>
-        </div>
-      </div>
-    </div>
+    <SelectedRequestOverlay
+      v-if="selectedRequest"
+      :selected-request="selectedRequest"
+      :get-category-label="getCategoryLabel"
+      :get-subcategory-label="getSubcategoryLabel"
+      :get-duration-label="getDurationLabel"
+      :format-relative-time="formatRelativeTime"
+      :format-distance="formatDistance"
+      :can-respond="canRespond"
+      @close="selectedRequest = null"
+    />
   </div>
 </template>
 
@@ -177,6 +86,7 @@
   import AppHeader from '@/components/common/AppHeader.vue'
   import FiltersPopover from '@/components/common/FiltersPopover.vue'
   import RequestsSidebar from '@/components/requests/RequestsSidebar.vue'
+  import SelectedRequestOverlay from '@/components/requests/SelectedRequestOverlay.vue'
   import {
     InformationCircleIcon,
     ArrowPathIcon,
