@@ -16,6 +16,14 @@
         @show-more-cluster="zoomToCluster"
       />
       <div class="mapview-map-container">
+        <!-- Overlay button to center map on user location -->
+        <button
+          class="center-location-btn"
+          @click="centerOnUserLocation"
+          title="Center on my location"
+        >
+          <MapPinIcon class="w-6 h-6" />
+        </button>
         <DynamicMap
           v-if="userLocation"
           :pins="mapPins"
@@ -295,6 +303,26 @@
     mapComponent.value?.recenter(latitude, longitude)
   }
 
+  const centerOnUserLocation = async () => {
+    try {
+      localLoading.value = true
+      const position = await LocationService.getCurrentPosition()
+      userLocation.value = {
+        latitude: position.latitude,
+        longitude: position.longitude,
+      }
+      recenterMap(position.latitude, position.longitude)
+      locationStatus.value = position.source === 'fallback' ? 'fallback' : 'success'
+    } catch (e: any) {
+      warn('Location access failed, using default location:', e)
+      userLocation.value = DEFAULT_LOCATION
+      recenterMap(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)
+      locationStatus.value = 'fallback'
+    } finally {
+      localLoading.value = false
+    }
+  }
+
   // Watch for category changes to clear subcategory
   watch(
     () => filters.category,
@@ -411,5 +439,26 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
     padding: 2rem;
     max-width: 420px;
+  }
+
+  .center-location-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    padding: 0.5rem;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.2s;
+  }
+  .center-location-btn:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    background: #f3f4f6;
   }
 </style>
