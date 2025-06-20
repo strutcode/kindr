@@ -97,6 +97,8 @@
     (e: 'view-change', center: { lat: number; lng: number }, zoom: number): void
     /** Emitted when clusters are updated for sidebar sync */
     (e: 'clusters-change', clusters: any[]): void
+    /** Emitted when a cluster is clicked for sidebar scroll */
+    (e: 'cluster-sidebar-scroll', clusterId: string): void
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -365,19 +367,20 @@
    * Handle feature click (cluster or individual marker)
    */
   const handleFeatureClick = (feature: Feature, event: any) => {
-    const cluster = feature.get('cluster') as ClusterFeature
-    const pin = feature.get('pin') as MapPin
+    const cluster = feature.get('cluster') as ClusterFeature | undefined
+    const pin = feature.get('pin') as MapPin | undefined
 
     if (cluster) {
       if (cluster.properties.cluster) {
         // Cluster clicked - show popup with all requests
-        const clusterId = cluster.properties.cluster_id!
-        const requests = clusteringService.value?.getClusterExpansionPoints(clusterId) || []
-
-        info(`Cluster clicked with ${requests.length} requests`)
-
-        clusterPopupRequests.value = requests
-        showClusterPopup.value = true
+        const clusterId = cluster.properties.cluster_id
+        if (typeof clusterId === 'number') {
+          const requests = clusteringService.value?.getClusterExpansionPoints(clusterId) || []
+          info(`Cluster clicked with ${requests.length} requests`)
+          clusterPopupRequests.value = requests
+          showClusterPopup.value = true
+          emit('cluster-sidebar-scroll', `cluster-${clusterId}`)
+        }
       } else {
         // Individual marker in clustering mode
         const request = cluster.properties.request

@@ -6,7 +6,12 @@
     </div>
     <div class="overflow-y-auto h-[calc(100vh-64px)] pr-2">
       <template v-if="clusters && clusters.length">
-        <div v-for="(cluster, idx) in clusters" :key="cluster.id" class="mb-6">
+        <div
+          v-for="(cluster, idx) in clusters"
+          :key="cluster.id"
+          class="mb-6"
+          :ref="el => ((clusterRefs.value ?? {})[cluster.id] = el as HTMLElement | null)"
+        >
           <div class="flex items-center mb-2">
             <span
               class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary-600 text-white font-bold mr-2"
@@ -67,13 +72,24 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch, onMounted } from 'vue'
-  const props = defineProps({
-    requests: { type: Array, required: true },
-    clusters: { type: Array, default: () => [] },
-    loading: { type: Boolean, default: false },
-    selectedRequestId: { type: String, default: '' },
-  })
+  import { ref, computed, watch, onMounted, nextTick } from 'vue'
+  import type { Ref } from 'vue'
+  import type { RequestWithDistance } from '@/services/spatialQueries'
+
+  interface ClusterGroup {
+    id: string
+    requests: RequestWithDistance[]
+    coordinates: [number, number]
+    isCluster: boolean
+    pinNumber: number
+  }
+
+  const props = defineProps<{
+    requests: RequestWithDistance[]
+    clusters: ClusterGroup[]
+    loading: boolean
+    selectedRequestId: string
+  }>()
   const emit = defineEmits(['request-click', 'show-more-cluster'])
 
   // Infinite scroll: only render visible requests
@@ -89,6 +105,20 @@
       }
     }
   }
+
+  const clusterRefs: Ref<Record<string, HTMLElement | null>> = ref({})
+
+  // Expose scrollToCluster for parent
+  function scrollToCluster(clusterId: string) {
+    nextTick(() => {
+      const el = clusterRefs.value[clusterId]
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    })
+  }
+
+  defineExpose({ scrollToCluster })
 
   onMounted(() => {
     const sidebar = document.querySelector('.mapview-requests-sidebar .overflow-y-auto')

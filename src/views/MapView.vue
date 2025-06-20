@@ -8,6 +8,7 @@
     </Teleport>
     <div class="mapview-content">
       <RequestsSidebar
+        ref="requestsSidebarRef"
         :requests="filteredRequests"
         :clusters="clusters"
         :loading="isLoading"
@@ -42,6 +43,7 @@
           @view-change="handleViewChange"
           @map-ready="handleMapReady"
           @clusters-change="onClustersChange"
+          @cluster-sidebar-scroll="handleClusterSidebarScroll"
           ref="mapComponent"
         />
       </div>
@@ -316,6 +318,13 @@
 
   function zoomToCluster(clusterId: string) {
     mapComponent.value?.zoomToCluster(clusterId)
+  }
+
+  const requestsSidebarRef = ref()
+
+  function handleClusterSidebarScroll(clusterId: string) {
+    // Call the scrollToCluster method on the sidebar
+    requestsSidebarRef.value?.scrollToCluster?.(clusterId)
   }
 </script>
 
