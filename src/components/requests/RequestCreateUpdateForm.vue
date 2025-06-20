@@ -129,7 +129,7 @@
       </div>
       <LocationPickerModal
         :is-visible="showLocationModal"
-        :current-location="modalInitialLocation"
+        :current-location="form.location"
         mode="creation"
         @close="showLocationModal = false"
         @location-selected="handleLocationSelected"
@@ -233,8 +233,6 @@
   const imageUploadRef = ref<InstanceType<typeof ImageUpload>>()
   const uploadedImageUrls = ref<string[]>([...form.images])
   const showLocationModal = ref(false)
-  const modalInitialLocation = ref<{ latitude: number; longitude: number } | null>(null)
-  const isModalLoading = ref(false)
 
   const selectedCategorySubcategories = computed(() => {
     if (!form.category) return []
@@ -272,24 +270,6 @@
     // Errors are already displayed in the ImageUpload component
     // Optionally emit or handle here
   }
-  const requestLocation = async () => {
-    locationStatus.value = 'loading'
-    locationError.value = ''
-    try {
-      const position = await LocationService.getCurrentPosition()
-      const address = await LocationService.reverseGeocode(position.latitude, position.longitude)
-      form.location = {
-        latitude: position.latitude,
-        longitude: position.longitude,
-        address,
-      }
-      locationStatus.value = 'success'
-    } catch (error: any) {
-      locationStatus.value = 'error'
-      locationError.value =
-        error.message || 'Unable to get your location. Please ensure location services are enabled.'
-    }
-  }
   function clearLocation() {
     form.location = null
   }
@@ -306,25 +286,8 @@
     locationStatus.value = 'success'
     locationError.value = ''
   }
-  const openLocationModal = async () => {
+  function openLocationModal() {
     showLocationModal.value = true
-    if (form.location) {
-      modalInitialLocation.value = { ...form.location }
-      isModalLoading.value = false
-    } else {
-      isModalLoading.value = true
-      try {
-        const approx = await LocationService.getCurrentPosition()
-        modalInitialLocation.value = {
-          latitude: approx.latitude,
-          longitude: approx.longitude,
-        }
-      } catch (e) {
-        modalInitialLocation.value = { latitude: 34.0522, longitude: -118.2437 }
-      } finally {
-        isModalLoading.value = false
-      }
-    }
   }
   const onSubmit = () => {
     if (!isFormValid.value) return

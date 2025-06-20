@@ -22,6 +22,12 @@ const router = createRouter({
       component: () => import('@/views/AuthCallbackView.vue'),
     },
     {
+      path: '/requests',
+      name: 'Browse Requests',
+      component: () => import('@/views/MapView.vue'),
+      // Remove requiresAuth - allow anonymous access
+    },
+    {
       path: '/requests/create',
       name: 'CreateRequest',
       component: () => import('@/views/CreateRequestView.vue'),

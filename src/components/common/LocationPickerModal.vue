@@ -15,9 +15,6 @@
       >
         <div class="flex-1 min-w-0">
           <h2 class="text-lg sm:text-xl font-semibold text-gray-900 truncate">Choose Location</h2>
-          <p class="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">
-            Click on the map to select a new location for browsing requests
-          </p>
           <p class="text-xs text-gray-600 mt-1 sm:hidden">Tap on the map to select a location</p>
         </div>
         <button
@@ -78,7 +75,17 @@
 
           <!-- Loading Overlay -->
           <div
-            v-if="isLoadingAddress"
+            v-if="isLoadingInitialLocation"
+            class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center"
+          >
+            <div class="text-center">
+              <LoadingSpinner size="lg" />
+              <p class="text-xs sm:text-sm text-gray-600 mt-2">Getting your location...</p>
+            </div>
+          </div>
+
+          <div
+            v-else-if="isLoadingAddress"
             class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center"
           >
             <div class="text-center">
@@ -216,6 +223,10 @@
   const isLoadingAddress = ref(false)
   const isGettingLocation = ref(false)
 
+  // Add state for initial map center
+  const initialMapCenter = ref<{ latitude: number; longitude: number } | null>(null)
+  const isLoadingInitialLocation = ref(false)
+
   // Store
   const locationStore = useLocationStore()
 
@@ -277,15 +288,39 @@
     }
   }
 
+  // Fetch approximate user location from edge function before showing map
+  async function fetchInitialMapCenter() {
+    isLoadingInitialLocation.value = true
+    try {
+      // Use LocationService fallback to edge function (uses get-user-location)
+      const approx = await LocationService.getCurrentPosition()
+      initialMapCenter.value = {
+        latitude: approx.latitude,
+        longitude: approx.longitude,
+      }
+    } catch (e) {
+      // fallback to LA if all else fails
+      initialMapCenter.value = { latitude: 34.0522, longitude: -118.2437 }
+    } finally {
+      isLoadingInitialLocation.value = false
+    }
+  }
+
   const handleMapReady = (map: any) => {
     console.log('Location picker map ready')
 
-    // Center on current location if available
+    // Center on current location if available, else use initialMapCenter
     if (props.currentLocation) {
       mapComponent.value?.recenter(
         props.currentLocation.latitude,
         props.currentLocation.longitude,
         12,
+      )
+    } else if (initialMapCenter.value) {
+      mapComponent.value?.recenter(
+        initialMapCenter.value.latitude,
+        initialMapCenter.value.longitude,
+        10,
       )
     }
   }
@@ -380,22 +415,25 @@
   // Watch for visibility changes to reset state
   watch(
     () => props.isVisible,
-    isVisible => {
+    async isVisible => {
       if (isVisible) {
-        // Reset selection when modal opens
         selectedLocation.value = null
-
-        // Set initial selection if current location is provided
         if (props.currentLocation) {
           selectedLocation.value = { ...props.currentLocation }
         }
-
-        // Prevent body scroll on mobile
+        // Reset and fetch only if needed
+        initialMapCenter.value = null
+        isLoadingInitialLocation.value = false
+        if (!props.currentLocation && !props.initialLocation) {
+          await fetchInitialMapCenter()
+        }
         if (typeof window !== 'undefined' && window.innerWidth < 640) {
           document.body.style.overflow = 'hidden'
         }
       } else {
-        // Restore body scroll
+        // Reset loading state on close
+        isLoadingInitialLocation.value = false
+        initialMapCenter.value = null
         document.body.style.overflow = ''
       }
     },
