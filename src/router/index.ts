@@ -22,12 +22,6 @@ const router = createRouter({
       component: () => import('@/views/AuthCallbackView.vue'),
     },
     {
-      path: '/requests',
-      name: 'Requests',
-      component: () => import('@/views/RequestsView.vue'),
-      // Remove requiresAuth - allow anonymous access
-    },
-    {
       path: '/requests/create',
       name: 'CreateRequest',
       component: () => import('@/views/CreateRequestView.vue'),
@@ -67,7 +61,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
+
   // Wait for auth initialization
   if (authStore.loading) {
     await new Promise(resolve => {

@@ -15,18 +15,11 @@
           <!-- Navigation - Always visible for public browsing -->
           <nav class="hidden md:flex space-x-6">
             <router-link
-              to="/requests"
-              class="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-              active-class="text-primary-600"
-            >
-              Browse Requests
-            </router-link>
-            <router-link
               to="/map"
               class="text-gray-600 hover:text-gray-900 font-medium transition-colors"
               active-class="text-primary-600"
             >
-              Map View
+              Browse Requests
             </router-link>
           </nav>
         </div>
@@ -116,20 +109,12 @@
     <div v-if="showMobileMenu" class="md:hidden border-t border-gray-200 bg-white">
       <div class="px-4 py-2 space-y-1">
         <router-link
-          to="/requests"
-          class="block px-3 py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors rounded-md hover:bg-gray-50"
-          active-class="text-primary-600 bg-primary-50"
-          @click="showMobileMenu = false"
-        >
-          Browse Requests
-        </router-link>
-        <router-link
           to="/map"
           class="block px-3 py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors rounded-md hover:bg-gray-50"
           active-class="text-primary-600 bg-primary-50"
           @click="showMobileMenu = false"
         >
-          Map View
+          Browse Requests
         </router-link>
 
         <div v-if="!authStore.isAuthenticated" class="pt-2 border-t border-gray-200 mt-2">
