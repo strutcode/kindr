@@ -20,6 +20,7 @@ export const useRequestsStore = defineStore('requests', () => {
   const filters = ref<RequestFilters>({
     radius: 2,
   })
+  const showFiltersPopover = ref(false)
 
   const activeRequests = computed(() => requests.value.filter(req => req.status === 'active'))
 
@@ -486,6 +487,16 @@ export const useRequestsStore = defineStore('requests', () => {
     }
   }
 
+  const toggleFiltersPopover = () => {
+    showFiltersPopover.value = !showFiltersPopover.value
+  }
+  const openFiltersPopover = () => {
+    showFiltersPopover.value = true
+  }
+  const closeFiltersPopover = () => {
+    showFiltersPopover.value = false
+  }
+
   return {
     requests: readonly(requests),
     userRequests: readonly(userRequests),
@@ -508,5 +519,9 @@ export const useRequestsStore = defineStore('requests', () => {
     clearError,
     refreshRequests,
     validateGeometries,
+    showFiltersPopover,
+    toggleFiltersPopover,
+    openFiltersPopover,
+    closeFiltersPopover,
   }
 })

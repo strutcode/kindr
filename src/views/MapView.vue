@@ -1,21 +1,12 @@
 <template>
   <div class="mapview-root">
-    <!-- Header (AppHeader) -->
-    <AppHeader @toggle-filters="toggleFiltersPopover" />
-
-    <!-- Filters Popover -->
-    <FiltersPopover
-      v-if="showFiltersPopover"
-      :filters="filters"
-      :categories="CATEGORIES"
-      :selected-category-subcategories="selectedCategorySubcategories"
-      @update:filters="onFiltersUpdate"
-      @close="showFiltersPopover = false"
-    />
-
-    <!-- Map and Sidebar Layout -->
+    <!-- The header is global, so content below should not be hidden under it -->
+    <Teleport to="body">
+      <div v-if="requestsStore.showFiltersPopover" class="filters-sidebar-overlay">
+        <FiltersPopover />
+      </div>
+    </Teleport>
     <div class="mapview-content">
-      <!-- Requests Sidebar -->
       <RequestsSidebar
         :requests="filteredRequests"
         :clusters="clusters"
@@ -24,8 +15,6 @@
         @request-click="selectRequest"
         @show-more-cluster="zoomToCluster"
       />
-
-      <!-- Map Container -->
       <div class="mapview-map-container">
         <DynamicMap
           v-if="userLocation"
@@ -50,8 +39,6 @@
         />
       </div>
     </div>
-
-    <!-- Selected Request Details (overlay, optional) -->
     <SelectedRequestOverlay
       v-if="selectedRequest"
       :selected-request="selectedRequest"
@@ -83,7 +70,6 @@
   import { useRequestFormatting } from '@/composables/useRequestFormatting'
   import UserInfo from '@/components/common/UserInfo.vue'
   import StatusBanner from '@/components/common/StatusBanner.vue'
-  import AppHeader from '@/components/common/AppHeader.vue'
   import FiltersPopover from '@/components/common/FiltersPopover.vue'
   import RequestsSidebar from '@/components/requests/RequestsSidebar.vue'
   import SelectedRequestOverlay from '@/components/requests/SelectedRequestOverlay.vue'
@@ -97,11 +83,13 @@
     ClockIcon,
     UserIcon,
   } from '@heroicons/vue/24/outline'
+  import { useRequestsStore } from '@/stores/requests'
 
   const { log, debug, info, warn, error } = createLogger('MapView')
 
   const router = useRouter()
   const authStore = useAuthStore()
+  const requestsStore = useRequestsStore()
 
   const userLocation = ref<{ latitude: number; longitude: number } | null>(null)
   const locationStatus = ref<'loading' | 'success' | 'fallback'>('loading')
@@ -317,18 +305,6 @@
     }
   })
 
-  const showFiltersPopover = ref(false)
-  const toggleFiltersPopover = () => {
-    showFiltersPopover.value = !showFiltersPopover.value
-  }
-
-  const onFiltersUpdate = (newFilters: typeof filters) => {
-    filters.category = newFilters.category
-    filters.subcategory = newFilters.subcategory
-    showFiltersPopover.value = false
-    handleFiltersChange()
-  }
-
   // For sidebar and map pin numbering
   const pinNumbers = ref<Record<string, number>>({})
 
@@ -367,15 +343,14 @@
     width: 100vw;
     overflow: hidden;
   }
-
   .mapview-content {
     flex: 1 1 0;
     display: flex;
-    height: calc(100vh - 64px); /* header height */
+    height: 100%;
     width: 100vw;
     overflow: hidden;
+    margin-top: 64px; /* header height */
   }
-
   .mapview-map-container {
     flex: 1 1 0;
     position: relative;
@@ -383,31 +358,23 @@
     width: 100%;
     z-index: 1;
   }
-
-  /* Sidebar overlay styles */
-  .mapview-requests-sidebar {
-    width: 380px;
-    max-width: 100vw;
-    height: 100%;
-    background: white;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
-    z-index: 10;
-    overflow-y: auto;
-    position: relative;
-  }
-
-  /* Filters popover overlay */
-  .filters-popover {
-    position: absolute;
+  .filters-sidebar-overlay {
+    position: fixed;
     top: 64px;
-    left: 50px;
-    z-index: 20;
-    background: white;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    min-width: 320px;
+    left: 0;
+    height: calc(100vh - 64px);
+    width: 340px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
   }
+  .filters-sidebar-overlay > * {
+    pointer-events: auto;
+    width: 100%;
+    height: 100%;
+  }
+  /* Remove old popover overlay styles */
 
   .mapview-request-details-overlay {
     position: absolute;

@@ -35,8 +35,8 @@
         <div class="flex items-center space-x-4">
           <!-- Filters Button: Only show on map view -->
           <button
-            v-if="$route.path === '/map'"
-            @click="$emit('toggle-filters')"
+            v-if="$route.path.startsWith('/map')"
+            @click="requestsStore.toggleFiltersPopover"
             class="btn btn-outline flex items-center"
             style="margin-right: 0.5rem"
           >
@@ -50,7 +50,7 @@
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707l-6.414 6.414A1 1 0 0013 13.414V19a1 1 0 01-1.447.894l-2-1A1 1 0 019 18v-4.586a1 1 0 00-.293-.707L2.293 6.707A1 1 0 012 6V4z"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707l-6.414 6.414A1 1 0 0013 13.414V19a1 1 0 01-1.447.894l-2-1A1 1 0 009 18v-4.586a1 1 0 00-.293-.707L2.293 6.707A1 1 0 012 6V4z"
               />
             </svg>
             Filters
@@ -157,12 +157,14 @@
     Bars3Icon,
     XMarkIcon,
   } from '@heroicons/vue/24/outline'
+  import { useRequestsStore } from '@/stores/requests'
 
   const authStore = useAuthStore()
   const router = useRouter()
   const showUserMenu = ref(false)
   const showMobileMenu = ref(false)
   const userMenuRef = ref<HTMLElement>()
+  const requestsStore = useRequestsStore()
 
   const handleSignOut = async () => {
     await authStore.signOut()
