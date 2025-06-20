@@ -15,15 +15,6 @@
       <p class="text-gray-600 mb-4">{{ mapErr }}</p>
       <button @click="initializeMap" class="btn btn-primary">Retry</button>
     </div>
-
-    <!-- Cluster Popup -->
-    <ClusterPopup
-      :requests="clusterPopupRequests"
-      :is-visible="showClusterPopup"
-      @close="closeClusterPopup"
-      @request-click="handleClusterRequestClick"
-      @zoom-to-fit="handleZoomToFit"
-    />
   </div>
 </template>
 
@@ -42,7 +33,6 @@
   import { getBottomLeft, getBottomRight, getTopLeft, getTopRight } from 'ol/extent'
   import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
   import LoadingSpinner from './LoadingSpinner.vue'
-  import ClusterPopup from './ClusterPopup.vue'
   import { MapClusteringService, type ClusterFeature } from '@/services/mapClustering'
   import type { MapBounds, RequestWithDistance } from '@/services/spatialQueries'
   import { createLogger } from '@/lib/logger'
@@ -703,42 +693,6 @@
     } catch (err) {
       warn('Error fitting map to pins:', err)
     }
-  }
-
-  /**
-   * Close cluster popup
-   */
-  const closeClusterPopup = () => {
-    showClusterPopup.value = false
-    clusterPopupRequests.value = []
-  }
-
-  /**
-   * Handle request click from cluster popup
-   */
-  const handleClusterRequestClick = (request: RequestWithDistance) => {
-    const pin: MapPin = {
-      lat: request.location.latitude,
-      lng: request.location.longitude,
-      title: request.title,
-      id: request.id,
-      data: request,
-    }
-    emit('pin-click', pin, new Event('click'))
-  }
-
-  /**
-   * Handle zoom to fit from cluster popup
-   */
-  const handleZoomToFit = (requests: RequestWithDistance[]) => {
-    const pins: MapPin[] = requests.map(request => ({
-      lat: request.location.latitude,
-      lng: request.location.longitude,
-      title: request.title,
-      id: request.id,
-      data: request,
-    }))
-    fitMapToPins(pins)
   }
 
   // Watch for pin changes
