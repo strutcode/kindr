@@ -88,7 +88,7 @@
     requests: RequestWithDistance[]
     clusters: ClusterGroup[]
     loading: boolean
-    selectedRequestId: string
+    selectedRequestId?: string | null
   }>()
   const emit = defineEmits(['request-click', 'show-more-cluster'])
 

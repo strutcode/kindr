@@ -12,7 +12,7 @@
         :requests="filteredRequests"
         :clusters="clusters"
         :loading="isLoading"
-        :selected-request-id="selectedRequest?.id"
+        :selected-request-id="selectedRequest ? selectedRequest.id : null"
         @request-click="selectRequest"
         @show-more-cluster="zoomToCluster"
       />
