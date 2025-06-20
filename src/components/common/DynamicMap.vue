@@ -643,8 +643,8 @@
    * Recenter map to specific coordinates
    */
   const recenter = (latitude: number, longitude: number, zoom?: number) => {
-    if (!map.value) {
-      console.warn('Map not initialized, cannot recenter')
+    if (!map.value || typeof map.value.getRenderer !== 'function' || !map.value.getRenderer()) {
+      console.warn('Map or renderer not initialized, cannot recenter')
       return
     }
 
@@ -661,7 +661,13 @@
    * Fit map to show all pins
    */
   const fitMapToPins = (pins: MapPin[] = props.pins) => {
-    if (!map.value || pins.length === 0) return
+    if (
+      !map.value ||
+      typeof map.value.getRenderer !== 'function' ||
+      !map.value.getRenderer() ||
+      pins.length === 0
+    )
+      return
 
     try {
       if (pins.length === 1) {

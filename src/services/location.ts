@@ -141,15 +141,38 @@ export class LocationService {
     longitude: number
     formatted_address: string
   }> {
-    // This would typically use a geocoding service like Google Maps API
-    // For demo purposes, we'll return a mock response
-    throw new Error('Geocoding service not implemented')
+    // Use Nominatim OpenStreetMap API for geocoding
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+      address,
+    )}&limit=1`
+    const response = await fetch(url, {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'KindrApp/1.0 (contact@kindr.app)',
+      },
+    })
+    if (!response.ok) throw new Error('Failed to geocode address')
+    const data = await response.json()
+    if (!data || !data[0]) throw new Error('No results found for address')
+    return {
+      latitude: parseFloat(data[0].lat),
+      longitude: parseFloat(data[0].lon),
+      formatted_address: data[0].display_name,
+    }
   }
 
   static async reverseGeocode(latitude: number, longitude: number): Promise<string> {
-    // This would typically use a reverse geocoding service
-    // For demo purposes, we'll return a mock response
-    return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+    // Use Nominatim OpenStreetMap API for reverse geocoding
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+    const response = await fetch(url, {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'KindrApp/1.0 (contact@kindr.app)',
+      },
+    })
+    if (!response.ok) return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+    const data = await response.json()
+    return data.display_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
   }
 
   static filterRequestsByLocation<T extends { location: { latitude: number; longitude: number } }>(

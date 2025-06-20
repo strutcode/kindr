@@ -74,31 +74,7 @@
           </div>
 
           <!-- Location Override Section -->
-          <div class="mb-6">
-            <div class="flex items-center justify-between mb-2">
-              <label class="block text-sm font-medium text-gray-700"> Search Location </label>
-              <button
-                @click="showLocationPicker"
-                class="text-sm text-primary-600 hover:text-primary-500 font-medium"
-              >
-                Change
-              </button>
-            </div>
-
-            <div class="p-3 bg-gray-50 rounded-md border border-gray-200">
-              <div class="flex items-start">
-                <MapPinIcon class="w-4 h-4 text-gray-500 mt-0.5 mr-2 flex-shrink-0" />
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm text-gray-700 truncate">
-                    {{ currentLocationDisplay }}
-                  </p>
-                  <p class="text-xs text-gray-500 mt-1">
-                    {{ locationStatusText }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <LocationFilterControl />
 
           <!-- Location Status -->
           <div class="mb-6">
@@ -211,6 +187,7 @@
     type LocationSelection,
   } from '@/components/common/LocationPickerModal.vue'
   import StatusBanner from '@/components/common/StatusBanner.vue'
+  import LocationFilterControl from '@/components/common/LocationFilterControl.vue'
   import type { Request, RequestFilters } from '@/types'
   import { createLogger } from '@/lib/logger'
 
