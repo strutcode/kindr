@@ -1,14 +1,15 @@
+export interface Location {
+  lat: number
+  lng: number
+}
+
 export interface User {
   id: string
   email: string
   full_name?: string
   avatar_url?: string
   phone?: string
-  location?: {
-    latitude: number
-    longitude: number
-    address: string
-  }
+  location?: Location
   notification_radius: number
   created_at: string
   updated_at: string
@@ -25,11 +26,7 @@ export interface Request {
   skills_required: string[]
   compensation?: string
   images?: string[]
-  location: {
-    latitude: number
-    longitude: number
-    address: string
-  }
+  location: Location
   status: RequestStatus
   created_at: string
   updated_at: string
@@ -133,4 +130,9 @@ export interface SpatialQueryOptions {
 
 export interface RequestWithDistance extends Request {
   distance_meters?: number
+}
+
+export interface MapView {
+  center: Location
+  zoom: number
 }

@@ -9,7 +9,7 @@
     :placeholder="placeholder"
     :required="required"
     class="input"
-    @input="$emit('input', $event.target.value)"
+    @input="$emit('input', modelValueProxy)"
   />
 </template>
 

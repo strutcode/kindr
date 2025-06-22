@@ -2,21 +2,15 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { LocationService } from '@/services/location'
 
-export interface Location {
+export interface ViewLocation {
   latitude: number
   longitude: number
-  address?: string
-  city?: string
-  country?: string
-  countryCode?: string
-  timeZone?: string
-  accuracy?: 'high' | 'medium' | 'low'
-  source?: 'gps' | 'ip' | 'fallback'
+  zoom: number
 }
 
 export const useLocationStore = defineStore('location', () => {
   // For browsing/filtering
-  const viewingLocation = ref<Location | null>(null)
+  const viewingLocation = ref<ViewLocation | null>(null)
   // For request creation
   const creationLocation = ref<Location | null>(null)
 
@@ -45,7 +39,7 @@ export const useLocationStore = defineStore('location', () => {
   )
 
   // Setters
-  function setViewingLocation(loc: Location | null) {
+  function setViewingLocation(loc: ViewLocation | null) {
     viewingLocation.value = loc
   }
   function setCreationLocation(loc: Location | null) {
@@ -56,14 +50,6 @@ export const useLocationStore = defineStore('location', () => {
   }
   function clearCreationLocation() {
     creationLocation.value = null
-  }
-
-  // Initialize viewing location using LocationService
-  async function initViewingLocation() {
-    if (!viewingLocation.value) {
-      const loc = await LocationService.getCurrentPosition()
-      viewingLocation.value = loc
-    }
   }
 
   // Geocode address for manual entry
@@ -93,7 +79,6 @@ export const useLocationStore = defineStore('location', () => {
     setCreationLocation,
     clearViewingLocation,
     clearCreationLocation,
-    initViewingLocation,
     geocodeAddress,
     reverseGeocode,
   }

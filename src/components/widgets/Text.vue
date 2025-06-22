@@ -9,7 +9,8 @@
     :placeholder="placeholder"
     :required="required"
     class="input"
-    @input="$emit('input', $event.target.value)"
+    @input="$emit('input', modelValueProxy)"
+    @keydown.enter.prevent="$emit('enter', modelValueProxy)"
   />
 </template>
 
@@ -27,7 +28,7 @@
   const props = withDefaults(defineProps<Props>(), {
     type: 'text',
   })
-  const emit = defineEmits(['update:modelValue', 'input'])
+  const emit = defineEmits(['update:modelValue', 'input', 'enter'])
 
   const modelValueProxy = computed({
     get: () => props.modelValue,

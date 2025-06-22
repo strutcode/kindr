@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <AppHeader />
+    <NavBar />
     <main>
       <router-view />
     </main>
@@ -8,5 +8,15 @@
 </template>
 
 <script setup lang="ts">
-import AppHeader from '@/components/common/AppHeader.vue'
+  import NavBar from '@/components/NavBar.vue'
 </script>
+
+<style scoped>
+  #app {
+    @apply flex flex-col min-h-screen bg-gray-100;
+  }
+
+  main {
+    @apply relative flex-1;
+  }
+</style>

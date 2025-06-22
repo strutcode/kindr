@@ -148,6 +148,12 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (signInError) throw new Error(signInError.message)
 
+      if (authResult.user) {
+        await fetchUserProfile(authResult.user.id)
+      }
+      log('Sign in successful:', authResult)
+      session.value = authResult.session || null
+
       return { data: authResult, error: null }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Sign in failed'

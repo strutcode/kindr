@@ -16,102 +16,119 @@ interface LocationData {
   source: 'gps' | 'ip' | 'fallback'
 }
 
+const DEFAULT_LOCATION: LocationData = {
+  latitude: 34.0522,
+  longitude: -118.2437,
+  city: 'Los Angeles',
+  country: 'United States',
+  countryCode: 'US',
+  timeZone: 'America/Los_Angeles',
+  accuracy: 'low',
+  source: 'fallback',
+}
+
 export class LocationService {
   /**
    * Gets the user's current position using browser geolocation with Supabase fallback
    */
   static async getCurrentPosition(): Promise<LocationData> {
     try {
-      // Try GPS/browser geolocation first
-      info('Attempting to get GPS location...')
-
-      if (!navigator.geolocation) {
-        throw new Error('Geolocation is not supported by this browser')
-      }
-
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 5 * 60 * 1000, // 5 minutes
-        })
-      })
-
-      info('GPS location successful:', position.coords)
-
-      return {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        city: 'Current Location',
-        country: 'Unknown',
-        countryCode: 'Unknown',
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        accuracy: 'high',
-        source: 'gps',
-      }
+      return await LocationService.getGpsPosition()
     } catch (gpsError) {
-      warn('GPS location failed, trying Supabase fallback:', gpsError)
-
+      warn('GPS location failed, trying approximation:', gpsError)
       try {
-        // Fallback to Supabase edge function using the configured client
-        const { data, error } = await supabase.functions.invoke('get-user-location')
-
-        if (error) {
-          throw new Error(`Supabase function failed: ${error}`)
-        }
-
-        if (!data) {
-          throw new Error('No data received from Supabase function')
-        }
-
-        // Validate response data
-        if (!data.latitude || !data.longitude) {
-          throw new Error('Invalid response: Missing latitude or longitude data')
-        }
-
-        const latitude = parseFloat(data.latitude)
-        const longitude = parseFloat(data.longitude)
-
-        if (isNaN(latitude) || isNaN(longitude)) {
-          throw new Error('Invalid response: Latitude or longitude is not a valid number')
-        }
-
-        if (latitude < -90 || latitude > 90) {
-          throw new Error('Invalid response: Latitude out of valid range (-90 to 90)')
-        }
-
-        if (longitude < -180 || longitude > 180) {
-          throw new Error('Invalid response: Longitude out of valid range (-180 to 180)')
-        }
-
-        info('Supabase location successful:', data)
-
-        return {
-          latitude,
-          longitude,
-          city: data.city || 'Unknown',
-          country: data.country || 'Unknown',
-          countryCode: data.countryCode || 'Unknown',
-          timeZone: data.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-          accuracy: 'medium',
-          source: 'ip',
-        }
+        return await LocationService.getApproxPosition()
       } catch (supabaseError) {
-        warn('Supabase location also failed:', supabaseError)
+        warn('IP location also failed:', supabaseError)
 
         // Final fallback to default location (Los Angeles, CA)
         warn('All location methods failed, using default location')
-        return {
-          latitude: 34.0522,
-          longitude: -118.2437,
-          city: 'Los Angeles',
-          country: 'United States',
-          countryCode: 'US',
-          timeZone: 'America/Los_Angeles',
-          accuracy: 'low',
-          source: 'fallback',
-        }
+        return DEFAULT_LOCATION
       }
+    }
+  }
+
+  /**
+   * Gets the user's current position using browser geolocation
+   */
+  static async getGpsPosition(): Promise<LocationData> {
+    // Try GPS/browser geolocation first
+    info('Attempting to get GPS location...')
+
+    if (!navigator.geolocation) {
+      throw new Error('Geolocation is not supported by this browser')
+    }
+
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 5 * 60 * 1000, // 5 minutes
+      })
+    })
+
+    info('GPS location successful:', position.coords)
+
+    return {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      city: 'Current Location',
+      country: 'Unknown',
+      countryCode: 'Unknown',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      accuracy: 'high',
+      source: 'gps',
+    }
+  }
+
+  /**
+   * Gets the user's current position by IP approximation
+   */
+  static async getApproxPosition(): Promise<LocationData> {
+    info('Getting approximate location...')
+
+    // Fallback to Supabase edge function using the configured client
+    const { data, error } = await supabase.functions.invoke('get-user-location')
+
+    if (error) {
+      throw new Error(`Supabase function failed: ${error}`)
+    }
+
+    if (!data) {
+      throw new Error('No data received from Supabase function')
+    }
+
+    // Validate response data
+    if (!data.latitude || !data.longitude) {
+      throw new Error('Invalid response: Missing latitude or longitude data')
+    }
+
+    const latitude = parseFloat(data.latitude)
+    const longitude = parseFloat(data.longitude)
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      throw new Error('Invalid response: Latitude or longitude is not a valid number')
+    }
+
+    if (latitude < -90 || latitude > 90) {
+      throw new Error('Invalid response: Latitude out of valid range (-90 to 90)')
+    }
+
+    if (longitude < -180 || longitude > 180) {
+      throw new Error('Invalid response: Longitude out of valid range (-180 to 180)')
+    }
+
+    info('Supabase location successful:', data)
+
+    return {
+      latitude,
+      longitude,
+      city: data.city || 'Unknown',
+      country: data.country || 'Unknown',
+      countryCode: data.countryCode || 'Unknown',
+      timeZone: data.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      accuracy: 'medium',
+      source: 'ip',
     }
   }
 
@@ -148,7 +165,7 @@ export class LocationService {
     const response = await fetch(url, {
       headers: {
         Accept: 'application/json',
-        'User-Agent': 'KindrApp/1.0 (contact@kindr.app)',
+        'User-Agent': 'KindrApp/1.0 (contact@kindr.net)',
       },
     })
     if (!response.ok) throw new Error('Failed to geocode address')
@@ -167,7 +184,7 @@ export class LocationService {
     const response = await fetch(url, {
       headers: {
         Accept: 'application/json',
-        'User-Agent': 'KindrApp/1.0 (contact@kindr.app)',
+        'User-Agent': 'KindrApp/1.0 (contact@kindr.net)',
       },
     })
     if (!response.ok) return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
