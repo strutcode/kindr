@@ -8,23 +8,35 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
+  import { ref, onMounted, onBeforeUnmount, useTemplateRef, watch } from 'vue'
   import { debounce } from 'lodash'
-  import { Map, View } from 'ol'
+  import { Feature, Map, View } from 'ol'
   import TileLayer from 'ol/layer/Tile'
   import OSM from 'ol/source/OSM'
   import 'ol/ol.css'
   import { fromLonLat, toLonLat } from 'ol/proj'
   import type { Location, MapView } from '@/types'
+  import VectorLayer from 'ol/layer/Vector'
+  import { Point } from 'ol/geom'
+  import { Icon, Style } from 'ol/style'
+  import VectorSource from 'ol/source/Vector'
 
   const el = useTemplateRef('map')
   const map = ref<Map | null>(null)
+
+  interface MapPin {
+    index: number
+    lat: number
+    lng: number
+    color: string
+  }
 
   interface Props {
     center?: Location
     zoom?: number
     minZoom?: number
     maxZoom?: number
+    pins?: MapPin[]
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -32,6 +44,7 @@
     zoom: 10,
     minZoom: 1,
     maxZoom: 19,
+    pins: [],
   })
 
   const emit = defineEmits<{
@@ -61,9 +74,53 @@
       emit('update:center', { lat: center[1], lng: center[0] })
       emit('update:zoom', zoom)
       emit('view-change', { center: { lat: center[1], lng: center[0] }, zoom })
-      console.log('Map view changed:', { lat: center[1], lng: center[0] }, zoom)
     }
   }, 250)
+
+  const pinLayer = new VectorLayer({
+    source: new VectorSource(),
+    zIndex: 10,
+  })
+
+  const createMarkerSVG = (color: string): string => {
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
+      <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 0C7.163 0 0 7.163 0 16c0 16 16 24 16 24s16-8 16-24C32 7.163 24.837 0 16 0z" fill="${color}"/>
+        <circle cx="16" cy="16" r="8" fill="white"/>
+        <circle cx="16" cy="16" r="4" fill="${color}"/>
+      </svg>
+    `)}`
+  }
+
+  const updatePinLayer = () => {
+    if (!map.value) return
+
+    const source = pinLayer.getSource()
+
+    if (!source) return
+
+    const features = props.pins.map(pin => {
+      const feature = new Feature({
+        geometry: new Point(fromLonLat([pin.lng, pin.lat])),
+        index: pin.index,
+      })
+
+      feature.setStyle(
+        new Style({
+          image: new Icon({
+            src: createMarkerSVG(pin.color),
+            scale: 1,
+            anchor: [0.5, 1],
+          }),
+        }),
+      )
+
+      return feature
+    })
+
+    source.addFeatures(features)
+  }
+  watch(() => props.pins, updatePinLayer, { immediate: true })
 
   onMounted(() => {
     if (!el.value) {
@@ -80,6 +137,8 @@
       projection: 'EPSG:3857',
     })
 
+    updatePinLayer()
+
     view.on('change:center', () => onViewChange(view))
     view.on('change:resolution', () => onViewChange(view))
     map.value = new Map({
@@ -88,13 +147,14 @@
         new TileLayer({
           source: new OSM(),
         }),
+        pinLayer,
       ],
       view,
     })
   })
 
   onBeforeUnmount(() => {
-    if (map.value) {
+    if (map.value?.setTarget) {
       map.value.setTarget(undefined)
       map.value = null
     }

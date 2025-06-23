@@ -1,60 +1,111 @@
 <template>
-  <Map
-    v-if="!locating"
-    class="absolute w-full h-full"
-    :center="mapPos"
-    :zoom="12"
-    :minZoom="1"
-    :maxZoom="19"
-    @view-change="mapViewChanged"
-  />
+  <div class="container" v-if="!locating">
+    <div class="sidebar">
+      <div class="w-full p-4">
+        <div class="flex">
+          <h2 class="text-lg font-semibold grow">Listings</h2>
+          <Button variant="outline" icon-left="tabler:refresh" @click="fetchListings" />
+        </div>
+        <ul class="space-y-4 mt-4">
+          <ListingMini
+            v-for="listing in listingsStore.listings"
+            :key="listing.id"
+            :listing="listing"
+            class="w-full"
+          />
+        </ul>
+      </div>
+    </div>
+    <div>
+      <Map
+        class="absolute w-full h-full"
+        :center="mapPos"
+        :zoom="zoom"
+        :minZoom="1"
+        :maxZoom="19"
+        :pins="mapPins"
+        @view-change="mapViewChanged"
+      />
+    </div>
+  </div>
   <div v-if="locating" class="overlay">
     <Icon icon="mdi:map-search-outline" class="text-4xl text-gray-700 animate-bounce" />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue'
+  import { computed, onMounted, ref } from 'vue'
   import { LocationService } from '@/services/location'
   import { Icon } from '@iconify/vue'
   import type { MapView } from '@/types'
 
-  import Map from '@/components/geo/Map.vue'
+  import { CATEGORIES } from '@/constants/categories'
   import { useLocationStore } from '@/stores/location'
+  import { useListingsStore } from '@/stores/listings'
+
+  import Map from '@/components/geo/Map.vue'
+  import ListingMini from '@/components/listings/ListingMini.vue'
+  import Button from '@/components/widgets/Button.vue'
 
   const locationStore = useLocationStore()
+  const listingsStore = useListingsStore()
 
   const locating = ref(true)
   const mapPos = ref({ lat: 0, lng: 0 })
+  const zoom = ref(12)
+
+  const fetchListings = async () => {
+    await listingsStore.fetchListings()
+  }
+
+  const getCategoryColor = (category: string) => {
+    return CATEGORIES.find(cat => cat.value === category)?.color ?? 'gray'
+  }
+
+  const mapPins = computed(() => {
+    return listingsStore.listings.map((listing, index) => ({
+      index,
+      lat: listing.location.lat,
+      lng: listing.location.lng,
+      color: getCategoryColor(listing.category),
+    }))
+  })
 
   const mapViewChanged = (view: MapView) => {
     mapPos.value = view.center
-    locationStore.setViewingLocation({
-      latitude: view.center.lat,
-      longitude: view.center.lng,
-    })
+    locationStore.setViewingLocation(view)
+    fetchListings()
   }
 
   onMounted(async () => {
+    fetchListings()
+
     if (locationStore.viewingLocation) {
-      mapPos.value = {
-        lat: locationStore.viewingLocation.latitude,
-        lng: locationStore.viewingLocation.longitude,
-      }
-      locating.value = false
-      return
+      const loc = locationStore.viewingLocation
+      mapPos.value = loc.center
+      zoom.value = loc.zoom
+    } else {
+      const pos = await LocationService.getCurrentPosition()
+      locationStore.setViewingLocation({
+        center: { lat: pos.latitude, lng: pos.longitude },
+        zoom: 12,
+      })
+      mapPos.value = { lat: pos.latitude, lng: pos.longitude }
     }
-
-    const pos = await LocationService.getCurrentPosition()
-    locationStore.setViewingLocation(pos)
-
-    mapPos.value = { lat: pos.latitude, lng: pos.longitude }
 
     locating.value = false
   })
 </script>
 
 <style scoped>
+  .container {
+    @apply absolute w-full h-full flex;
+  }
+
+  .sidebar {
+    @apply w-1/3 bg-gray-100 border-r border-gray-300;
+  }
+
   .overlay {
     @apply absolute inset-0 flex items-center justify-center bg-white bg-opacity-75;
   }

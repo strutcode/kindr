@@ -1,9 +1,9 @@
 <template>
   <button :class="buttonClass" :disabled="disabled || loading" @click="$emit('click', $event)">
     <Icon v-if="loading" :horizontal-flip="true" icon="tabler:refresh" class="animate-spin mr-2" />
-    <Icon v-if="iconLeft" :icon="iconLeft" class="mr-2" />
+    <Icon v-if="iconLeft" :icon="iconLeft" :class="{ 'mr-2': $slots.default }" />
     <slot />
-    <Icon v-if="iconRight" :icon="iconRight" class="ml-2" />
+    <Icon v-if="iconRight" :icon="iconRight" :class="{ 'ml-2': $slots.default }" />
   </button>
 </template>
 

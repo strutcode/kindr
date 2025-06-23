@@ -117,7 +117,6 @@ export const useAuthStore = defineStore('auth', () => {
         const { error: profileError } = await supabase.from('users').insert([
           {
             id: authResult.user.id,
-            email: authResult.user.email!,
             full_name: fullName,
             notification_radius: 2,
           },

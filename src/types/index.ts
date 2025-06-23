@@ -15,7 +15,7 @@ export interface User {
   updated_at: string
 }
 
-export interface Request {
+export interface Listing {
   id: string
   user_id: string
   title: string
@@ -27,7 +27,7 @@ export interface Request {
   compensation?: string
   images?: string[]
   location: Location
-  status: RequestStatus
+  active: boolean
   created_at: string
   updated_at: string
   expires_at?: string
@@ -70,6 +70,7 @@ export type DurationEstimate = '15min' | '1hour' | '1day' | 'multiple-days'
 export interface CategoryOption {
   value: RequestCategory
   label: string
+  color: string
   subcategories: SubcategoryOption[]
 }
 

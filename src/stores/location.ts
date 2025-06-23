@@ -1,16 +1,18 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { LocationService } from '@/services/location'
+import { MapView } from '@/types'
 
-export interface ViewLocation {
+interface GeoLocation {
   latitude: number
   longitude: number
-  zoom: number
+  address?: string
+  source?: 'manual' | 'geocoded'
 }
 
 export const useLocationStore = defineStore('location', () => {
   // For browsing/filtering
-  const viewingLocation = ref<ViewLocation | null>(null)
+  const viewingLocation = ref<MapView | null>(null)
   // For request creation
   const creationLocation = ref<Location | null>(null)
 
@@ -39,7 +41,7 @@ export const useLocationStore = defineStore('location', () => {
   )
 
   // Setters
-  function setViewingLocation(loc: ViewLocation | null) {
+  function setViewingLocation(loc: MapView | null) {
     viewingLocation.value = loc
   }
   function setCreationLocation(loc: Location | null) {
@@ -53,14 +55,14 @@ export const useLocationStore = defineStore('location', () => {
   }
 
   // Geocode address for manual entry
-  async function geocodeAddress(address: string): Promise<Location | null> {
+  async function geocodeAddress(address: string): Promise<GeoLocation | null> {
     try {
       const result = await LocationService.geocodeAddress(address)
       return {
         latitude: result.latitude,
         longitude: result.longitude,
         address: result.formatted_address,
-        source: 'manual',
+        source: 'geocoded',
       }
     } catch (e) {
       return null
