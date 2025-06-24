@@ -1,5 +1,6 @@
-import { defineStore } from 'pinia'
 import { ref, computed, readonly } from 'vue'
+import { defineStore } from 'pinia'
+import router from '@/router'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@/types'
 import { createLogger } from '@/lib/logger'
@@ -26,7 +27,11 @@ export const useAuthStore = defineStore('auth', () => {
 
       const res = await supabase.auth.getSession()
 
-      if (res.error) throw res.error
+      if (res.error) {
+        user.value = null
+        session.value = null
+        throw res.error
+      }
 
       const sessionData = res.data
       debug('Session result:', sessionData)
@@ -193,10 +198,16 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const { error: signOutError } = await supabase.auth.signOut()
+
       if (signOutError) throw new Error(signOutError.message)
 
       user.value = null
       session.value = null
+
+      log('User signed out successfully')
+
+      // Redirect to main page after sign out
+      router.push('/')
     } catch (err) {
       error('Error signing out:', err)
       authErr.value = err instanceof Error ? err.message : 'Sign out failed'

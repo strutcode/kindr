@@ -26,6 +26,10 @@
     loading: false,
   })
 
+  defineEmits<{
+    (e: 'click', event: MouseEvent): void
+  }>()
+
   const buttonClass = computed(() => {
     const base = 'btn'
     const variant = {

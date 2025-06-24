@@ -26,6 +26,18 @@
         :pins="mapPins"
         @view-change="mapViewChanged"
       />
+      <div class="pullbar">
+        <div class="grabber-pill"></div>
+
+        <ul class="space-y-4 mt-4">
+          <ListingMini
+            v-for="listing in listingsStore.listings"
+            :key="listing.id"
+            :listing="listing"
+            class="w-full"
+          />
+        </ul>
+      </div>
     </div>
   </div>
   <div v-if="locating" class="overlay">
@@ -103,7 +115,18 @@
   }
 
   .sidebar {
-    @apply w-1/3 bg-gray-100 border-r border-gray-300;
+    @apply w-1/3 bg-gray-100 border-r border-gray-300 collapse;
+    @apply md:visible;
+  }
+
+  .pullbar {
+    @apply absolute top-full -mt-24 left-0 w-full h-1/3 p-2 overflow-y-auto;
+    @apply bg-white border border-gray-300 rounded-t-lg;
+    @apply md:collapse;
+  }
+
+  .pullbar .grabber-pill {
+    @apply w-24 h-1 bg-gray-300 rounded-full mx-auto my-2;
   }
 
   .overlay {

@@ -21,10 +21,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         })
         clearTimeout(timeoutId)
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
         return response
       } catch (error) {
         clearTimeout(timeoutId)

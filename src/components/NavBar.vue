@@ -14,7 +14,9 @@
       <Button variant="outline" @click="router.push({ name: 'browse' })">Browse</Button>
     </div>
 
-    <UserMenu />
+    <UserMenu class="collapse md:visible" />
+
+    <MobileMenu class="md:hidden" />
   </nav>
 </template>
 
@@ -26,6 +28,7 @@
   import UserMenu from '@/components/UserMenu.vue'
   import Button from './widgets/Button.vue'
   import Text from './widgets/Text.vue'
+  import MobileMenu from './MobileMenu.vue'
 
   const query = ref('')
   const router = useRouter()
@@ -46,6 +49,7 @@
   }
 
   .search {
-    @apply flex items-center space-x-2;
+    @apply flex items-center space-x-2 collapse;
+    @apply md:visible;
   }
 </style>
