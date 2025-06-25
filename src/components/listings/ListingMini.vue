@@ -1,30 +1,60 @@
 <template>
   <div class="listing-mini" @click="emit('click', listing)">
     <img v-if="listing.images?.length" :src="listing.images[0]" alt="Listing Image" />
-    <h3>{{ listing.title }}</h3>
-    <p>{{ listing.description }}</p>
-    <p class="text-sm text-gray-500">{{ listing.category }}</p>
+    <div class="flex items-center mb-2">
+      <div class="mr-4">
+        <div class="index" :style="{ background: categoryColor }">{{ index }}</div>
+      </div>
+      <div class="grow">
+        <div class="flex-col">
+          <h3>{{ listing.title }}</h3>
+          <div class="text-xs text-gray-600">{{ categoryText }}</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p>{{ listing.description }}</p>
+      <ListingPills :listing="listing" class="mt-2" />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+  import { computed } from 'vue'
+  import { CATEGORIES } from '@/constants'
   import { Listing } from '@/types'
 
+  import ListingPills from './ListingPills.vue'
+
   interface Props {
+    index: number
     listing: Listing
   }
 
-  defineProps<Props>()
+  const props = defineProps<Props>()
 
   const emit = defineEmits<{
     (e: 'click', listing: Listing): void
   }>()
+
+  const categoryText = computed(() => {
+    return CATEGORIES.find(cat => cat.value === props.listing.category)?.label ?? 'Unknown'
+  })
+
+  const categoryColor = computed(() => {
+    return CATEGORIES.find(cat => cat.value === props.listing.category)?.color
+  })
 </script>
 
 <style scoped>
   .listing-mini {
-    @apply p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow;
     @apply hover:cursor-pointer;
+  }
+
+  .listing-mini .index {
+    @apply bg-gray-300 text-white font-bold;
+    @apply rounded-full w-8 h-8 mb-2;
+    @apply flex items-center justify-center;
   }
 
   .listing-mini h3 {

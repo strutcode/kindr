@@ -6,11 +6,12 @@
           <h2 class="text-lg font-semibold grow">Listings</h2>
           <Button variant="outline" icon-left="tabler:refresh" @click="fetchListings" />
         </div>
-        <ul class="space-y-4 mt-4">
+        <ul class="space-y-8 mt-4">
           <ListingMini
-            v-for="listing in listingsStore.listings"
-            :key="listing.id"
-            :listing="listing"
+            v-for="pin in mapPins"
+            :key="pin.listing.id"
+            :index="pin.index"
+            :listing="pin.listing"
             class="w-full"
           />
         </ul>
@@ -31,9 +32,10 @@
 
         <ul class="space-y-4 mt-4">
           <ListingMini
-            v-for="listing in listingsStore.listings"
-            :key="listing.id"
-            :listing="listing"
+            v-for="pin in mapPins"
+            :key="pin.listing.id"
+            :index="pin.index"
+            :listing="pin.listing"
             class="w-full"
           />
         </ul>
@@ -76,10 +78,11 @@
 
   const mapPins = computed(() => {
     return listingsStore.listings.map((listing, index) => ({
-      index,
+      index: index + 1,
       lat: listing.location.lat,
       lng: listing.location.lng,
       color: getCategoryColor(listing.category),
+      listing,
     }))
   })
 
@@ -115,7 +118,8 @@
   }
 
   .sidebar {
-    @apply w-1/3 bg-gray-100 border-r border-gray-300 collapse;
+    @apply w-1/3 collapse overflow-y-scroll;
+    @apply relative bg-gray-100 border-r border-gray-300 shadow-lg z-10;
     @apply md:visible;
   }
 

@@ -4,7 +4,7 @@
     <Teleport to="body">
       <div
         v-if="menuOpen"
-        class="fixed inset-0 bg-gray-800 bg-opacity-50 z-50 flex items-center justify-center"
+        class="fixed inset-0 bg-gray-800 bg-opacity-50 z-50 flex items-center justify-center animate-slide-left"
         @click="toggleMenu"
       >
         <div class="menu">

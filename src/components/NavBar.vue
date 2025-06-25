@@ -37,7 +37,7 @@
 
 <style scoped>
   nav {
-    @apply bg-white shadow-md flex items-center justify-between px-4 py-2 relative z-10;
+    @apply bg-white shadow-md flex items-center justify-between px-4 py-2 relative z-50;
   }
 
   .nav-item {
