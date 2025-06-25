@@ -12,6 +12,7 @@
             :key="pin.listing.id"
             :index="pin.index"
             :listing="pin.listing"
+            @click="selectedListing = pin.listing"
             class="w-full"
           />
         </ul>
@@ -38,14 +39,18 @@
             :key="pin.listing.id"
             :index="pin.index"
             :listing="pin.listing"
+            @click="selectedListing = pin.listing"
             class="w-full"
           />
         </ul>
       </div>
     </div>
   </div>
-  <div v-if="locating" class="overlay">
+  <div v-if="locating" class="overlay light">
     <Icon icon="mdi:map-search-outline" class="text-4xl text-gray-700 animate-bounce" />
+  </div>
+  <div v-if="selectedListing" class="overlay dark">
+    <ListingOverlay :listing="selectedListing" @close="selectedListing = null" />
   </div>
 </template>
 
@@ -53,7 +58,7 @@
   import { computed, onMounted, ref } from 'vue'
   import { LocationService } from '@/services/location'
   import { Icon } from '@iconify/vue'
-  import type { MapView } from '@/types'
+  import type { Listing, MapView } from '@/types'
 
   import { CATEGORIES } from '@/constants/categories'
   import { useLocationStore } from '@/stores/location'
@@ -62,6 +67,7 @@
   import Map from '@/components/geo/Map.vue'
   import ListingMini from '@/components/listings/ListingMini.vue'
   import Button from '@/components/widgets/Button.vue'
+  import ListingOverlay from '@/components/listings/ListingOverlay.vue'
 
   const locationStore = useLocationStore()
   const listingsStore = useListingsStore()
@@ -70,6 +76,7 @@
   const mapPos = ref({ lat: 0, lng: 0 })
   const zoom = ref(12)
   const pullbarActive = ref(false)
+  const selectedListing = ref<Listing | null>(null)
 
   const fetchListings = async () => {
     await listingsStore.fetchListings()
@@ -149,5 +156,9 @@
 
   .overlay {
     @apply absolute inset-0 flex items-center justify-center bg-white bg-opacity-75;
+  }
+
+  .overlay .dark {
+    @apply bg-black bg-opacity-25;
   }
 </style>
