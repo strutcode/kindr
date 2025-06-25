@@ -101,7 +101,14 @@
           <div class="map-section">
             <h3 class="sidebar-title">Location</h3>
             <div class="map-container">
-              <Map :center="listing.location" :zoom="15" :pins="mapPins" class="listing-map" />
+              <Map
+                :center="listing.location"
+                :zoom="15"
+                :pins="mapPins"
+                non-interactive
+                disable-controls
+                class="listing-map"
+              />
             </div>
             <div class="location-info">
               <Icon icon="tabler:map-pin" class="location-icon" />

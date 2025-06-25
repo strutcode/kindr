@@ -37,6 +37,8 @@
     minZoom?: number
     maxZoom?: number
     pins?: MapPin[]
+    disableControls?: boolean
+    nonInteractive?: boolean
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -45,6 +47,8 @@
     minZoom: 1,
     maxZoom: 19,
     pins: [],
+    disableControls: false,
+    nonInteractive: false,
   })
 
   const emit = defineEmits<{
@@ -150,6 +154,8 @@
         pinLayer,
       ],
       view,
+      controls: props.disableControls ? [] : undefined,
+      interactions: props.nonInteractive ? [] : undefined,
     })
   })
 
