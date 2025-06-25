@@ -102,7 +102,9 @@
 
       <!-- Footer with actions -->
       <div class="overlay-footer">
-        <Button variant="outline" @click="emit('close')"> Close </Button>
+        <Button variant="outline" :link="{ name: 'show', params: { id: listing.id } }"
+          >Details</Button
+        >
         <Button variant="primary" @click="emit('contact', listing)">
           <Icon icon="mdi:message" class="w-4 h-4 mr-2" />
           Contact
@@ -115,8 +117,11 @@
 <script setup lang="ts">
   import { computed, ref } from 'vue'
   import { Icon } from '@iconify/vue'
+  import { useRouter } from 'vue-router'
+
   import type { Listing } from '@/types'
   import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
+
   import ListingPills from './ListingPills.vue'
   import Button from '@/components/widgets/Button.vue'
 
@@ -125,6 +130,7 @@
   }
 
   const props = defineProps<Props>()
+  const router = useRouter()
 
   const emit = defineEmits<{
     (e: 'close'): void
@@ -132,6 +138,11 @@
   }>()
 
   const currentImageIndex = ref(0)
+
+  const goToDetails = () => {
+    router.push({ name: 'show', params: { id: props.listing.id } })
+    emit('close')
+  }
 
   const categoryText = computed(() => {
     return CATEGORIES.find(cat => cat.value === props.listing.category)?.label ?? 'Unknown'

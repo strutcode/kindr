@@ -15,6 +15,7 @@
     "@heroicons/vue": "^2.0.18",
     "@iconify/vue": "^5.0.0",
     "@supabase/supabase-js": "^2.38.4",
+    "@tailwindcss/typography": "^0.5.16",
     "@tiptap/starter-kit": "^2.1.13",
     "@tiptap/vue-3": "^2.1.13",
     "@types/deno": "^2.3.0",

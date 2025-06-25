@@ -1,5 +1,16 @@
 <template>
-  <button :class="buttonClass" :disabled="disabled || loading" @click="$emit('click', $event)">
+  <router-link v-if="link" :to="link" :class="buttonClass">
+    <Icon v-if="loading" :horizontal-flip="true" icon="tabler:refresh" class="animate-spin mr-2" />
+    <Icon v-if="iconLeft" :icon="iconLeft" :class="{ 'mr-2': $slots.default }" />
+    <slot />
+    <Icon v-if="iconRight" :icon="iconRight" :class="{ 'ml-2': $slots.default }" />
+  </router-link>
+  <button
+    v-else
+    :class="buttonClass"
+    :disabled="disabled || loading"
+    @click="$emit('click', $event)"
+  >
     <Icon v-if="loading" :horizontal-flip="true" icon="tabler:refresh" class="animate-spin mr-2" />
     <Icon v-if="iconLeft" :icon="iconLeft" :class="{ 'mr-2': $slots.default }" />
     <slot />
@@ -12,18 +23,22 @@
   import { Icon } from '@iconify/vue'
 
   interface Props {
-    variant?: 'primary' | 'secondary' | 'accent' | 'outline' | 'outline-white'
+    variant?: 'primary' | 'secondary' | 'accent' | 'outline' | 'outline-white' | 'ghost'
     size?: 'sm' | 'md' | 'lg'
     disabled?: boolean
     loading?: boolean
     iconLeft?: string
     iconRight?: string
+    link?: { name: string; params?: Record<string, any> }
   }
   const props = withDefaults(defineProps<Props>(), {
     variant: 'primary',
     size: 'md',
     disabled: false,
     loading: false,
+    iconLeft: undefined,
+    iconRight: undefined,
+    link: undefined,
   })
 
   defineEmits<{
