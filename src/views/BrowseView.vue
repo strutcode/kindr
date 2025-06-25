@@ -27,10 +27,12 @@
         :pins="mapPins"
         @view-change="mapViewChanged"
       />
-      <div class="pullbar">
-        <div class="grabber-pill"></div>
+      <div class="pullbar" :class="{ active: pullbarActive }">
+        <div class="grabber" @click="pullbarActive = !pullbarActive">
+          <div class="grabber-pill"></div>
+        </div>
 
-        <ul class="space-y-4 mt-4">
+        <ul class="space-y-4 mt-4 grow overflow-y-scroll">
           <ListingMini
             v-for="pin in mapPins"
             :key="pin.listing.id"
@@ -67,6 +69,7 @@
   const locating = ref(true)
   const mapPos = ref({ lat: 0, lng: 0 })
   const zoom = ref(12)
+  const pullbarActive = ref(false)
 
   const fetchListings = async () => {
     await listingsStore.fetchListings()
@@ -124,13 +127,24 @@
   }
 
   .pullbar {
-    @apply absolute top-full -mt-24 left-0 w-full h-1/3 p-2 overflow-y-auto;
+    @apply absolute bottom-0 left-0 w-full h-24 p-2;
+    @apply flex flex-col block;
     @apply bg-white border border-gray-300 rounded-t-lg;
-    @apply md:collapse;
+    @apply md:hidden;
+    transition: height 0.2s ease-in-out;
   }
 
-  .pullbar .grabber-pill {
-    @apply w-24 h-1 bg-gray-300 rounded-full mx-auto my-2;
+  .pullbar.active {
+    height: 96%;
+  }
+
+  .grabber {
+    @apply py-2 px-24 bg-gray-50 rounded-lg;
+    @apply cursor-pointer;
+  }
+
+  .grabber-pill {
+    @apply w-24 h-1 bg-gray-300 rounded-full mx-auto;
   }
 
   .overlay {

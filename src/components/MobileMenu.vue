@@ -11,6 +11,13 @@
           :class="['menu', isClosing ? 'animate-slide-right' : 'animate-slide-left']"
           @click.stop
         >
+          <Button
+            variant="outline"
+            size="lg"
+            icon-left="tabler:x"
+            class="float-right mb-4"
+            @click="toggleMenu"
+          />
           <ul class="space-y-2">
             <li>
               <Button variant="outline" @click="$router.push({ name: 'browse' })">Browse</Button>
