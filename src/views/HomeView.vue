@@ -339,7 +339,7 @@
   import { useAuthStore } from '@/stores/auth'
   import { useUiStore } from '@/stores/ui'
   import Button from '@/components/widgets/Button.vue'
-  import { onMounted } from 'vue'
+  import { onMounted, onBeforeUnmount } from 'vue'
 
   // Create a simple hand helping icon component since it's not in Heroicons
   const HandHelpingIcon = UserGroupIcon // Using UserGroupIcon as placeholder
@@ -347,9 +347,19 @@
   const authStore = useAuthStore()
   const uiStore = useUiStore()
 
+  const checkHeaderScroll = () => {
+    uiStore.header.fade = window.scrollY < 74
+  }
+
   onMounted(() => {
-    // Ensure the header is visible when the component mounts
+    // Give the header a nice transparent effect on the hero section
     uiStore.header.fade = true
+    window.addEventListener('scroll', checkHeaderScroll)
+  })
+
+  onBeforeUnmount(() => {
+    uiStore.header.fade = false
+    window.removeEventListener('scroll', checkHeaderScroll)
   })
 </script>
 
@@ -359,52 +369,8 @@
     top: -74px;
   }
 
-  /* Ensure text remains readable on all screen sizes */
-  @media (max-width: 640px) {
-    .drop-shadow-lg {
-      filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1))
-        drop-shadow(0 0 0 rgb(0 0 0 / 0.8));
-    }
-  }
-
   /* Enhanced button hover effects */
   .btn:hover {
     transform: translateY(-1px);
-  }
-
-  /* Smooth scroll behavior */
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* Accessibility improvements */
-  @media (prefers-reduced-motion: reduce) {
-    .animate-bounce,
-    .animate-pulse,
-    .transition-all,
-    .transition-colors,
-    .transition-shadow {
-      animation: none;
-      transition: none;
-    }
-
-    .transform:hover {
-      transform: none;
-    }
-  }
-
-  /* High contrast mode support */
-  @media (prefers-contrast: high) {
-    .bg-gradient-to-r {
-      background: rgba(0, 0, 0, 0.8);
-    }
-
-    .text-white\/95 {
-      color: white;
-    }
-
-    .text-white\/80 {
-      color: white;
-    }
   }
 </style>

@@ -5,6 +5,7 @@
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
   }
   
   body {
@@ -80,4 +81,34 @@
   animation: shimmer 1.2s ease-in-out infinite;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 400% 100%;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .animate-bounce,
+  .animate-pulse,
+  .transition-all,
+  .transition-colors,
+  .transition-shadow {
+    animation: none;
+    transition: none;
+  }
+
+  .transform:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .bg-gradient-to-r {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .text-white\/95 {
+    color: white;
+  }
+
+  .text-white\/80 {
+    color: white;
+  }
 }
