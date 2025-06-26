@@ -11,13 +11,7 @@
         class="avatar-image"
       />
       <div v-else class="avatar-placeholder">
-        <svg class="avatar-icon" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fill-rule="evenodd"
-            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        <Icon icon="tabler:user-filled" class="h-7 w-7 text-gray-500" />
       </div>
     </div>
 
@@ -66,6 +60,7 @@
   import { useAuthStore } from '@/stores/auth'
   import type { Chat } from '@/types'
   import Chip from '@/components/widgets/Chip.vue'
+  import { Icon } from '@iconify/vue'
 
   interface Props {
     chat: Chat

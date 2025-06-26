@@ -20,24 +20,21 @@
       <Button variant="outline" @click="router.push({ name: 'browse' })">Browse</Button>
     </div>
 
-    <!-- Chat icon with unread indicator -->
-    <button v-if="authStore.user" @click="router.push({ name: 'chats' })" class="chat-button">
-      <svg class="chat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-        />
-      </svg>
-      <span v-if="chatStore.unreadCount > 0" class="unread-badge">
-        {{ chatStore.unreadCount > 99 ? '99+' : chatStore.unreadCount }}
-      </span>
-    </button>
+    <div class="flex justify-end items-center space-x-4">
+      <!-- Chat icon with unread indicator -->
+      <router-link v-if="authStore.user" :to="{ name: 'chats' }" class="chat-button">
+        <Icon icon="tabler:message-circle-filled" class="chat-icon" />
+        <span v-if="chatStore.unreadCount > 0" class="unread-badge">
+          {{ chatStore.unreadCount > 99 ? '∞' : chatStore.unreadCount }}
+        </span>
+      </router-link>
 
-    <UserMenu class="collapse md:visible" />
+      <!-- The user profile icon and menu -->
+      <UserMenu class="collapse md:visible" />
 
-    <MobileMenu class="md:hidden" />
+      <!-- Mobile hamburger menu -->
+      <MobileMenu class="md:hidden" />
+    </div>
   </nav>
 </template>
 
@@ -47,6 +44,7 @@
   import { useUiStore } from '@/stores/ui'
   import { useAuthStore } from '@/stores/auth'
   import { useChatStore } from '@/stores/chat'
+  import { Icon } from '@iconify/vue'
 
   import UserMenu from '@/components/UserMenu.vue'
   import Button from './widgets/Button.vue'
@@ -108,12 +106,11 @@
   }
 
   .chat-icon {
-    @apply w-6 h-6;
+    @apply w-8 h-8 text-gray-400;
   }
 
   .unread-badge {
-    @apply absolute -top-1 -right-1 bg-red-500 text-white text-xs;
-    @apply rounded-full px-1.5 py-0.5 min-w-[20px] text-center;
-    @apply font-medium leading-none;
+    @apply block absolute w-6 h-6 -top-0 -right-0 flex items-center justify-center;
+    @apply bg-red-500 text-white text-sm rounded-full font-medium leading-none;
   }
 </style>

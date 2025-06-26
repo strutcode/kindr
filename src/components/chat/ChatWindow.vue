@@ -4,7 +4,7 @@
     <div class="messages-container" ref="messagesContainer">
       <!-- Load more button -->
       <div v-if="hasMore" class="load-more-container">
-        <button @click="$emit('load-more')" class="load-more-button">Load older messages</button>
+        <button @click="loadMoreMessages" class="load-more-button">Load older messages</button>
       </div>
 
       <!-- Messages -->
@@ -25,15 +25,13 @@
     <div class="message-input-container">
       <div class="message-input-wrapper">
         <!-- Image upload button -->
-        <button @click="triggerImageUpload" class="image-upload-button" title="Send image">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
+        <button
+          variant="ghost"
+          @click="triggerImageUpload"
+          class="image-upload-button"
+          title="Send image"
+        >
+          <Icon icon="tabler:photo-up" class="w-5 h-5 text-gray-600" />
         </button>
 
         <!-- Text input -->
@@ -52,35 +50,12 @@
           :disabled="!messageText.trim() || sending"
           class="send-button"
         >
-          <svg
-            v-if="!sending"
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-            />
-          </svg>
-          <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
+          <Icon v-if="!sending" icon="tabler:send" class="w-5 h-5" />
+          <Icon
+            v-else
+            icon="svg-spinners:90-ring-with-bg"
+            class="w-5 h-5 animate-spin text-primary-600"
+          />
         </button>
 
         <!-- Hidden file input -->
@@ -97,16 +72,7 @@
       <div v-if="selectedImage" class="image-preview-container">
         <div class="image-preview">
           <img :src="selectedImageUrl" alt="Selected image" class="preview-image" />
-          <button @click="cancelImageUpload" class="cancel-image-button">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+          <Button @click="cancelImageUpload" icon-left="tabler-x" class="cancel-image-button" />
         </div>
         <button @click="handleSendImage" :disabled="sending" class="send-image-button">
           <span v-if="!sending">Send Photo</span>
@@ -119,29 +85,28 @@
 
 <script setup lang="ts">
   import { ref, computed, nextTick, watch, onMounted } from 'vue'
-  import { useAuthStore } from '@/stores/auth'
+
   import type { Chat, ChatMessage as ChatMessageType } from '@/types'
+  import { useAuthStore } from '@/stores/auth'
+  import { useChatStore } from '@/stores/chat'
+
   import ChatMessage from './ChatMessage.vue'
+  import { Icon } from '@iconify/vue'
+  import Button from '../widgets/Button.vue'
 
   interface Props {
     chat: Chat
     messages: ChatMessageType[]
-    loading: boolean
-    hasMore: boolean
   }
 
   const props = defineProps<Props>()
 
-  const emit = defineEmits<{
-    'send-message': [content: string]
-    'send-image': [file: File]
-    'load-more': []
-  }>()
-
   const authStore = useAuthStore()
+  const chatStore = useChatStore()
 
   const messageText = ref('')
   const sending = ref(false)
+  const loading = ref(false)
   const messagesContainer = ref<HTMLElement>()
   const bottomAnchor = ref<HTMLElement>()
   const fileInput = ref<HTMLInputElement>()
@@ -149,6 +114,7 @@
   const selectedImageUrl = ref<string>('')
 
   const reversedMessages = computed(() => [...props.messages].reverse())
+  const hasMore = computed(() => chatStore.hasMore[props.chat.id] ?? false)
 
   // Scroll to bottom
   const scrollToBottom = (smooth = true) => {
@@ -169,7 +135,7 @@
 
     sending.value = true
     try {
-      emit('send-message', content)
+      await chatStore.sendMessage(props.chat.id, content)
       messageText.value = ''
       scrollToBottom()
     } catch (error) {
@@ -201,7 +167,7 @@
 
     sending.value = true
     try {
-      emit('send-image', selectedImage.value)
+      await chatStore.uploadChatImage(selectedImage.value, props.chat.id)
       cancelImageUpload()
       scrollToBottom()
     } catch (error) {
@@ -220,6 +186,18 @@
     }
     if (fileInput.value) {
       fileInput.value.value = ''
+    }
+  }
+
+  // Load more messages
+  const loadMoreMessages = () => {
+    try {
+      loading.value = true
+      chatStore.loadMoreMessages(props.chat.id)
+    } catch (error) {
+      console.error('Failed to load more messages:', error)
+    } finally {
+      loading.value = false
     }
   }
 

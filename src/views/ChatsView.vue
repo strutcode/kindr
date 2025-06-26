@@ -18,27 +18,10 @@
           v-if="selectedChatId && currentChat"
           :chat="currentChat"
           :messages="chatStore.currentMessages"
-          :loading="false"
-          :has-more="chatStore.hasMore[selectedChatId] || false"
-          @send-message="handleSendMessage"
-          @send-image="handleSendImage"
-          @load-more="handleLoadMore"
         />
         <div v-else class="flex-1 flex items-center justify-center text-gray-500">
           <div class="text-center">
-            <svg
-              class="mx-auto h-12 w-12 text-gray-400 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
+            <Icon icon="tabler:message-circle" class="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <p class="text-lg font-medium">Select a chat to start messaging</p>
             <p class="text-sm text-gray-400 mt-1">Choose from your existing conversations</p>
           </div>
@@ -65,16 +48,13 @@
       <div v-else-if="currentChat" class="flex-1 flex flex-col">
         <!-- Mobile chat header -->
         <div class="bg-white border-b border-gray-200 px-4 py-3 flex items-center">
-          <button @click="handleBackToList" class="mr-3 p-1 rounded-md hover:bg-gray-100">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
+          <Button
+            variant="ghost"
+            size="lg"
+            @click="handleBackToList"
+            icon-left="tabler:chevron-left"
+            class="mr-3 p-1 text-2xl text-gray-600 hover:bg-primary-100"
+          />
           <div class="flex items-center">
             <img
               v-if="currentChat.other_user?.avatar_url"
@@ -86,13 +66,7 @@
               class="w-8 h-8 rounded-full bg-gray-300 mr-3 flex items-center justify-center"
               v-else
             >
-              <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+              <Icon icon="tabler:user-filled" class="h-5 w-5 text-gray-500" />
             </div>
             <div>
               <h2 class="font-medium text-gray-900">
@@ -103,15 +77,7 @@
           </div>
         </div>
 
-        <ChatWindow
-          :chat="currentChat"
-          :messages="chatStore.currentMessages"
-          :loading="false"
-          :has-more="chatStore.hasMore[selectedChatId] || false"
-          @send-message="handleSendMessage"
-          @send-image="handleSendImage"
-          @load-more="handleLoadMore"
-        />
+        <ChatWindow :chat="currentChat" :messages="chatStore.currentMessages" />
       </div>
     </div>
   </div>
@@ -123,6 +89,8 @@
   import { useChatStore } from '@/stores/chat'
   import ChatList from '@/components/chat/ChatList.vue'
   import ChatWindow from '@/components/chat/ChatWindow.vue'
+  import { Icon } from '@iconify/vue'
+  import Button from '@/components/widgets/Button.vue'
 
   const route = useRoute()
   const router = useRouter()
@@ -152,38 +120,6 @@
     selectedChatId.value = null
     chatStore.setCurrentChat(null)
     router.push({ name: 'chats' })
-  }
-
-  // Handle sending text message
-  const handleSendMessage = async (content: string) => {
-    if (!selectedChatId.value) return
-
-    try {
-      await chatStore.sendMessage(selectedChatId.value, content)
-    } catch (error) {
-      console.error('Failed to send message:', error)
-      // You could show a toast notification here
-    }
-  }
-
-  // Handle sending image
-  const handleSendImage = async (file: File) => {
-    if (!selectedChatId.value) return
-
-    try {
-      const imageUrl = await chatStore.uploadChatImage(file, selectedChatId.value)
-      await chatStore.sendMessage(selectedChatId.value, '', 'image', imageUrl)
-    } catch (error) {
-      console.error('Failed to send image:', error)
-      // You could show a toast notification here
-    }
-  }
-
-  // Handle loading more messages
-  const handleLoadMore = () => {
-    if (selectedChatId.value) {
-      chatStore.loadMoreMessages(selectedChatId.value)
-    }
   }
 
   // Watch route params for chat ID
