@@ -1,6 +1,6 @@
 <template>
   <span :class="chipClass">
-    <slot />
+    <slot>{{ label }}</slot>
   </span>
 </template>
 
@@ -8,9 +8,20 @@
   import { computed } from 'vue'
 
   interface Props {
-    color?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error' | 'gray'
+    label?: string
+    color?:
+      | 'primary'
+      | 'secondary'
+      | 'accent'
+      | 'success'
+      | 'warning'
+      | 'error'
+      | 'gray'
+      | 'green'
+      | 'blue'
+      | 'purple'
     outline?: boolean
-    size?: 'sm' | 'md' | 'lg'
+    size?: 'xs' | 'sm' | 'md' | 'lg'
   }
   const props = withDefaults(defineProps<Props>(), {
     color: 'primary',
@@ -41,8 +52,18 @@
       gray: props.outline
         ? 'bg-white border border-gray-200 text-gray-800'
         : 'bg-gray-100 text-gray-800',
+      green: props.outline
+        ? 'bg-white border border-green-200 text-green-800'
+        : 'bg-green-100 text-green-800',
+      blue: props.outline
+        ? 'bg-white border border-blue-200 text-blue-800'
+        : 'bg-blue-100 text-blue-800',
+      purple: props.outline
+        ? 'bg-white border border-purple-200 text-purple-800'
+        : 'bg-purple-100 text-purple-800',
     }
     const sizeMap = {
+      xs: 'px-1.5 py-0.5 text-xs',
       sm: 'px-2 py-0.5 text-xs',
       md: 'px-2.5 py-0.5 text-xs',
       lg: 'px-3 py-1 text-sm',

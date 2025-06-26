@@ -92,6 +92,11 @@ export const useAuthStore = defineStore('auth', () => {
 
       log('User profile data:', data)
       user.value = data
+
+      // Initialize chat store when user profile is loaded
+      const { useChatStore } = await import('./chat')
+      const chatStore = useChatStore()
+      chatStore.initialize()
     } catch (err) {
       error('Error fetching user profile:', err)
 
@@ -197,6 +202,11 @@ export const useAuthStore = defineStore('auth', () => {
     authErr.value = ''
 
     try {
+      // Cleanup chat store before signing out
+      const { useChatStore } = await import('./chat')
+      const chatStore = useChatStore()
+      chatStore.cleanup()
+
       const { error: signOutError } = await supabase.auth.signOut()
 
       if (signOutError) throw new Error(signOutError.message)

@@ -144,3 +144,48 @@ export interface MapView {
   center: Location
   zoom: number
 }
+
+// Chat-related types
+export interface Chat {
+  id: string
+  listing_id: string
+  requester_id: string
+  listing_owner_id: string
+  last_message_at: string
+  requester_unread_count: number
+  owner_unread_count: number
+  created_at: string
+  updated_at: string
+  listing?: {
+    id: string
+    title: string
+    category: RequestCategory
+  }
+  other_user?: {
+    id: string
+    full_name?: string
+    avatar_url?: string
+  }
+  last_message?: ChatMessage
+}
+
+export interface ChatMessage {
+  id: string
+  chat_id: string
+  sender_id: string
+  sender_name: string
+  sender_avatar_url?: string
+  message_type: 'text' | 'image'
+  content?: string
+  image_url?: string
+  created_at: string
+}
+
+export interface ChatState {
+  chats: Chat[]
+  currentChatId: string | null
+  messages: Record<string, ChatMessage[]>
+  loading: boolean
+  hasMore: Record<string, boolean>
+  unreadCount: number
+}

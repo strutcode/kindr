@@ -186,6 +186,8 @@
   import type { Listing } from '@/types'
   import { CATEGORIES, DURATION_OPTIONS } from '@/constants'
   import { useListingsStore } from '@/stores/listings'
+  import { useAuthStore } from '@/stores/auth'
+  import { useChatStore } from '@/stores/chat'
 
   import Map from '@/components/geo/Map.vue'
   import ListingPills from '@/components/listings/ListingPills.vue'
@@ -194,6 +196,8 @@
   const route = useRoute()
   const router = useRouter()
   const listingsStore = useListingsStore()
+  const authStore = useAuthStore()
+  const chatStore = useChatStore()
 
   const listing = ref<Listing | null>(null)
   const loading = ref(true)
@@ -247,9 +251,25 @@
     return `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`
   }
 
-  const contactUser = () => {
-    // Handle contact user action
-    console.log('Contact user clicked')
+  const contactUser = async () => {
+    if (!authStore.user || !listing.value) return
+
+    // Check if user is trying to contact themselves
+    if (authStore.user.id === listing.value.user_id) {
+      alert('You cannot start a chat with yourself')
+      return
+    }
+
+    try {
+      // Get or create chat for this listing
+      const chatId = await chatStore.getOrCreateChat(listing.value.id)
+
+      // Navigate to the chat
+      router.push({ name: 'chat', params: { id: chatId } })
+    } catch (error) {
+      console.error('Failed to start chat:', error)
+      alert('Failed to start chat. Please try again.')
+    }
   }
 
   const fetchListing = async () => {
