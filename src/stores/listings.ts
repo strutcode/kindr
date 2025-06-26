@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
-import { Listing } from '@/types'
+import { Listing, ListingFilters, MapBounds } from '@/types'
 import { useAuthStore } from './auth'
 
 export const useListingsStore = defineStore('listings', () => {
@@ -28,6 +28,65 @@ export const useListingsStore = defineStore('listings', () => {
       }))
     } catch (error) {
       console.error('Error fetching listings:', error)
+    }
+  }
+
+  const fetchSingleListing = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .select(`*, user:users!listings_user_id_fkey(id, full_name, avatar_url, email)`)
+        .eq('id', id)
+        .single()
+
+      if (error) {
+        throw error
+      }
+
+      if (data) {
+        return {
+          ...data,
+          location: {
+            lat: data.location?.coordinates[1] || 0,
+            lng: data.location?.coordinates[0] || 0,
+          },
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching single listing:', error)
+    }
+    return null
+  }
+
+  const fetchListingsInBounds = async (bounds: MapBounds, filters: ListingFilters) => {
+    try {
+      const { north, south, east, west } = bounds
+      const { category, subcategory, activeOnly } = filters
+
+      const { data, error } = await supabase.rpc('get_requests_in_bounds', {
+        north,
+        south,
+        east,
+        west,
+        p_category: category ?? null,
+        p_subcategory: subcategory ?? null,
+        p_active: activeOnly ?? null,
+        p_limit: 200,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      listings.value = data.map((entry: any) => ({
+        ...entry,
+        location: {
+          lat: entry.location?.coordinates[1] || 0,
+          lng: entry.location?.coordinates[0] || 0,
+        },
+      }))
+    } catch (error) {
+      console.error('Error fetching listings in bounds:', error)
     }
   }
 
@@ -78,6 +137,7 @@ export const useListingsStore = defineStore('listings', () => {
   return {
     listings,
     fetchListings,
+    fetchSingleListing,
     createListing,
     updateListing,
   }

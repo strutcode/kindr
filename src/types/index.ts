@@ -39,6 +39,13 @@ export interface Listing {
   }
 }
 
+export interface ListingFilters {
+  category?: RequestCategory
+  subcategory?: string
+  skills?: string[]
+  activeOnly?: boolean // New filter to show only active listings
+}
+
 export interface Reputation {
   id: string
   user_id: string
