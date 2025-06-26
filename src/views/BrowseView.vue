@@ -128,7 +128,7 @@
   }
 
   .sidebar {
-    @apply w-1/3 collapse overflow-y-scroll;
+    @apply w-96 collapse overflow-y-scroll;
     @apply relative bg-gray-100 border-r border-gray-300 shadow-lg z-10;
     @apply md:visible;
   }
