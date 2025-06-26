@@ -35,7 +35,7 @@ export const useListingsStore = defineStore('listings', () => {
     try {
       const { data, error } = await supabase
         .from('listings')
-        .select(`*, user:users!listings_user_id_fkey(id, full_name, avatar_url, email)`)
+        .select(`*, user:users!listings_user_id_fkey(id, full_name, avatar_url)`)
         .eq('id', id)
         .single()
 
@@ -44,13 +44,22 @@ export const useListingsStore = defineStore('listings', () => {
       }
 
       if (data) {
-        return {
+        const listing = {
           ...data,
           location: {
             lat: data.location?.coordinates[1] || 0,
             lng: data.location?.coordinates[0] || 0,
           },
+          user: {
+            id: data.user?.id || '',
+            full_name: data.user?.full_name || '',
+            avatar_url: data.user?.avatar_url || '',
+            email: data.user?.email || '',
+          },
         }
+
+        listings.value.push(listing) // Add to listings array
+        return listing
       }
     } catch (error) {
       console.error('Error fetching single listing:', error)

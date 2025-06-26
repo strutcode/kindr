@@ -2,8 +2,8 @@
   <div class="listing-show-container">
     <!-- Loading state -->
     <div v-if="loading" class="loading-state">
-      <Icon icon="mdi:loading" class="loading-spinner" />
-      <p>Loading listing...</p>
+      <Icon icon="svg-spinners:3-dots-bounce" class="loading-spinner" />
+      <p>Looking for listing...</p>
     </div>
 
     <!-- Error state -->
@@ -11,7 +11,7 @@
       <Icon icon="mdi:alert-circle" class="error-icon" />
       <h2>Listing not found</h2>
       <p>{{ error }}</p>
-      <Button @click="$router.push('/browse')" variant="primary"> Browse Listings </Button>
+      <Button @click="router.push({ name: 'browse' })" variant="primary">Browse Listings</Button>
     </div>
 
     <!-- Main content -->
@@ -19,7 +19,7 @@
       <!-- Mobile header -->
       <div class="mobile-header">
         <Button
-          @click="$router.back()"
+          @click="router.back()"
           variant="ghost"
           icon-left="tabler:chevron-left"
           class="back-button"
@@ -202,25 +202,25 @@
 
   const categoryText = computed(() => {
     if (!listing.value) return ''
-    return CATEGORIES.find(cat => cat.value === listing.value.category)?.label ?? 'Unknown'
+    return CATEGORIES.find(cat => cat.value === listing.value?.category)?.label ?? 'Unknown'
   })
 
   const categoryColor = computed(() => {
     if (!listing.value) return '#6b7280'
-    return CATEGORIES.find(cat => cat.value === listing.value.category)?.color ?? '#6b7280'
+    return CATEGORIES.find(cat => cat.value === listing.value?.category)?.color ?? '#6b7280'
   })
 
   const subcategoryText = computed(() => {
     if (!listing.value?.subcategory) return ''
-    const category = CATEGORIES.find(cat => cat.value === listing.value.category)
+    const category = CATEGORIES.find(cat => cat.value === listing.value?.category)
     return (
-      category?.subcategories?.find(sub => sub.value === listing.value.subcategory)?.label || ''
+      category?.subcategories?.find(sub => sub.value === listing.value?.subcategory)?.label || ''
     )
   })
 
   const durationText = computed(() => {
     if (!listing.value?.duration_estimate) return ''
-    return DURATION_OPTIONS.find(opt => opt.value === listing.value.duration_estimate)?.label || ''
+    return DURATION_OPTIONS.find(opt => opt.value === listing.value?.duration_estimate)?.label || ''
   })
 
   const mapPins = computed(() => {
@@ -263,7 +263,7 @@
         listing.value = existingListing
       } else {
         // Fetch from API if not in store
-        await listingsStore.fetchListing(listingId)
+        await listingsStore.fetchSingleListing(listingId)
         listing.value = listingsStore.listings.find(l => l.id === listingId) || null
       }
 
@@ -294,7 +294,7 @@
   }
 
   .loading-spinner {
-    @apply w-8 h-8 text-blue-500 animate-spin mb-4;
+    @apply w-12 h-12 text-blue-500 mb-4;
   }
 
   .error-icon {
