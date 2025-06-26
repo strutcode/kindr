@@ -20,14 +20,23 @@
           />
           <ul class="space-y-2">
             <li>
-              <Button variant="outline" @click="$router.push({ name: 'browse' })">Browse</Button>
+              <Button variant="outline" @click="router.push({ name: 'browse' })">Browse</Button>
             </li>
-            <li>
-              <Button variant="outline" @click="$router.push({ name: 'profile' })">Profile</Button>
-            </li>
-            <li>
-              <Button variant="outline" @click="auth.signOut()">Logout</Button>
-            </li>
+            <template v-if="auth.isAuthenticated">
+              <li>
+                <Button variant="outline" @click="router.push({ name: 'profile' })">Profile</Button>
+              </li>
+              <li>
+                <Button variant="outline" @click="auth.signOut()">Logout</Button>
+              </li>
+            </template>
+            <template v-else>
+              <li>
+                <Button variant="outline" @click="router.push({ name: 'auth' })"
+                  >Login / Join</Button
+                >
+              </li>
+            </template>
           </ul>
         </div>
       </div>
@@ -37,12 +46,14 @@
 
 <script setup lang="ts">
   import { ref } from 'vue'
+  import { useRouter } from 'vue-router'
 
   import { useAuthStore } from '@/stores/auth'
 
   import Button from './widgets/Button.vue'
 
   const auth = useAuthStore()
+  const router = useRouter()
 
   const menuOpen = ref(false)
   const isClosing = ref(false)
