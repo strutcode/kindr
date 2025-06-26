@@ -76,10 +76,14 @@
         </div>
 
         <div>
-          <button type="submit" :disabled="authStore.loading" class="btn btn-primary w-full">
-            <LoadingSpinner v-if="authStore.loading" size="sm" />
+          <Button
+            type="submit"
+            :loading="authStore.loading"
+            :disabled="authStore.loading"
+            class="btn btn-primary w-full"
+          >
             {{ isSignUp ? 'Create Account' : 'Sign In' }}
-          </button>
+          </Button>
         </div>
 
         <div class="text-center">
@@ -100,7 +104,6 @@
   import { ref, reactive } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import { useAuthStore } from '@/stores/auth'
-  import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
   import Button from '@/components/widgets/Button.vue'
 
   const router = useRouter()
