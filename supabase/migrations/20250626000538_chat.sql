@@ -313,6 +313,7 @@ RETURNS TABLE (
 ) AS $$
 DECLARE
   v_user_id uuid;
+  v_last_loaded timestamptz;
 BEGIN
   v_user_id := auth.uid();
   
@@ -328,6 +329,8 @@ BEGIN
   ) THEN
     RAISE EXCEPTION 'Chat not found or access denied';
   END IF;
+
+  v_last_loaded := (SELECT chat_messages.created_at FROM chat_messages WHERE chat_messages.id = p_before_id);
   
   -- Return messages with user info
   RETURN QUERY
@@ -344,7 +347,7 @@ BEGIN
   FROM chat_messages cm
   JOIN users u ON u.id = cm.sender_id
   WHERE cm.chat_id = p_chat_id
-  AND (p_before_id IS NULL OR cm.created_at < (SELECT created_at FROM chat_messages WHERE id = p_before_id))
+  AND (p_before_id IS NULL OR cm.created_at < v_last_loaded)
   ORDER BY cm.created_at DESC
   LIMIT p_limit;
 END;
