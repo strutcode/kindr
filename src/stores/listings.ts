@@ -114,6 +114,8 @@ export const useListingsStore = defineStore('listings', () => {
       if (data && data.length > 0) {
         listings.value.unshift(data[0]) // Add new listing to the front
       }
+
+      return data as Listing
     } catch (error) {
       console.error('Error creating listing:', error)
     }

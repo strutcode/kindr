@@ -10,16 +10,35 @@
 </template>
 
 <script lang="ts" setup>
+  import { useRouter } from 'vue-router'
+
   import { useListingsStore } from '@/stores/listings'
   import { Listing } from '@/types'
 
   import ListingCreateUpdateForm from '@/components/listings/ListingCreateUpdateForm.vue'
 
+  const router = useRouter()
   const listingsStore = useListingsStore()
 
   const submitForm = async (form: Partial<Listing>) => {
-    console.log('submit')
-    await listingsStore.createListing(form)
+    try {
+      // Validate form data
+      if (!form.title || !form.description) {
+        throw new Error('Title and description are required')
+      }
+
+      // Create the listing
+      const listing = await listingsStore.createListing(form)
+
+      // Redirect to the newly created listing
+      if (listing) {
+        // Assuming you have a router instance available
+        router.push({ name: 'show', params: { id: listing.id } })
+      }
+    } catch (error) {
+      console.error('Error creating listing:', error)
+      // Handle error (e.g., show notification)
+    }
   }
 </script>
 

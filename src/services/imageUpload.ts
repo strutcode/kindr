@@ -165,7 +165,7 @@ export class ImageUploadService {
 
       // Upload to Supabase storage with retry logic
       const uploadResult = await supabase.storage
-        .from('request-images')
+        .from('listing-images')
         .upload(fileName, compressedBlob, {
           cacheControl: '3600',
           upsert: false,
@@ -178,7 +178,7 @@ export class ImageUploadService {
       }
 
       const { data: urlData } = await supabase.storage
-        .from('request-images')
+        .from('listing-images')
         .getPublicUrl(uploadResult.data.path)
 
       const result = {
@@ -266,7 +266,7 @@ export class ImageUploadService {
       throw new Error('Image path is required for deletion')
     }
 
-    await supabase.storage.from('request-images').remove([path])
+    await supabase.storage.from('listing-images').remove([path])
   }
 
   /**
@@ -275,7 +275,7 @@ export class ImageUploadService {
   static async deleteImages(paths: string[]): Promise<void> {
     if (paths.length === 0) return
 
-    await supabase.storage.from('request-images').remove(paths)
+    await supabase.storage.from('listing-images').remove(paths)
   }
 
   /**
@@ -306,7 +306,7 @@ export class ImageUploadService {
       }
 
       // List all images for the user
-      const { data: files } = await supabase.storage.from('request-images').list(userId)
+      const { data: files } = await supabase.storage.from('listing-images').list(userId)
 
       // Find orphaned files
       const orphanedPaths =

@@ -25,6 +25,7 @@ const router = createRouter({
       path: '/listings',
       name: 'browse',
       component: () => import('@/views/BrowseView.vue'),
+      meta: { fixedLayout: true },
     },
     {
       path: '/listings/create',

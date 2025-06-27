@@ -50,14 +50,7 @@
           class="modal-image"
         />
         <button @click="closeImageModal" class="close-modal-button">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <Icon icon="tabler:user-filled" class="h-6 w-6 text-gray-500" />
         </button>
       </div>
     </div>

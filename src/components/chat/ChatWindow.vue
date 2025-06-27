@@ -223,7 +223,8 @@
   }
 
   .messages-container {
-    @apply flex-1 overflow-y-auto p-4;
+    @apply flex-1 content-end overflow-y-auto p-4;
+    @apply md:p-8 lg:p-10;
   }
 
   .load-more-container {

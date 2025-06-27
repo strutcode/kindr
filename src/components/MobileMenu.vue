@@ -20,19 +20,30 @@
           />
           <ul class="space-y-2">
             <li>
-              <Button variant="outline" @click="router.push({ name: 'browse' })">Browse</Button>
+              <Button variant="primary" :link="{ name: 'create' }" class="menu-button"
+                >Create a Listing</Button
+              >
+            </li>
+            <li>
+              <Button variant="outline" :link="{ name: 'browse' }" class="menu-button"
+                >Browse</Button
+              >
             </li>
             <template v-if="auth.isAuthenticated">
               <li>
-                <Button variant="outline" @click="router.push({ name: 'profile' })">Profile</Button>
+                <Button variant="outline" :link="{ name: 'profile' }" class="menu-button"
+                  >Profile</Button
+                >
               </li>
               <li>
-                <Button variant="outline" @click="auth.signOut()">Logout</Button>
+                <Button variant="outline" @click="auth.signOut()" class="menu-button"
+                  >Logout</Button
+                >
               </li>
             </template>
             <template v-else>
               <li>
-                <Button variant="outline" @click="router.push({ name: 'auth' })"
+                <Button variant="outline" :link="{ name: 'auth' }" class="menu-button"
                   >Login / Join</Button
                 >
               </li>
@@ -93,7 +104,7 @@
     @apply w-full;
   }
 
-  .menu li button {
+  .menu-button {
     @apply w-full;
   }
 </style>
