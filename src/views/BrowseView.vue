@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-if="!locating">
+  <div class="browse-view" v-if="!locating">
     <div class="sidebar">
       <div class="w-full p-4">
         <div class="flex">
@@ -123,7 +123,7 @@
 </script>
 
 <style scoped>
-  .container {
+  .browse-view {
     @apply absolute w-full h-full flex;
   }
 

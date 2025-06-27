@@ -10,15 +10,9 @@
       <img class="logo" :class="{ active: !ui.header.fade }" src="@/assets/logo.svg" alt="Kindr" />
     </router-link>
 
-    <div class="search">
-      <Text
-        v-model="query"
-        class="w-full"
-        placeholder="Search for people, groups, or topics"
-        @enter="query => router.push({ name: 'search', query: { q: query } })"
-      />
-      <Button variant="outline" @click="router.push({ name: 'browse' })">Browse</Button>
-    </div>
+    <Button variant="ghost" :link="{ name: 'browse' }" class="nav-item">Browse</Button>
+    <Button variant="ghost" :link="{ name: 'create' }" class="nav-item">Create</Button>
+    <Button variant="ghost" :link="{ name: 'browse' }" class="nav-item">Help</Button>
 
     <div class="flex justify-end items-center space-x-4">
       <!-- Chat icon with unread indicator -->
@@ -39,8 +33,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue'
-  import { useRouter } from 'vue-router'
   import { useUiStore } from '@/stores/ui'
   import { useAuthStore } from '@/stores/auth'
   import { useChatStore } from '@/stores/chat'
@@ -48,11 +40,8 @@
 
   import UserMenu from '@/components/UserMenu.vue'
   import Button from './widgets/Button.vue'
-  import Text from './widgets/Text.vue'
   import MobileMenu from './MobileMenu.vue'
 
-  const query = ref('')
-  const router = useRouter()
   const ui = useUiStore()
   const authStore = useAuthStore()
   const chatStore = useChatStore()
@@ -84,11 +73,14 @@
   }
 
   .nav-item {
-    @apply text-gray-600 hover:text-gray-900 font-medium transition-colors px-4 py-2;
+    @apply px-4 py-2 hidden md:block;
+    @apply text-gray-600 hover:text-gray-900 font-medium transition-colors;
+    @apply hover:bg-gray-100;
   }
 
-  .nav-item:hover {
-    @apply bg-gray-50 rounded-md;
+  nav.transparent .nav-item {
+    @apply text-white hover:text-gray-200;
+    @apply hover:bg-black/20;
   }
 
   .search {
@@ -98,15 +90,15 @@
 
   .chat-button {
     @apply relative p-2 rounded-lg transition-colors;
-    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100;
+    @apply text-gray-400 hover:bg-gray-100;
   }
 
   nav.transparent .chat-button {
-    @apply text-white hover:text-gray-200 hover:bg-white/20;
+    @apply text-white text-gray-200 hover:bg-black/20;
   }
 
   .chat-icon {
-    @apply w-8 h-8 text-gray-400;
+    @apply w-8 h-8;
   }
 
   .unread-badge {

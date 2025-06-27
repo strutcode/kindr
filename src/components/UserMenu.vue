@@ -44,11 +44,12 @@
 
 <style scoped>
   .user-menu {
-    @apply relative right-0 mt-2 cursor-pointer;
+    @apply relative right-0 cursor-pointer;
   }
 
   .user-info {
-    @apply flex items-center mb-2;
+    @apply flex items-center p-2;
+    @apply hover:bg-gray-100 rounded-md;
   }
 
   .avatar {
