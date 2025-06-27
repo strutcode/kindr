@@ -4,7 +4,7 @@
       <div class="w-full p-4">
         <div class="flex">
           <h2 class="text-lg font-semibold grow">Listings</h2>
-          <Button variant="outline" icon-left="tabler:refresh" @click="fetchListings" />
+          <Button icon-left="tabler:plus" :link="{ name: 'create' }"> Create </Button>
         </div>
         <ul class="space-y-8 mt-4">
           <ListingMini

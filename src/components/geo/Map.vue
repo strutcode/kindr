@@ -1,6 +1,6 @@
 <template>
   <div class="map-container">
-    <div ref="map" class="map"></div>
+    <div ref="mapEl" class="map"></div>
     <div class="controls">
       <button @click="resetView" class="btn btn-secondary">Reset View</button>
     </div>
@@ -21,7 +21,7 @@
   import { Icon, Style } from 'ol/style'
   import VectorSource from 'ol/source/Vector'
 
-  const el = useTemplateRef('map')
+  const mapEl = useTemplateRef('mapEl')
   const map = ref<Map | null>(null)
 
   interface MapPin {
@@ -42,11 +42,11 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    center: { lat: 34.0522, lng: -118.2437 },
+    center: () => ({ lat: 34.0522, lng: -118.2437 }),
     zoom: 10,
     minZoom: 1,
     maxZoom: 19,
-    pins: [],
+    pins: () => [],
     disableControls: false,
     nonInteractive: false,
   })
@@ -55,6 +55,7 @@
     (e: 'update:center', center: Location): void
     (e: 'update:zoom', zoom: number): void
     (e: 'view-change', view: MapView): void
+    (e: 'map-click', location: { lat: number; lng: number }): void
   }>()
 
   const resetView = () => {
@@ -87,18 +88,23 @@
   })
 
   const createMarkerSVG = (color: string, index: number): string => {
+    const indexed = index != null
+    let number = ''
+
+    if (indexed) {
+      number = `<text x="16" y="21" text-anchor="middle" font-size="16" fill="${color}" font-family="Arial" font-weight="bold">${index}</text>`
+    }
+
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
       <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
       <path d="M16 0C7.163 0 0 7.163 0 16c0 16 16 24 16 24s16-8 16-24C32 7.163 24.837 0 16 0z" fill="${color}"/>
-      <circle cx="16" cy="16" r="12" fill="white"/>
-      <text x="16" y="21" text-anchor="middle" font-size="16" fill="${color}" font-family="Arial" font-weight="bold">${index}</text>
+      <circle cx="16" cy="16" r="${indexed ? 12 : 6}" fill="white"/>
+      ${number}
       </svg>
     `)}`
   }
 
   const updatePinLayer = () => {
-    if (!map.value) return
-
     const source = pinLayer.getSource()
 
     if (!source) return
@@ -122,12 +128,26 @@
       return feature
     })
 
+    source.clear()
     source.addFeatures(features)
   }
-  watch(() => props.pins, updatePinLayer, { immediate: true })
+  watch(() => props.pins, updatePinLayer)
+
+  watch(
+    () => props.center,
+    newCenter => {
+      if (map.value) {
+        const view = map.value.getView()
+        view.animate({
+          center: fromLonLat([newCenter.lng, newCenter.lat]),
+          duration: 500,
+        })
+      }
+    },
+  )
 
   onMounted(() => {
-    if (!el.value) {
+    if (!mapEl.value) {
       console.error('Map element is not available')
       return
     }
@@ -141,12 +161,12 @@
       projection: 'EPSG:3857',
     })
 
-    updatePinLayer()
+    updatePinLayer(view)
 
     view.on('change:center', () => onViewChange(view))
     view.on('change:resolution', () => onViewChange(view))
     map.value = new Map({
-      target: el.value,
+      target: mapEl.value,
       layers: [
         new TileLayer({
           source: new OSM(),
@@ -156,6 +176,12 @@
       view,
       controls: props.disableControls ? [] : undefined,
       interactions: props.nonInteractive ? [] : undefined,
+    })
+
+    map.value.on('singleclick', event => {
+      const coordinate = event.coordinate
+      const [lng, lat] = toLonLat(coordinate)
+      emit('map-click', { lat, lng })
     })
   })
 

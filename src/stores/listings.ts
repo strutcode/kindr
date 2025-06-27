@@ -100,10 +100,16 @@ export const useListingsStore = defineStore('listings', () => {
   }
 
   const createListing = async (form: Partial<Listing>) => {
+    debugger
     const authStore = useAuthStore()
 
     try {
-      const input = { user_id: authStore.user?.id, ...form }
+      const input: any = { user_id: authStore.user?.id, ...form }
+
+      if (input.location) {
+        // Supabase expects a postgis type for location
+        input.location = `POINT(${input.location.lng} ${input.location.lat})`
+      }
 
       const { data, error } = await supabase.from('listings').insert([input]).select().single()
 

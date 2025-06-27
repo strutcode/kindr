@@ -8,6 +8,7 @@
       <Icon icon="mdi:chevron-down" class="ml-2 text-gray-500" />
     </div>
     <ul class="menu-items" v-show="menu">
+      <li @click="router.push({ name: 'create' })">New Listing</li>
       <li @click="router.push({ name: 'profile' })">Profile</li>
       <li @click="auth.signOut">Logout</li>
     </ul>

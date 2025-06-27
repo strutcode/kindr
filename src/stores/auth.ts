@@ -42,31 +42,26 @@ export const useAuthStore = defineStore('auth', () => {
         await fetchUserProfile(session.value.user.id)
       }
 
-      supabase.auth.onAuthStateChange(async (event, newSession) => {
-        debug('Auth state changed:', event, newSession?.user?.id)
+      // supabase.auth.onAuthStateChange(async (event, newSession) => {
+      //   debug('Auth state changed:', event, newSession?.user?.id)
 
-        if (event === 'SIGNED_IN') {
-          try {
-            session.value = newSession
-            if (newSession?.user) {
-              await fetchUserProfile(newSession.user.id)
-            } else {
-              user.value = null
-            }
-            authErr.value = '' // Clear any previous errors on successful auth change
-          } catch (err) {
-            error('Error handling auth state change:', err)
-            authErr.value = err instanceof Error ? err.message : 'Authentication error'
-          }
-        }
+      //   if (event === 'SIGNED_IN') {
+      //     try {
+      //       session.value = newSession
+      //       authErr.value = '' // Clear any previous errors on successful auth change
+      //     } catch (err) {
+      //       error('Error handling auth state change:', err)
+      //       authErr.value = err instanceof Error ? err.message : 'Authentication error'
+      //     }
+      //   }
 
-        if (event === 'SIGNED_OUT') {
-          debug('User signed out, clearing session and user data')
-          session.value = null
-          user.value = null
-          authErr.value = '' // Clear any previous errors on sign out
-        }
-      })
+      //   if (event === 'SIGNED_OUT') {
+      //     debug('User signed out, clearing session and user data')
+      //     session.value = null
+      //     user.value = null
+      //     authErr.value = '' // Clear any previous errors on sign out
+      //   }
+      // })
 
       initialized.value = true
     } catch (err) {

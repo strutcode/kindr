@@ -71,6 +71,12 @@
       />
     </div>
 
+    <!-- Location -->
+    <div class="space-y-6">
+      <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Location</h2>
+      <LocationSelector v-model="form.location" label="Location" :required="true" />
+    </div>
+
     <!-- Images -->
     <div class="space-y-6">
       <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
@@ -109,6 +115,7 @@
   import Dropdown from '../widgets/Dropdown.vue'
   import Tags from '../widgets/Tags.vue'
   import ImageUpload from '../common/ImageUpload.vue'
+  import LocationSelector from '../widgets/LocationSelector.vue'
 
   defineEmits<{
     (e: 'submit', form: Partial<Listing>): void
