@@ -119,15 +119,20 @@ export const useAuthStore = defineStore('auth', () => {
       if (signUpError) throw new Error(signUpError.message)
 
       if (authResult.user) {
-        const { error: profileError } = await supabase.from('users').insert([
-          {
-            id: authResult.user.id,
-            full_name: fullName,
-            notification_radius: 2,
-          },
-        ])
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert([
+            {
+              id: authResult.user.id,
+              full_name: fullName,
+              notification_radius: 2,
+            },
+          ])
+          .single()
 
         if (profileError) throw new Error(profileError.message)
+
+        await fetchUserProfile(authResult.user.id)
       }
 
       return { data: authResult, error: null }
