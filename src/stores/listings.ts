@@ -4,6 +4,22 @@ import { supabase } from '@/lib/supabase'
 import { Listing, ListingFilters, MapBounds } from '@/types'
 import { useAuthStore } from './auth'
 
+const formatListing = (entry: any): Listing => {
+  return {
+    ...entry,
+    location: {
+      lat: entry.location?.coordinates[1] ?? -47,
+      lng: entry.location?.coordinates[0] ?? 168,
+    },
+    user: {
+      id: entry.user?.id ?? '',
+      full_name: entry.user?.full_name ?? 'Unknown User',
+      avatar_url: entry.user?.avatar_url ?? null,
+      email: entry.user?.email ?? '',
+    },
+  }
+}
+
 export const useListingsStore = defineStore('listings', () => {
   const listings = ref<Listing[]>([])
 
@@ -11,7 +27,7 @@ export const useListingsStore = defineStore('listings', () => {
     try {
       const res = await supabase
         .from('listings')
-        .select('*')
+        .select(`*, user:users!listings_user_id_fkey(id, full_name, avatar_url)`)
         .eq('active', true) // Assuming you want only active listings
         .order('created_at', { ascending: false })
 
@@ -19,13 +35,7 @@ export const useListingsStore = defineStore('listings', () => {
         throw res.error
       }
 
-      listings.value = res.data.map(entry => ({
-        ...entry,
-        location: {
-          lat: entry.location?.coordinates[1] || 0,
-          lng: entry.location?.coordinates[0] || 0,
-        },
-      }))
+      listings.value = res.data.map(formatListing)
     } catch (error) {
       console.error('Error fetching listings:', error)
     }
@@ -44,19 +54,7 @@ export const useListingsStore = defineStore('listings', () => {
       }
 
       if (data) {
-        const listing = {
-          ...data,
-          location: {
-            lat: data.location?.coordinates[1] || 0,
-            lng: data.location?.coordinates[0] || 0,
-          },
-          user: {
-            id: data.user?.id || '',
-            full_name: data.user?.full_name || '',
-            avatar_url: data.user?.avatar_url || '',
-            email: data.user?.email || '',
-          },
-        }
+        const listing = formatListing(data)
 
         listings.value.push(listing) // Add to listings array
         return listing
@@ -67,12 +65,32 @@ export const useListingsStore = defineStore('listings', () => {
     return null
   }
 
-  const fetchListingsInBounds = async (bounds: MapBounds, filters: ListingFilters) => {
+  const searchListings = async (query: string): Promise<Listing[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .select('*')
+        .textSearch('title_description_tags', query)
+
+      if (error) {
+        throw error
+      }
+
+      listings.value = data.map(formatListing)
+
+      return listings.value
+    } catch (error) {
+      console.error('Error searching listings:', error)
+      return []
+    }
+  }
+
+  const fetchListingsInBounds = async (bounds: MapBounds, filters?: ListingFilters) => {
     try {
       const { north, south, east, west } = bounds
-      const { category, subcategory, activeOnly } = filters
+      const { category, subcategory, activeOnly } = filters ?? {}
 
-      const { data, error } = await supabase.rpc('get_requests_in_bounds', {
+      const { data, error } = await supabase.rpc('get_listings_in_bounds', {
         north,
         south,
         east,
@@ -87,13 +105,7 @@ export const useListingsStore = defineStore('listings', () => {
         throw error
       }
 
-      listings.value = data.map((entry: any) => ({
-        ...entry,
-        location: {
-          lat: entry.location?.coordinates[1] || 0,
-          lng: entry.location?.coordinates[0] || 0,
-        },
-      }))
+      listings.value = data.map(formatListing)
     } catch (error) {
       console.error('Error fetching listings in bounds:', error)
     }
@@ -111,16 +123,21 @@ export const useListingsStore = defineStore('listings', () => {
         input.location = `POINT(${input.location.lng} ${input.location.lat})`
       }
 
-      const { data, error } = await supabase.from('listings').insert([input]).select().single()
+      const { data, error } = await supabase
+        .from('listings')
+        .insert([input])
+        .select(`*, user:users!listings_user_id_fkey(id, full_name, avatar_url)`)
+        .single()
 
       if (error) {
         throw error
       }
 
-      if (data && data.length > 0) {
-        listings.value.unshift(data[0]) // Add new listing to the front
+      if (!data) {
+        throw new Error('No data returned from insert')
       }
 
+      listings.value.unshift(formatListing(data)) // Add new listing to the front
       return data as Listing
     } catch (error) {
       console.error('Error creating listing:', error)
@@ -133,7 +150,7 @@ export const useListingsStore = defineStore('listings', () => {
         .from('listings')
         .update(updates)
         .eq('id', id)
-        .select()
+        .select(`*, user:users!listings_user_id_fkey(id, full_name, avatar_url)`)
         .single()
 
       if (error) {
@@ -155,6 +172,8 @@ export const useListingsStore = defineStore('listings', () => {
     listings,
     fetchListings,
     fetchSingleListing,
+    fetchListingsInBounds,
+    searchListings,
     createListing,
     updateListing,
   }

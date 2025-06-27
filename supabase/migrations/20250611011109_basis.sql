@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS listings (
   skills_required text[] DEFAULT '{}',
   compensation text,
   images text[] DEFAULT '{}',
-  location geometry(POINT, 4326),
+  location geometry(POINT, 4326) NOT NULL,
   active boolean DEFAULT true,
   expiry_seconds integer DEFAULT 604800 CHECK (expiry_seconds IN (3600, 43200, 86400, 259200, 432000, 604800)), -- 1 hour, 12 hours, 1 day, 3 days, 5 days, 7 days
   created_at timestamptz DEFAULT now(),
@@ -228,13 +228,12 @@ RETURNS TABLE (
   skills_required text[],
   compensation text,
   images text[],
-  location jsonb,
+  location geometry(POINT, 4326),
   active boolean,
   created_at timestamptz,
   updated_at timestamptz,
   expires_at timestamptz,
   user_full_name text,
-  user_email text,
   user_avatar_url text,
   distance_meters double precision
 ) AS $$
@@ -262,7 +261,7 @@ BEGIN
       ST_Union(
         ST_MakeEnvelope(-180, south, east, north, 4326),
         ST_MakeEnvelope(west, south, 180, north, 4326)
-      ), 
+      ),
       4326
     );
   ELSE
@@ -273,37 +272,36 @@ BEGIN
   -- Query listings within bounds with spatial index optimization
   RETURN QUERY
   SELECT 
-    r.id,
-    r.user_id,
-    r.title,
-    r.description,
-    r.category,
-    r.subcategory,
-    r.duration_estimate,
-    r.skills_required,
-    r.compensation,
-    r.images,
-    r.location,
-    r.active,
-    r.created_at,
-    r.updated_at,
-    r.expires_at,
+    l.id,
+    l.user_id,
+    l.title,
+    l.description,
+    l.category,
+    l.subcategory,
+    l.duration_estimate,
+    l.skills_required,
+    l.compensation,
+    l.images,
+    l.location,
+    l.active,
+    l.created_at,
+    l.updated_at,
+    l.expires_at,
     u.full_name as user_full_name,
-    u.email as user_email,
     u.avatar_url as user_avatar_url,
     -- Calculate distance from center of bounds for sorting
     ST_Distance(
-      r.location::geography, 
+      l.location::geography,
       ST_Centroid(bounds_geom)::geography
     ) as distance_meters
-  FROM listings r
-  JOIN users u ON r.user_id = u.id
+  FROM listings l
+  JOIN users u ON l.user_id = u.id
   WHERE 
-    r.location IS NOT NULL
-    AND ST_Intersects(r.location, bounds_geom)
-    AND (p_active IS NULL OR r.active = p_active)
-    AND (p_category IS NULL OR r.category = p_category)
-    AND (p_subcategory IS NULL OR r.subcategory = p_subcategory)
+    l.location IS NOT NULL
+    AND ST_Intersects(l.location::geography, bounds_geom::geography)
+    AND (p_active IS NULL OR l.active = p_active)
+    AND (p_category IS NULL OR l.category = p_category)
+    AND (p_subcategory IS NULL OR l.subcategory = p_subcategory)
   ORDER BY distance_meters ASC
   LIMIT p_limit;
 END;

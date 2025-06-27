@@ -27,7 +27,14 @@
         :maxZoom="19"
         :pins="mapPins"
         @view-change="mapViewChanged"
+        @bounds-change="mapBoundsChanged"
       />
+      <div class="absolute top-4 right-4 z-20 flex items-center space-x-4">
+        <Text v-model="query" placeholder="Search listings..." class="w-64" @enter="textSearch" />
+        <Button :loading="locating" @click="jumpToCurrentLocation">
+          <Icon icon="mdi:crosshairs-gps" class="w-6 h-6" />
+        </Button>
+      </div>
       <div class="pullbar" :class="{ active: pullbarActive }">
         <div class="grabber" @click="pullbarActive = !pullbarActive">
           <div class="grabber-pill"></div>
@@ -58,7 +65,7 @@
   import { computed, onMounted, ref } from 'vue'
   import { LocationService } from '@/services/location'
   import { Icon } from '@iconify/vue'
-  import type { Listing, MapView } from '@/types'
+  import type { Listing, MapBounds, MapView } from '@/types'
 
   import { CATEGORIES } from '@/constants/categories'
   import { useLocationStore } from '@/stores/location'
@@ -68,22 +75,50 @@
   import ListingMini from '@/components/listings/ListingMini.vue'
   import Button from '@/components/widgets/Button.vue'
   import ListingOverlay from '@/components/listings/ListingOverlay.vue'
+  import Text from '@/components/widgets/Text.vue'
 
   const locationStore = useLocationStore()
   const listingsStore = useListingsStore()
 
   const locating = ref(true)
   const mapPos = ref({ lat: 0, lng: 0 })
+  const mapBounds = ref({ north: 0, south: 0, east: 0, west: 0 })
   const zoom = ref(12)
   const pullbarActive = ref(false)
   const selectedListing = ref<Listing | null>(null)
+  const query = ref('')
 
   const fetchListings = async () => {
-    await listingsStore.fetchListings()
+    await listingsStore.fetchListingsInBounds(mapBounds.value)
   }
 
   const getCategoryColor = (category: string) => {
     return CATEGORIES.find(cat => cat.value === category)?.color ?? 'gray'
+  }
+
+  const jumpToCurrentLocation = async () => {
+    locating.value = true
+    const pos = await LocationService.getCurrentPosition()
+    mapPos.value = { lat: pos.latitude, lng: pos.longitude }
+    zoom.value = 12
+    locationStore.setViewingLocation({
+      center: mapPos.value,
+      zoom: zoom.value,
+    })
+    locating.value = false
+  }
+
+  const textSearch = async () => {
+    if (query.value.trim() === '') {
+      fetchListings()
+      return
+    }
+
+    await listingsStore.searchListings(query.value.trim())
+
+    if (listingsStore.listings.length === 0) {
+      alert('No listings found for that search.')
+    }
   }
 
   const mapPins = computed(() => {
@@ -97,8 +132,11 @@
   })
 
   const mapViewChanged = (view: MapView) => {
-    mapPos.value = view.center
     locationStore.setViewingLocation(view)
+    fetchListings()
+  }
+  const mapBoundsChanged = (bounds: MapBounds) => {
+    mapBounds.value = bounds
     fetchListings()
   }
 

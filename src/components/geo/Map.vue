@@ -14,8 +14,8 @@
   import TileLayer from 'ol/layer/Tile'
   import OSM from 'ol/source/OSM'
   import 'ol/ol.css'
-  import { fromLonLat, toLonLat } from 'ol/proj'
-  import type { Location, MapView } from '@/types'
+  import { fromLonLat, toLonLat, transformExtent } from 'ol/proj'
+  import type { Location, MapBounds, MapView } from '@/types'
   import VectorLayer from 'ol/layer/Vector'
   import { Point } from 'ol/geom'
   import { Icon, Style } from 'ol/style'
@@ -55,6 +55,7 @@
     (e: 'update:center', center: Location): void
     (e: 'update:zoom', zoom: number): void
     (e: 'view-change', view: MapView): void
+    (e: 'bounds-change', view: MapBounds): void
     (e: 'map-click', location: { lat: number; lng: number }): void
   }>()
 
@@ -73,13 +74,25 @@
     const point = view.getCenter()
     const zoom = view.getZoom()
 
-    if (point && zoom !== undefined) {
-      const center = toLonLat(point)
+    if (!point) return
+    if (zoom == null) return
 
-      emit('update:center', { lat: center[1], lng: center[0] })
-      emit('update:zoom', zoom)
-      emit('view-change', { center: { lat: center[1], lng: center[0] }, zoom })
+    const lonLat = toLonLat(point)
+    const center = { lat: lonLat[1], lng: lonLat[0] }
+    const extent = view.calculateExtent()
+    const [minX, minY, maxX, maxY] = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
+
+    const bounds = {
+      west: minX,
+      south: minY,
+      east: maxX,
+      north: maxY,
     }
+
+    emit('update:center', center)
+    emit('update:zoom', zoom)
+    emit('view-change', { center, zoom })
+    emit('bounds-change', bounds)
   }, 250)
 
   const pinLayer = new VectorLayer({
@@ -161,7 +174,7 @@
       projection: 'EPSG:3857',
     })
 
-    updatePinLayer(view)
+    updatePinLayer()
 
     view.on('change:center', () => onViewChange(view))
     view.on('change:resolution', () => onViewChange(view))
