@@ -16,7 +16,8 @@
 
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center py-8">
-      <LoadingSpinner size="lg" text="Loading profile..." />
+      <Icon icon="svg-spinners:3-dots-bounce" class="w-12 h-12 text-secondary-600" />
+      <p class="mt-4 text-gray-600">Loading your profile...</p>
     </div>
 
     <!-- Form -->
@@ -85,56 +86,10 @@
 
       <!-- Location & Preferences -->
       <div class="space-y-6">
-        <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
-          Location & Preferences
-        </h3>
+        <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Location</h3>
 
         <!-- Location Setup -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2"> Your Location </label>
-
-          <div v-if="locationStatus === 'loading'" class="p-4 bg-gray-50 rounded-md">
-            <LoadingSpinner text="Getting your location..." />
-          </div>
-
-          <div v-else-if="locationStatus === 'error'" class="p-4 bg-error-50 rounded-md">
-            <div class="flex items-start">
-              <ExclamationTriangleIcon class="w-5 h-5 text-error-600 mt-0.5 mr-3 flex-shrink-0" />
-              <div class="flex-1">
-                <p class="text-sm text-error-700 mb-2">{{ locationError }}</p>
-                <button type="button" @click="requestLocation" class="btn btn-outline btn-sm">
-                  Try Again
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div v-else-if="form.location" class="p-4 bg-success-50 rounded-md">
-            <div class="flex items-start justify-between">
-              <div class="flex items-start">
-                <Icon
-                  icon="tabler:home"
-                  class="w-5 h-5 text-success-600 mt-0.5 mr-3 flex-shrink-0"
-                />
-                <div>
-                  <p class="text-sm text-success-700 font-medium">Location set successfully</p>
-                  <p class="text-sm text-success-600 mt-1">{{ form.location.address }}</p>
-                </div>
-              </div>
-              <Button variant="outline" @click="requestLocation"> Update Location </Button>
-            </div>
-          </div>
-
-          <div v-else class="p-4 bg-gray-50 rounded-md">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <Icon icon="tabler:home" class="w-5 h-5 text-gray-400 mr-3" />
-                <span class="text-sm text-gray-600">Location not set</span>
-              </div>
-              <Button variant="outline" @click="requestLocation"> Set Location </Button>
-            </div>
-          </div>
-        </div>
+        <LocationSelector v-model="form.location" class="mb-4" />
       </div>
 
       <!-- Error/Success Messages -->
@@ -178,6 +133,7 @@
   import type { Location, User } from '@/types'
   import { Icon } from '@iconify/vue'
   import Button from '../widgets/Button.vue'
+  import LocationSelector from '../widgets/LocationSelector.vue'
 
   interface Props {
     /** Optional existing profile data */

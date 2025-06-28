@@ -193,8 +193,8 @@ CREATE OR REPLACE FUNCTION mark_expired_listings_inactive()
 RETURNS void AS $$
 BEGIN
   UPDATE listings
-  SET is_active = false
-  WHERE is_active = true
+  SET active = false
+  WHERE active = true
     AND expiry_seconds IS NOT NULL
     AND (EXTRACT(EPOCH FROM (now() - created_at)) > expiry_seconds);
 END;

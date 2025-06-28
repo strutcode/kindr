@@ -6,7 +6,9 @@
         placeholder="Type an address or location..."
         @enter="handleAddressSearch"
       />
-      <Button @click="handleAddressSearch" :loading="isGeocoding" class="ml-4"> Search </Button>
+      <Button variant="gray" @click="handleAddressSearch" :loading="isGeocoding" class="ml-4">
+        Search
+      </Button>
     </div>
 
     <div class="map-picker">
