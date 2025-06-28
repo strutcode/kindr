@@ -15,6 +15,18 @@
     <Button variant="ghost" :link="{ name: 'browse' }" class="nav-item">Help</Button>
 
     <div class="flex justify-end items-center space-x-4">
+      <!-- Notifications bell icon with unread indicator -->
+      <router-link
+        v-if="authStore.user"
+        :to="{ name: 'notifications' }"
+        class="notification-button"
+      >
+        <Icon icon="tabler:bell-filled" class="notification-icon" />
+        <span v-if="notificationsStore.unreadCount > 0" class="unread-badge">
+          {{ notificationsStore.unreadCount > 99 ? '∞' : notificationsStore.unreadCount }}
+        </span>
+      </router-link>
+
       <!-- Chat icon with unread indicator -->
       <router-link v-if="authStore.user" :to="{ name: 'chats' }" class="chat-button">
         <Icon icon="tabler:message-circle-filled" class="chat-icon" />
@@ -36,6 +48,7 @@
   import { useUiStore } from '@/stores/ui'
   import { useAuthStore } from '@/stores/auth'
   import { useChatStore } from '@/stores/chat'
+  import { useNotificationsStore } from '@/stores/notifications'
   import { Icon } from '@iconify/vue'
 
   import UserMenu from '@/components/UserMenu.vue'
@@ -45,6 +58,7 @@
   const ui = useUiStore()
   const authStore = useAuthStore()
   const chatStore = useChatStore()
+  const notificationsStore = useNotificationsStore()
 </script>
 
 <style scoped>
@@ -88,15 +102,18 @@
     @apply md:visible;
   }
 
+  .notification-button,
   .chat-button {
     @apply relative p-2 rounded-lg transition-colors;
     @apply text-gray-400 hover:bg-gray-100;
   }
 
+  nav.transparent .notification-button,
   nav.transparent .chat-button {
     @apply text-white text-gray-200 hover:bg-black/20;
   }
 
+  .notification-icon,
   .chat-icon {
     @apply w-8 h-8;
   }

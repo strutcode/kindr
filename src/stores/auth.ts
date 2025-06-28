@@ -88,10 +88,18 @@ export const useAuthStore = defineStore('auth', () => {
       log('User profile data:', data)
       user.value = data
 
-      // Initialize chat store when user profile is loaded
+      // Initialize stores when user profile is loaded
       const { useChatStore } = await import('./chat')
+      const { useAlertsStore } = await import('./alerts')
+      const { useNotificationsStore } = await import('./notifications')
+
       const chatStore = useChatStore()
+      const alertsStore = useAlertsStore()
+      const notificationsStore = useNotificationsStore()
+
       chatStore.initialize()
+      alertsStore.initialize()
+      notificationsStore.initialize()
     } catch (err) {
       error('Error fetching user profile:', err)
 
@@ -201,10 +209,18 @@ export const useAuthStore = defineStore('auth', () => {
     authErr.value = ''
 
     try {
-      // Cleanup chat store before signing out
+      // Cleanup stores before signing out
       const { useChatStore } = await import('./chat')
+      const { useAlertsStore } = await import('./alerts')
+      const { useNotificationsStore } = await import('./notifications')
+
       const chatStore = useChatStore()
+      const alertsStore = useAlertsStore()
+      const notificationsStore = useNotificationsStore()
+
       chatStore.cleanup()
+      alertsStore.cleanup()
+      notificationsStore.cleanup()
 
       const { error: signOutError } = await supabase.auth.signOut()
 

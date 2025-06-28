@@ -45,6 +45,18 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/alerts',
+      name: 'alerts',
+      component: () => import('@/views/AlertsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/notifications',
+      name: 'notifications',
+      component: () => import('@/views/NotificationsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/chats',
       name: 'chats',
       component: () => import('@/views/ChatsView.vue'),

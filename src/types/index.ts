@@ -67,6 +67,47 @@ export interface Review {
   created_at: string
 }
 
+// Alert and Notification types
+export interface Alert {
+  id: string
+  user_id: string
+  name: string
+  location: Location
+  radius_meters: number
+  category?: RequestCategory
+  active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface Notification {
+  id: string
+  alert_id: string
+  alert_name: string
+  listing_id: string
+  listing_title: string
+  listing_category: RequestCategory
+  listing_location: Location
+  user_id: string
+  read: boolean
+  created_at: string
+}
+
+export interface AlertState {
+  alerts: Alert[]
+  loading: boolean
+  error: string | null
+}
+
+export interface NotificationState {
+  notifications: Notification[]
+  unreadCount: number
+  loading: boolean
+  error: string | null
+  hasMore: boolean
+  offset: number
+}
+
 export type RequestCategory = 'free-stuff' | 'help-needed' | 'skills-offered'
 
 export type RequestStatus = 'active' | 'in-progress' | 'completed' | 'cancelled'
