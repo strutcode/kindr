@@ -2,10 +2,7 @@
   <div class="browse-view" v-if="!locating">
     <div class="sidebar">
       <div class="w-full p-4">
-        <div class="flex">
-          <h2 class="text-lg font-semibold grow">Listings</h2>
-          <Button icon-left="tabler:plus" :link="{ name: 'create' }"> Create </Button>
-        </div>
+        <h2 class="text-lg font-semibold">Listings</h2>
         <ul class="space-y-8 mt-4">
           <ListingMini
             v-for="pin in mapPins"
@@ -29,11 +26,46 @@
         @view-change="mapViewChanged"
         @bounds-change="mapBoundsChanged"
       />
-      <div class="absolute top-4 right-4 z-20 flex items-center space-x-4">
-        <Text v-model="query" placeholder="Search listings..." class="w-64" @enter="textSearch" />
+      <div class="listing-controls">
+        <Text
+          v-model="filters.search"
+          placeholder="Search listings..."
+          class="w-64"
+          @input="textSearch"
+        />
+        <Button variant="gray" @click="filtersVisible = !filtersVisible">
+          <Icon icon="tabler:filter" class="w-6 h-6" />
+        </Button>
         <Button :loading="locating" @click="jumpToCurrentLocation">
           <Icon icon="mdi:crosshairs-gps" class="w-6 h-6" />
         </Button>
+      </div>
+      <div v-show="filtersVisible" class="filters">
+        <div>
+          <Dropdown
+            v-model="filters.category"
+            label="Category"
+            :options="CATEGORIES"
+            placeholder="Select Category"
+            @change="fetchListings"
+          />
+        </div>
+        <div v-if="filters.category">
+          <Dropdown
+            v-model="filters.subcategory"
+            label="Subcategory"
+            :options="filterSubCategories"
+            placeholder="Select Subcategory"
+            @change="fetchListings"
+          />
+        </div>
+        <div>
+          <Checkbox
+            v-model="filters.activeOnly"
+            label="Active Listings Only"
+            @change="fetchListings"
+          />
+        </div>
       </div>
       <div class="pullbar" :class="{ active: pullbarActive }">
         <div class="grabber" @click="pullbarActive = !pullbarActive">
@@ -62,10 +94,11 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onMounted, ref } from 'vue'
+  import { computed, onMounted, ref, watch } from 'vue'
   import { LocationService } from '@/services/location'
   import { Icon } from '@iconify/vue'
-  import type { Listing, MapBounds, MapView } from '@/types'
+  import { ListingFilters, type Listing, type MapBounds, type MapView } from '@/types'
+  import { debounce } from 'lodash'
 
   import { CATEGORIES } from '@/constants/categories'
   import { useLocationStore } from '@/stores/location'
@@ -76,25 +109,52 @@
   import Button from '@/components/widgets/Button.vue'
   import ListingOverlay from '@/components/listings/ListingOverlay.vue'
   import Text from '@/components/widgets/Text.vue'
+  import Dropdown from '@/components/widgets/Dropdown.vue'
+  import Checkbox from '@/components/widgets/Checkbox.vue'
 
   const locationStore = useLocationStore()
   const listingsStore = useListingsStore()
 
   const locating = ref(true)
   const mapPos = ref({ lat: 0, lng: 0 })
-  const mapBounds = ref({ north: 0, south: 0, east: 0, west: 0 })
+  const mapBounds = ref<MapBounds | null>(null)
   const zoom = ref(12)
   const pullbarActive = ref(false)
   const selectedListing = ref<Listing | null>(null)
+  const filtersVisible = ref(false)
+  const filters = ref<ListingFilters>({
+    search: '',
+    category: '',
+    subcategory: '',
+    activeOnly: true,
+  })
   const query = ref('')
 
-  const fetchListings = async () => {
-    await listingsStore.fetchListingsInBounds(mapBounds.value)
-  }
+  const fetchListings = debounce(async () => {
+    if (!mapBounds.value) {
+      return
+    }
+
+    await listingsStore.fetchListingsInBounds(mapBounds.value, filters.value)
+  }, 250)
 
   const getCategoryColor = (category: string) => {
     return CATEGORIES.find(cat => cat.value === category)?.color ?? 'gray'
   }
+
+  watch(
+    () => filters.value.category,
+    () => {
+      filters.value.subcategory = ''
+    },
+  )
+
+  const filterSubCategories = computed(() => {
+    const category = filters.value.category
+    if (!category) return []
+
+    return CATEGORIES.find(cat => cat.value === category)?.subcategories || []
+  })
 
   const jumpToCurrentLocation = async () => {
     locating.value = true
@@ -114,7 +174,7 @@
       return
     }
 
-    await listingsStore.searchListings(query.value.trim())
+    fetchListings()
 
     if (listingsStore.listings.length === 0) {
       alert('No listings found for that search.')
@@ -135,6 +195,7 @@
     locationStore.setViewingLocation(view)
     fetchListings()
   }
+
   const mapBoundsChanged = (bounds: MapBounds) => {
     mapBounds.value = bounds
     fetchListings()
@@ -181,6 +242,20 @@
 
   .pullbar.active {
     height: 96%;
+  }
+
+  .listing-controls {
+    @apply absolute top-4 right-4 z-20 flex items-center space-x-4;
+    @apply bg-gray-100 bg-opacity-75 rounded-lg p-2 shadow-md;
+  }
+
+  .filters {
+    @apply absolute top-20 right-4 z-20 w-96 flex flex-col items-start space-y-4;
+    @apply bg-white rounded-lg p-4 shadow-lg;
+  }
+
+  .filters > div {
+    @apply w-full;
   }
 
   .grabber {

@@ -88,16 +88,17 @@ export const useListingsStore = defineStore('listings', () => {
   const fetchListingsInBounds = async (bounds: MapBounds, filters?: ListingFilters) => {
     try {
       const { north, south, east, west } = bounds
-      const { category, subcategory, activeOnly } = filters ?? {}
+      const { search, category, subcategory, activeOnly } = filters ?? {}
 
       const { data, error } = await supabase.rpc('get_listings_in_bounds', {
         north,
         south,
         east,
         west,
-        p_category: category ?? null,
-        p_subcategory: subcategory ?? null,
-        p_active: activeOnly ?? null,
+        p_search: (search ?? '').trim() || null, // Only pass search if there is a value
+        p_category: category || null,
+        p_subcategory: (category && subcategory) || null,
+        p_active: activeOnly,
         p_limit: 200,
       })
 

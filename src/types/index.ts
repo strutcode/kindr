@@ -40,7 +40,8 @@ export interface Listing {
 }
 
 export interface ListingFilters {
-  category?: RequestCategory
+  search?: string
+  category?: '' | RequestCategory
   subcategory?: string
   skills?: string[]
   activeOnly?: boolean // New filter to show only active listings

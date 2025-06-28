@@ -9,7 +9,7 @@
     :id="id"
     v-model="modelValueProxy"
     :required="required"
-    class="input"
+    class="input bg-white"
     @change="$emit('change', $event.target.value)"
   >
     <option v-if="placeholder" value="">{{ placeholder }}</option>

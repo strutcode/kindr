@@ -79,6 +79,14 @@
 
     const lonLat = toLonLat(point)
     const center = { lat: lonLat[1], lng: lonLat[0] }
+
+    emit('update:center', center)
+    emit('update:zoom', zoom)
+    emit('view-change', { center, zoom })
+    onBoundsChange(view)
+  }, 250)
+
+  const onBoundsChange = (view: View) => {
     const extent = view.calculateExtent()
     const [minX, minY, maxX, maxY] = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
 
@@ -89,11 +97,8 @@
       north: maxY,
     }
 
-    emit('update:center', center)
-    emit('update:zoom', zoom)
-    emit('view-change', { center, zoom })
     emit('bounds-change', bounds)
-  }, 250)
+  }
 
   const pinLayer = new VectorLayer({
     source: new VectorSource(),
@@ -190,6 +195,8 @@
       controls: props.disableControls ? [] : undefined,
       interactions: props.nonInteractive ? [] : undefined,
     })
+
+    onBoundsChange(view)
 
     map.value.on('singleclick', event => {
       const coordinate = event.coordinate
