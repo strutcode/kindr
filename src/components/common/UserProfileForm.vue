@@ -112,59 +112,35 @@
           <div v-else-if="form.location" class="p-4 bg-success-50 rounded-md">
             <div class="flex items-start justify-between">
               <div class="flex items-start">
-                <CheckCircleIcon class="w-5 h-5 text-success-600 mt-0.5 mr-3 flex-shrink-0" />
+                <Icon
+                  icon="tabler:home"
+                  class="w-5 h-5 text-success-600 mt-0.5 mr-3 flex-shrink-0"
+                />
                 <div>
                   <p class="text-sm text-success-700 font-medium">Location set successfully</p>
                   <p class="text-sm text-success-600 mt-1">{{ form.location.address }}</p>
                 </div>
               </div>
-              <button type="button" @click="requestLocation" class="btn btn-outline btn-sm">
-                Update Location
-              </button>
+              <Button variant="outline" @click="requestLocation"> Update Location </Button>
             </div>
           </div>
 
           <div v-else class="p-4 bg-gray-50 rounded-md">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
-                <MapPinIcon class="w-5 h-5 text-gray-400 mr-3" />
+                <Icon icon="tabler:home" class="w-5 h-5 text-gray-400 mr-3" />
                 <span class="text-sm text-gray-600">Location not set</span>
               </div>
-              <button type="button" @click="requestLocation" class="btn btn-primary btn-sm">
-                Set Location
-              </button>
+              <Button variant="outline" @click="requestLocation"> Set Location </Button>
             </div>
           </div>
-        </div>
-
-        <!-- Notification Radius -->
-        <div>
-          <label for="notificationRadius" class="block text-sm font-medium text-gray-700 mb-2">
-            Notification Radius: {{ form.notification_radius }} miles
-          </label>
-          <input
-            id="notificationRadius"
-            v-model.number="form.notification_radius"
-            type="range"
-            min="0.5"
-            max="10"
-            step="0.5"
-            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider md:w-1/2"
-          />
-          <div class="flex justify-between text-xs text-gray-500 mt-1 md:w-1/2">
-            <span>0.5mi</span>
-            <span>10mi</span>
-          </div>
-          <p class="text-xs text-gray-500 mt-1">
-            You'll receive notifications for requests within this radius
-          </p>
         </div>
       </div>
 
       <!-- Error/Success Messages -->
       <div v-if="submitError" class="rounded-md bg-error-50 p-4">
         <div class="flex">
-          <ExclamationTriangleIcon class="w-5 h-5 text-error-400 mr-3 flex-shrink-0" />
+          <Icon icon="tabler:alert-triangle" class="w-5 h-5 text-error-400 mr-3 flex-shrink-0" />
           <div class="text-sm text-error-700">
             {{ submitError }}
           </div>
@@ -182,10 +158,13 @@
 
       <!-- Submit Button -->
       <div class="flex justify-end pt-6 border-t border-gray-200">
-        <button type="submit" :disabled="isSubmitting || !isFormValid" class="btn btn-primary">
-          <LoadingSpinner v-if="isSubmitting" size="sm" />
+        <Button
+          :loading="isSubmitting"
+          @click="handleSubmit"
+          :disabled="isSubmitting || !isFormValid"
+        >
           {{ isNewProfile ? 'Create Profile' : 'Update Profile' }}
-        </button>
+        </Button>
       </div>
     </form>
   </div>
@@ -196,7 +175,9 @@
   import { ExclamationTriangleIcon, CheckCircleIcon, MapPinIcon } from '@heroicons/vue/24/outline'
   import { useAuthStore } from '@/stores/auth'
   import { LocationService } from '@/services/location'
-  import type { User } from '@/types'
+  import type { Location, User } from '@/types'
+  import { Icon } from '@iconify/vue'
+  import Button from '../widgets/Button.vue'
 
   interface Props {
     /** Optional existing profile data */
@@ -242,7 +223,6 @@
     full_name: '',
     phone: '',
     location: null as Location | null,
-    notification_radius: 2,
   })
 
   // Computed properties
@@ -280,12 +260,10 @@
 
     try {
       const position = await LocationService.getCurrentPosition()
-      const address = await LocationService.reverseGeocode(position.latitude, position.longitude)
 
       form.location = {
-        latitude: position.latitude,
-        longitude: position.longitude,
-        address,
+        lat: position.latitude,
+        lng: position.longitude,
       }
 
       locationStatus.value = 'success'
@@ -321,7 +299,6 @@
         full_name: form.full_name.trim(),
         phone: form.phone.trim() || undefined,
         location: form.location || undefined,
-        notification_radius: form.notification_radius,
       }
 
       let result
@@ -361,7 +338,6 @@
       form.full_name = props.existingProfile.full_name || ''
       form.phone = props.existingProfile.phone || ''
       form.location = props.existingProfile.location || null
-      form.notification_radius = props.existingProfile.notification_radius || 2
 
       if (form.location) {
         locationStatus.value = 'success'

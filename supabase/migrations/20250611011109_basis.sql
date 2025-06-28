@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS users (
   full_name text,
   avatar_url text,
   location geometry(POINT, 4326),
-  notification_radius double precision DEFAULT 2,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );

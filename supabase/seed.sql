@@ -200,7 +200,6 @@ INSERT INTO
     full_name,
     avatar_url,
     location,
-    notification_radius,
     created_at,
     updated_at
   )
@@ -210,7 +209,6 @@ VALUES
     'Testy McTestFace',
     NULL,
     NULL,
-    2,
     '2025-06-23 00:40:19.567424+00',
     '2025-06-23 00:40:19.567424+00'
   );
@@ -221,7 +219,6 @@ INSERT INTO
     full_name,
     avatar_url,
     location,
-    notification_radius,
     created_at,
     updated_at
   )
@@ -231,7 +228,6 @@ VALUES
     'Tester Toaster',
     NULL,
     NULL,
-    2,
     '2025-06-24 17:57:24.284756+00',
     '2025-06-24 17:57:24.284756+00'
   );

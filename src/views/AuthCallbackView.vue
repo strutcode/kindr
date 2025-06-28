@@ -54,7 +54,6 @@
                 data.session.user.user_metadata.name ||
                 '',
               avatar_url: data.session.user.user_metadata.avatar_url,
-              notification_radius: 2, // Default 2 miles
             },
           ])
 

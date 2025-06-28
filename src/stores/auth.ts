@@ -125,7 +125,6 @@ export const useAuthStore = defineStore('auth', () => {
             {
               id: authResult.user.id,
               full_name: fullName,
-              notification_radius: 2,
             },
           ])
           .single()
@@ -271,7 +270,6 @@ export const useAuthStore = defineStore('auth', () => {
             {
               id: currentUser.id,
               email: currentUser.email || session.value?.user?.email,
-              notification_radius: 2,
               ...updates,
             },
           ])

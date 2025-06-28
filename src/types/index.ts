@@ -10,7 +10,6 @@ export interface User {
   avatar_url?: string
   phone?: string
   location?: Location
-  notification_radius: number
   created_at: string
   updated_at: string
 }
