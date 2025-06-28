@@ -111,25 +111,38 @@
   import Button from '@/components/widgets/Button.vue'
   import Text from '@/components/widgets/Text.vue'
   import TextBox from '@/components/widgets/TextBox.vue'
-  import { Listing } from '@/types'
+  import { Location, RequestCategory } from '@/types'
   import Dropdown from '../widgets/Dropdown.vue'
   import Tags from '../widgets/Tags.vue'
   import ImageUpload from '../common/ImageUpload.vue'
   import LocationSelector from '../widgets/LocationSelector.vue'
 
+  interface ListingForm {
+    title: string
+    description: string
+    category: RequestCategory | ''
+    subcategory: string
+    duration_estimate: string
+    compensation: string
+    skills_required: string[]
+    images: string[]
+    location: Location | null
+  }
+
   defineEmits<{
-    (e: 'submit', form: Partial<Listing>): void
+    (e: 'submit', form: ListingForm): void
   }>()
 
-  const form = reactive<Partial<Listing>>({
+  const form = reactive<ListingForm>({
     title: '',
     description: '',
-    category: undefined,
-    subcategory: undefined,
-    compensation: undefined,
+    category: '',
+    subcategory: '',
+    compensation: '',
+    duration_estimate: '',
     skills_required: [],
     images: [],
-    location: undefined,
+    location: null,
   })
 
   const activeSubcategories = computed(() => {
@@ -151,7 +164,7 @@
     () => {
       form.subcategory = ''
       if (form.category !== 'help-needed') {
-        form.duration_estimate = undefined
+        form.duration_estimate = ''
       }
     },
   )

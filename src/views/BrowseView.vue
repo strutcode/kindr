@@ -37,7 +37,7 @@
           <Icon icon="tabler:filter" class="w-6 h-6" />
         </Button>
         <Button :loading="locating" @click="jumpToCurrentLocation">
-          <Icon icon="mdi:crosshairs-gps" class="w-6 h-6" />
+          <Icon icon="tabler:current-location" class="w-6 h-6" />
         </Button>
       </div>
       <div v-show="filtersVisible" class="filters">
@@ -122,7 +122,7 @@
   const pullbarActive = ref(false)
   const selectedListing = ref<Listing | null>(null)
   const filtersVisible = ref(false)
-  const filters = ref<ListingFilters>({
+  const filters = ref<Required<ListingFilters>>({
     search: '',
     category: '',
     subcategory: '',

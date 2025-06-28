@@ -36,7 +36,7 @@
   import Button from './Button.vue'
 
   interface Props {
-    modelValue?: Location
+    modelValue?: Location | null
     zoom?: number
   }
 
