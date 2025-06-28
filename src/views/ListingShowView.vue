@@ -314,7 +314,7 @@
   }
 
   .loading-spinner {
-    @apply w-12 h-12 text-blue-500 mb-4;
+    @apply w-12 h-12 text-primary-500 mb-4;
   }
 
   .error-icon {

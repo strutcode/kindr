@@ -22,6 +22,7 @@ const formatListing = (entry: any): Listing => {
 
 export const useListingsStore = defineStore('listings', () => {
   const listings = ref<Listing[]>([])
+  const userListings = ref<Listing[]>([])
 
   const fetchListings = async () => {
     try {
@@ -82,6 +83,36 @@ export const useListingsStore = defineStore('listings', () => {
     } catch (error) {
       console.error('Error searching listings:', error)
       return []
+    }
+  }
+
+  const fetchUserListings = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .select()
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        throw error
+      }
+
+      userListings.value = data.map(formatListing)
+    } catch (error) {
+      console.error('Error fetching user listings:', error)
+    }
+  }
+
+  const deleteListing = async (id: string) => {
+    try {
+      const { error } = await supabase.from('listings').delete().eq('id', id)
+
+      if (error) {
+        throw error
+      }
+    } catch (error) {
+      console.error('Error deleting listing:', error)
     }
   }
 
@@ -171,11 +202,14 @@ export const useListingsStore = defineStore('listings', () => {
 
   return {
     listings,
+    userListings,
     fetchListings,
     fetchSingleListing,
+    fetchUserListings,
     fetchListingsInBounds,
     searchListings,
     createListing,
     updateListing,
+    deleteListing,
   }
 })

@@ -3,7 +3,9 @@
     <img v-if="listing.images?.length" :src="listing.images[0]" alt="Listing Image" />
     <div class="flex items-center mb-2">
       <div class="mr-4">
-        <div class="index" :style="{ background: categoryColor }">{{ index }}</div>
+        <div v-if="index != null" class="index" :style="{ background: categoryColor }">
+          {{ index }}
+        </div>
       </div>
       <div class="grow">
         <div class="flex-col">
@@ -27,7 +29,7 @@
   import ListingPills from './ListingPills.vue'
 
   interface Props {
-    index: number
+    index?: number
     listing: Listing
   }
 

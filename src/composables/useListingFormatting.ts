@@ -1,7 +1,7 @@
 import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
 import { formatDistanceToNow } from 'date-fns'
 
-export function useRequestFormatting() {
+export function useListingFormatting() {
   const getCategoryLabel = (category: string) => {
     return CATEGORIES.find(cat => cat.value === category)?.label || category
   }
