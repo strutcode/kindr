@@ -27,14 +27,6 @@
         </span>
       </router-link>
 
-      <!-- Chat icon with unread indicator -->
-      <router-link v-if="authStore.user" :to="{ name: 'chats' }" class="chat-button">
-        <Icon icon="tabler:message-circle-filled" class="chat-icon" />
-        <span v-if="chatStore.unreadCount > 0" class="unread-badge">
-          {{ chatStore.unreadCount > 99 ? '∞' : chatStore.unreadCount }}
-        </span>
-      </router-link>
-
       <!-- The user profile icon and menu -->
       <UserMenu class="collapse md:visible" />
 

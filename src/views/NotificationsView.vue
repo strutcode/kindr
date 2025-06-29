@@ -81,7 +81,7 @@
           <p class="empty-description">
             You'll see notifications here when new listings match your alert areas.
           </p>
-          <Button :link="{ name: 'alerts' }" icon-left="tabler:plus" class="mt-4">
+          <Button :link="{ name: 'alerts-create' }" icon-left="tabler:plus" class="mt-4">
             Create an Alert
           </Button>
         </div>

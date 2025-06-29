@@ -9,38 +9,9 @@
             Create location-based alerts to get notified when new listings are posted in your area.
           </p>
         </div>
-        <Button @click="showCreateForm = true" icon-left="tabler:plus" class="create-button">
+        <Button :link="{ name: 'alerts-create' }" icon-left="tabler:plus" class="create-button">
           Create Alert
         </Button>
-      </div>
-
-      <!-- Create/Edit Form -->
-      <div v-if="showCreateForm || editingAlert" class="form-section">
-        <div class="form-header">
-          <h2 class="form-title">
-            {{ editingAlert ? 'Edit Alert' : 'Create New Alert' }}
-          </h2>
-          <Button variant="ghost" icon-left="tabler:x" @click="cancelForm" class="close-button" />
-        </div>
-        <AlertForm
-          :alert="editingAlert"
-          :loading="alertsStore.loading"
-          @submit="handleSubmit"
-          @cancel="cancelForm"
-        />
-      </div>
-
-      <!-- Error Message -->
-      <div v-if="alertsStore.error" class="error-banner">
-        <Icon icon="tabler:alert-triangle" class="error-icon" />
-        <span>{{ alertsStore.error }}</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          icon-left="tabler:x"
-          @click="alertsStore.clearError"
-          class="error-close"
-        />
       </div>
 
       <!-- Alerts List -->
@@ -72,9 +43,6 @@
           <p class="empty-description">
             Create your first alert to get notified when new listings are posted in your area.
           </p>
-          <Button @click="showCreateForm = true" icon-left="tabler:plus" class="mt-4">
-            Create Your First Alert
-          </Button>
         </div>
 
         <!-- Alerts Grid -->
@@ -129,27 +97,15 @@
   import type { Alert } from '@/types'
   import { useAlertsStore } from '@/stores/alerts'
   import AlertCard from '@/components/alerts/AlertCard.vue'
-  import AlertForm from '@/components/alerts/AlertForm.vue'
   import Button from '@/components/widgets/Button.vue'
+  import { useRoute } from 'vue-router'
 
   const alertsStore = useAlertsStore()
+  const route = useRoute()
 
-  const showCreateForm = ref(false)
+  const showCreateForm = ref(!!route.params.create)
   const editingAlert = ref<Alert | null>(null)
   const alertToDelete = ref<Alert | null>(null)
-
-  const handleSubmit = async (data: any) => {
-    try {
-      if (editingAlert.value) {
-        await alertsStore.updateAlert(editingAlert.value.id, data)
-      } else {
-        await alertsStore.createAlert(data)
-      }
-      cancelForm()
-    } catch (error) {
-      // Error is handled by the store
-    }
-  }
 
   const handleEdit = (alert: Alert) => {
     editingAlert.value = alert
@@ -166,11 +122,6 @@
     } catch (error) {
       // Error is handled by the store
     }
-  }
-
-  const cancelForm = () => {
-    showCreateForm.value = false
-    editingAlert.value = null
   }
 
   const cancelDelete = () => {
@@ -220,22 +171,6 @@
 
   .create-button {
     @apply sm:flex-shrink-0;
-  }
-
-  .form-section {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden;
-  }
-
-  .form-header {
-    @apply flex items-center justify-between p-6 border-b border-gray-200;
-  }
-
-  .form-title {
-    @apply text-xl font-semibold text-gray-900;
-  }
-
-  .close-button {
-    @apply text-gray-400 hover:text-gray-600;
   }
 
   .error-banner {

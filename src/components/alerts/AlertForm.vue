@@ -91,10 +91,7 @@
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <Button type="button" variant="outline" @click="$emit('cancel')" :disabled="loading">
-          Cancel
-        </Button>
-        <Button type="submit" :loading="loading" :disabled="!isFormValid">
+        <Button :loading="loading" :disabled="!isFormValid">
           {{ isEditing ? 'Update Alert' : 'Create Alert' }}
         </Button>
       </div>
@@ -188,8 +185,8 @@
       form.category = props.alert.category || ''
     } else {
       // Creating new alert - use current location if available
-      if (locationStore.currentLocation) {
-        form.location = { ...locationStore.currentLocation }
+      if (locationStore.creationLocation) {
+        form.location = { ...locationStore.creationLocation }
       }
     }
   })

@@ -31,6 +31,16 @@
             </li>
             <template v-if="auth.isAuthenticated">
               <li>
+                <Button variant="outline" :link="{ name: 'chats' }" class="menu-button">
+                  <div class="flex items-center justify-between w-full">
+                    <span>Messages</span>
+                    <span v-if="chatStore.unreadCount > 0" class="notification-badge">
+                      {{ chatStore.unreadCount > 99 ? '∞' : chatStore.unreadCount }}
+                    </span>
+                  </div>
+                </Button>
+              </li>
+              <li>
                 <Button variant="outline" :link="{ name: 'notifications' }" class="menu-button">
                   <div class="flex items-center justify-between w-full">
                     <span>Notifications</span>
@@ -46,16 +56,6 @@
                 <Button variant="outline" :link="{ name: 'alerts' }" class="menu-button"
                   >Manage Alerts</Button
                 >
-              </li>
-              <li>
-                <Button variant="outline" :link="{ name: 'chats' }" class="menu-button">
-                  <div class="flex items-center justify-between w-full">
-                    <span>Messages</span>
-                    <span v-if="chatStore.unreadCount > 0" class="notification-badge">
-                      {{ chatStore.unreadCount > 99 ? '∞' : chatStore.unreadCount }}
-                    </span>
-                  </div>
-                </Button>
               </li>
               <li>
                 <Button variant="outline" :link="{ name: 'profile' }" class="menu-button"
@@ -124,11 +124,11 @@
 
 <style scoped>
   .overlay {
-    @apply fixed inset-0 bg-black bg-opacity-50 z-50 p-4;
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50;
   }
 
   .menu {
-    @apply bg-white rounded-lg p-6 w-full max-w-sm ml-auto;
+    @apply bg-white py-2 px-4 w-4/5 h-full ml-auto;
     transform: translateX(100%);
   }
 

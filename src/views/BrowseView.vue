@@ -241,7 +241,7 @@
   }
 
   .pullbar.active {
-    height: 96%;
+    height: 90%;
   }
 
   .listing-controls {
