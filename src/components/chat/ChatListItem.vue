@@ -10,9 +10,7 @@
         :alt="chat.other_user.full_name || 'User'"
         class="avatar-image"
       />
-      <div v-else class="avatar-placeholder">
-        <Icon icon="tabler:user-filled" class="h-7 w-7 text-gray-500" />
-      </div>
+      <DefaultAvatar v-else-if="chat.other_user" :user="chat.other_user" />
     </div>
 
     <div class="chat-content">
@@ -61,6 +59,7 @@
   import type { Chat } from '@/types'
   import Chip from '@/components/widgets/Chip.vue'
   import { Icon } from '@iconify/vue'
+  import DefaultAvatar from '../widgets/DefaultAvatar.vue'
 
   interface Props {
     chat: Chat
