@@ -23,6 +23,7 @@
 
   const mapEl = useTemplateRef('mapEl')
   const map = ref<Map | null>(null)
+  const hoveredFeature = ref<Feature | null>(null)
 
   interface MapPin {
     index: number
@@ -107,7 +108,7 @@
     zIndex: 10,
   })
 
-  const createMarkerSVG = (color: string, index: number): string => {
+  const createMarkerSVG = (color: string, index: number, isHovered = false): string => {
     const indexed = index != null
     let number = ''
 
@@ -115,13 +116,48 @@
       number = `<text x="16" y="21" text-anchor="middle" font-size="16" fill="${color}" font-family="Arial" font-weight="bold">${index}</text>`
     }
 
+    // Enhanced shadow for hover state
+    const shadowOpacity = isHovered ? 0.4 : 0.2
+    const shadowBlur = isHovered ? 8 : 4
+    const yOffset = isHovered ? -2 : 0
+
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
-      <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 0C7.163 0 0 7.163 0 16c0 16 16 24 16 24s16-8 16-24C32 7.163 24.837 0 16 0z" fill="${color}"/>
-      <circle cx="16" cy="16" r="${indexed ? 12 : 6}" fill="white"/>
-      ${number}
+      <svg width="32" height="44" viewBox="-2 -2 34 46" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="${
+              2 + (isHovered ? 2 : 0)
+            }" stdDeviation="${shadowBlur}" flood-opacity="${shadowOpacity}"/>
+          </filter>
+        </defs>
+        <g transform="translate(0, ${yOffset})" style="transition: transform 0.2s ease-out;">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 16 16 24 16 24s16-8 16-24C32 7.163 24.837 0 16 0z" 
+                fill="${color}" filter="url(#shadow)"/>
+          <circle cx="16" cy="16" r="${indexed ? 12 : 6}" fill="white"/>
+          ${number}
+        </g>
       </svg>
     `)}`
+  }
+
+  const createHoverStyle = (color: string, index: number): Style => {
+    return new Style({
+      image: new Icon({
+        src: createMarkerSVG(color, index, true),
+        scale: 1.1,
+        anchor: [0.5, 1],
+      }),
+    })
+  }
+
+  const createNormalStyle = (color: string, index: number): Style => {
+    return new Style({
+      image: new Icon({
+        src: createMarkerSVG(color, index, false),
+        scale: 1,
+        anchor: [0.5, 1],
+      }),
+    })
   }
 
   const updatePinLayer = () => {
@@ -133,18 +169,16 @@
       const feature = new Feature({
         geometry: new Point(fromLonLat([pin.lng, pin.lat])),
         index: pin.index,
-        pinData: pin, // Store the full pin data for retrieval on click
+        pinData: pin,
       })
 
-      feature.setStyle(
-        new Style({
-          image: new Icon({
-            src: createMarkerSVG(pin.color, pin.index),
-            scale: 1,
-            anchor: [0.5, 1],
-          }),
-        }),
-      )
+      // Store both normal and hover styles
+      const normalStyle = createNormalStyle(pin.color, pin.index)
+      const hoverStyle = createHoverStyle(pin.color, pin.index)
+
+      feature.setStyle(normalStyle)
+      feature.set('normalStyle', normalStyle)
+      feature.set('hoverStyle', hoverStyle)
 
       return feature
     })
@@ -201,6 +235,55 @@
 
     onBoundsChange(view)
 
+    // Add hover effects
+    map.value.on('pointermove', event => {
+      const featureLike = map.value?.forEachFeatureAtPixel(event.pixel, feature => feature)
+
+      if (featureLike && featureLike.get && featureLike.get('pinData')) {
+        // Cast to Feature since we know it's from our vector layer
+        const feature = featureLike as Feature
+
+        // Mouse is over a pin
+        if (hoveredFeature.value !== feature) {
+          // Reset previous hovered feature
+          if (hoveredFeature.value) {
+            const normalStyle = hoveredFeature.value.get('normalStyle')
+            if (normalStyle) {
+              hoveredFeature.value.setStyle(normalStyle)
+            }
+          }
+
+          // Set new hovered feature
+          hoveredFeature.value = feature
+          const hoverStyle = feature.get('hoverStyle')
+          if (hoverStyle) {
+            feature.setStyle(hoverStyle)
+          }
+
+          // Change cursor to pointer
+          if (map.value?.getTarget()) {
+            const target = map.value.getTarget() as HTMLElement
+            target.style.cursor = 'pointer'
+          }
+        }
+      } else {
+        // Mouse is not over a pin
+        if (hoveredFeature.value) {
+          const normalStyle = hoveredFeature.value.get('normalStyle')
+          if (normalStyle) {
+            hoveredFeature.value.setStyle(normalStyle)
+          }
+          hoveredFeature.value = null
+
+          // Reset cursor
+          if (map.value?.getTarget()) {
+            const target = map.value.getTarget() as HTMLElement
+            target.style.cursor = 'default'
+          }
+        }
+      }
+    })
+
     map.value.on('singleclick', event => {
       const coordinate = event.coordinate
       const [lng, lat] = toLonLat(coordinate)
@@ -208,7 +291,7 @@
       // Check if a pin was clicked
       const pixelFeature = map.value?.forEachFeatureAtPixel(event.pixel, feature => feature)
 
-      if (pixelFeature && pixelFeature.get('pinData')) {
+      if (pixelFeature && pixelFeature.get && pixelFeature.get('pinData')) {
         // A pin was clicked, emit pin-click event
         const pinData = pixelFeature.get('pinData') as MapPin
         emit('pin-click', pinData)
@@ -230,5 +313,10 @@
 <style scoped>
   .map {
     @apply absolute w-full h-full bg-gray-200;
+  }
+
+  /* Add smooth transitions for pin animations */
+  :deep(.ol-layer canvas) {
+    transition: transform 0.2s ease-out;
   }
 </style>
