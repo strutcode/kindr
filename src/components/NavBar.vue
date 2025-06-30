@@ -10,17 +10,19 @@
       <img class="logo" :class="{ active: !ui.header.fade }" src="@/assets/logo.svg" alt="Kindr" />
     </router-link>
 
-    <Button variant="ghost" :link="{ name: 'browse' }" class="nav-item">Browse</Button>
-    <Button
-      v-if="authStore.isAuthenticated"
-      variant="ghost"
-      :link="{ name: 'chats' }"
-      class="nav-item"
-      >Messages</Button
-    >
-    <Button variant="ghost" :link="{ name: 'help' }" class="nav-item">Help</Button>
+    <div class="basic-nav">
+      <Button variant="ghost" :link="{ name: 'browse' }" class="nav-item">Browse</Button>
+      <Button
+        v-if="authStore.isAuthenticated"
+        variant="ghost"
+        :link="{ name: 'chats' }"
+        class="nav-item"
+        >Messages</Button
+      >
+      <Button variant="ghost" :link="{ name: 'help' }" class="nav-item">Help</Button>
+    </div>
 
-    <div class="flex justify-end items-center space-x-4">
+    <div class="flex grow justify-end items-center space-x-4">
       <!-- Notifications bell icon with unread indicator -->
       <router-link
         v-if="authStore.user"
@@ -61,7 +63,7 @@
 
 <style scoped>
   nav {
-    @apply flex items-center justify-between relative z-50;
+    @apply flex items-center justify-start relative z-50;
     @apply px-4 h-14 md:h-16 sticky top-0;
     @apply bg-white border-b border-gray-300 shadow-md;
     @apply transition-all duration-300 ease-in-out;
@@ -84,8 +86,12 @@
     @apply opacity-100;
   }
 
+  .basic-nav {
+    @apply flex items-center space-x-4 search hidden md:block;
+  }
+
   .nav-item {
-    @apply px-4 py-2 hidden md:block;
+    @apply px-4 py-2;
     @apply text-gray-600 hover:text-gray-900 font-medium transition-colors;
     @apply hover:bg-gray-100;
   }

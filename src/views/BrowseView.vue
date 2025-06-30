@@ -31,7 +31,7 @@
         <Text
           v-model="filters.search"
           placeholder="Search listings..."
-          class="w-64"
+          class="w-full md:w-64"
           @input="textSearch"
         />
         <Button variant="gray" @click="filtersVisible = !filtersVisible">
@@ -253,11 +253,13 @@
   .listing-controls {
     @apply absolute top-4 right-4 z-20 flex items-center space-x-4;
     @apply bg-gray-100 bg-opacity-75 rounded-lg p-2 shadow-md;
+    @apply left-4 md:left-auto;
   }
 
   .filters {
-    @apply absolute top-20 right-4 z-20 w-96 flex flex-col items-start space-y-4;
+    @apply absolute top-20 z-20 flex flex-col items-start space-y-4;
     @apply bg-white rounded-lg p-4 shadow-lg;
+    @apply right-4 md:w-96 left-4 md:left-auto;
   }
 
   .filters > div {
