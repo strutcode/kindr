@@ -9,7 +9,7 @@
     :placeholder="placeholder"
     :required="required"
     class="input"
-    :class="class"
+    :class="inputClass"
     @input="$emit('input', modelValueProxy)"
     @keydown.enter.prevent="$emit('enter', modelValueProxy)"
   />
@@ -25,7 +25,7 @@
     placeholder?: string
     required?: boolean
     type?: string
-    class?: string
+    inputClass?: string
   }
   const props = withDefaults(defineProps<Props>(), {
     type: 'text',
