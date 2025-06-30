@@ -33,35 +33,36 @@
 
           <!-- Call-to-action buttons with enhanced visibility -->
           <div class="flex flex-col sm:flex-row gap-4 justify-start">
-            <router-link :to="{ name: 'browse' }">
-              <Button
-                size="lg"
-                class="shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                >Browse Listings</Button
-              >
-            </router-link>
+            <Button
+              size="lg"
+              :link="{ name: 'browse' }"
+              class="shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              >Browse Listings</Button
+            >
 
-            <router-link
+            <Button
               v-if="authStore.isAuthenticated"
-              to="/listings/create"
-              class="btn btn-outline-white btn-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 backdrop-blur-sm"
+              variant="outline-white"
+              :link="{ name: 'create' }"
+              class="shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 backdrop-blur-sm"
             >
               <span class="flex items-center">
                 <PlusIcon class="w-5 h-5 mr-2" />
                 Post Your Own
               </span>
-            </router-link>
+            </Button>
 
-            <router-link
+            <Button
               v-else
-              to="/auth"
-              class="btn btn-outline-white btn-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 backdrop-blur-sm"
+              variant="outline"
+              :link="{ name: 'auth' }"
+              class="shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 backdrop-blur-sm"
             >
               <span class="flex items-center">
                 <UserPlusIcon class="w-5 h-5 mr-2" />
                 Join Community
               </span>
-            </router-link>
+            </Button>
           </div>
 
           <!-- Trust indicators -->
@@ -90,6 +91,12 @@
               </div>
               <span class="text-sm font-medium">Local Support</span>
             </div>
+          </div>
+
+          <div class="bolt-badge">
+            <a href="https://bolt.new" target="_blank" rel="noopener noreferrer">
+              <img src="@/assets/bolt_white_circle_360x360.png" alt="Made with Bolt Badge" />
+            </a>
           </div>
         </div>
       </div>
@@ -372,5 +379,13 @@
   /* Enhanced button hover effects */
   .btn:hover {
     transform: translateY(-1px);
+  }
+
+  .bolt-badge {
+    @apply absolute bottom-8 right-8 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-full p-2;
+  }
+
+  .bolt-badge img {
+    @apply w-32 h-32;
   }
 </style>
