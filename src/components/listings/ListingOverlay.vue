@@ -81,21 +81,7 @@
 
           <!-- User info -->
           <div v-if="listing.user" class="user-section">
-            <div class="user-info">
-              <img
-                v-if="listing.user.avatar_url"
-                :src="listing.user.avatar_url"
-                :alt="listing.user.full_name || 'User'"
-                class="user-avatar"
-              />
-              <div v-else class="user-avatar-placeholder">
-                <Icon icon="mdi:account" class="w-6 h-6" />
-              </div>
-              <div class="user-details">
-                <h4 class="user-name">{{ listing.user.full_name || 'Anonymous User' }}</h4>
-                <p class="user-email">{{ listing.user.email }}</p>
-              </div>
-            </div>
+            <DisplayUser :user="listing.user" class="user-info" />
           </div>
         </div>
       </div>
@@ -124,6 +110,7 @@
 
   import ListingPills from './ListingPills.vue'
   import Button from '@/components/widgets/Button.vue'
+  import DisplayUser from '@/components/widgets/UserDisplay.vue'
 
   interface Props {
     listing: Listing
@@ -268,30 +255,6 @@
 
   .user-section {
     @apply border-t border-gray-200 pt-4;
-  }
-
-  .user-info {
-    @apply flex items-center space-x-3;
-  }
-
-  .user-avatar {
-    @apply w-10 h-10 rounded-full object-cover;
-  }
-
-  .user-avatar-placeholder {
-    @apply w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400;
-  }
-
-  .user-details {
-    @apply flex-1;
-  }
-
-  .user-name {
-    @apply font-medium text-gray-900;
-  }
-
-  .user-email {
-    @apply text-sm text-gray-600;
   }
 
   .overlay-footer {

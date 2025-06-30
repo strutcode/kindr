@@ -15,7 +15,6 @@ const formatListing = (entry: any): Listing => {
       id: entry.user?.id ?? '',
       full_name: entry.user?.full_name ?? 'Unknown User',
       avatar_url: entry.user?.avatar_url ?? null,
-      email: entry.user?.email ?? '',
     },
   }
 }
@@ -137,7 +136,19 @@ export const useListingsStore = defineStore('listings', () => {
         throw error
       }
 
-      listings.value = data.map(formatListing)
+      const fixUser = (listing: any) => {
+        return {
+          ...listing,
+          user: {
+            id: listing.user_id,
+            full_name: listing.user_full_name,
+            avatar_url: listing.user_avatar_url,
+          },
+        }
+      }
+
+      debugger
+      listings.value = data.map(fixUser).map(formatListing)
     } catch (error) {
       console.error('Error fetching listings in bounds:', error)
     }

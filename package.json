@@ -12,6 +12,8 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@dicebear/collection": "^9.2.3",
+    "@dicebear/core": "^9.2.3",
     "@heroicons/vue": "^2.0.18",
     "@iconify/vue": "^5.0.0",
     "@supabase/supabase-js": "^2.38.4",
