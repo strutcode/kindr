@@ -126,11 +126,6 @@
 
   const currentImageIndex = ref(0)
 
-  const goToDetails = () => {
-    router.push({ name: 'show', params: { id: props.listing.id } })
-    emit('close')
-  }
-
   const categoryText = computed(() => {
     return CATEGORIES.find(cat => cat.value === props.listing.category)?.label ?? 'Unknown'
   })

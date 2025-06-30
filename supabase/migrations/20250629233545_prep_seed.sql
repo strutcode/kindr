@@ -8,6 +8,8 @@ DECLARE
   v_id uuid;
   v_time timestamptz;
   v_meta jsonb;
+  v_positive_points integer;
+  v_negative_points integer;
 BEGIN
   v_id := uuid_generate_v4();
   v_time := now() - (interval '1 second' * floor(random() * 30 * 24 * 60 * 60));
@@ -136,6 +138,9 @@ BEGIN
       v_time
     );
 
+  v_positive_points := trunc(random() * 50);
+  v_negative_points := trunc(random() * 50);
+
   INSERT INTO
     public.reputation (
       id,
@@ -150,9 +155,9 @@ BEGIN
     (
       uuid_generate_v4(),
       v_id,
-      0,
-      0,
-      0,
+      v_positive_points,
+      v_negative_points,
+      v_positive_points + v_negative_points,
       v_time,
       v_time
     );

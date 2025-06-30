@@ -26,20 +26,7 @@ CREATE TABLE IF NOT EXISTS listings (
     )
   ),
   subcategory text NOT NULL,
-  duration_estimate text CHECK (
-    duration_estimate IN (
-      '15-min',
-      '30-min',
-      '45-min',
-      '1-hour',
-      '2-hours',
-      '4-hours',
-      '6-hours',
-      '12-hours',
-      '1-day',
-      'multiple-days'
-    )
-  ),
+  duration_estimate text,
   skills_required text[] DEFAULT '{}',
   compensation text,
   images text[] DEFAULT '{}',
