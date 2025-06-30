@@ -207,10 +207,15 @@
 
     if (locationStore.viewingLocation) {
       const loc = locationStore.viewingLocation
+
       mapPos.value = loc.center
       zoom.value = loc.zoom
     } else {
-      const pos = await LocationService.getCurrentPosition()
+      const pos = {
+        longitude: -118.2437,
+        latitude: 34.0522,
+      }
+
       locationStore.setViewingLocation({
         center: { lat: pos.latitude, lng: pos.longitude },
         zoom: 12,

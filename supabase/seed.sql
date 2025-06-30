@@ -440,7 +440,7 @@ SELECT create_seed_listing(
   random_user_id(),
   'need cat sitter for weekend',
   'going out of town for the weekend and need someone to check on my two cats. just need feeding and litter box cleaning. cats are very friendly and easy going',
-  ST_MakePoint(-118.5647, 34.0158),
+  ST_MakePoint(-118.3456, 34.0736),
   'help-needed',
   'pet-care',
   'multiple-days',
@@ -512,7 +512,7 @@ SELECT create_seed_listing(
   random_user_id(),
   'Pet grooming practice needed',
   'Learning pet grooming and need dogs to practice on. Basic bath, brush, nail trim. Your dog gets pampered for free and I get practice. Win-win!',
-  ST_MakePoint(-118.5647, 34.0158),
+  ST_MakePoint(-118.4370, 34.0520),
   'skills-offered',
   'pet-grooming'
 );
@@ -699,7 +699,7 @@ SELECT create_seed_listing(
   random_user_id(),
   'Free Easter decorations',
   'Have way too many holiday decorations. Plastic eggs, bunny figurines, pastel garland, easter basket supplies. Great for families with kids.',
-  ST_MakePoint(-118.5315, 34.0158),
+  ST_MakePoint(-118.2437, 34.0598),
   'free-stuff',
   'holiday'
 );
@@ -959,7 +959,7 @@ SELECT create_seed_listing(
   random_user_id(),
   'need cat sitter for weekend',
   'going out of town for the weekend and need someone to check on my two cats. just need feeding and litter box cleaning. cats are very friendly and easy going',
-  ST_MakePoint(-118.5647, 34.0158),
+  ST_MakePoint(-118.3456, 34.0736),
   'help-needed',
   'pet-care',
   'multiple-days',
@@ -1031,7 +1031,7 @@ SELECT create_seed_listing(
   random_user_id(),
   'Pet grooming practice needed',
   'Learning pet grooming and need dogs to practice on. Basic bath, brush, nail trim. Your dog gets pampered for free and I get practice. Win-win!',
-  ST_MakePoint(-118.5647, 34.0158),
+  ST_MakePoint(-118.4370, 34.0520),
   'skills-offered',
   'pet-grooming'
 );
