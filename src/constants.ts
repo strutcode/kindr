@@ -85,11 +85,14 @@ export const CATEGORIES: CategoryOption[] = [
 
 export const DURATION_OPTIONS = [
   { value: '15-min', label: '15 minutes' },
-  { value: '30-min', label: '15 minutes' },
+  { value: '30-min', label: '30 minutes' },
+  { value: '45-min', label: '45 minutes' },
   { value: '1-hour', label: '1 hour' },
-  { value: '2-hours', label: '2 hours' },
-  { value: '4-hours', label: '4 hours' },
-  { value: '1-day', label: '1 day' },
+  { value: '2-hours', label: '1-2 hours' },
+  { value: '4-hours', label: '2-4 hours' },
+  { value: '6-hours', label: '4-6 hours' },
+  { value: '12-hours', label: 'Half a day' },
+  { value: '1-day', label: 'A day' },
   { value: 'multiple-days', label: 'Multiple days' },
 ]
 

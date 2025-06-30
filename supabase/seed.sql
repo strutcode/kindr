@@ -81,7 +81,7 @@ SELECT create_seed_listing(
   random_user_id(),
   'Free plants - succulents and herbs',
   'I have way too many plants and theyre taking over my balcony lol. Have some succulents that are super easy to care for, plus basil and mint. Bring your own pots or containers.',
-  ST_MakePoint(-118.4912, 34.0194),
+  ST_MakePoint(-118.3089, 34.0736),
   'free-stuff',
   'plants'
 );
@@ -218,7 +218,7 @@ SELECT create_seed_listing(
   'Moving to an apartment with no yard 😢 Have shovels, watering can, plant pots in different sizes, and some soil. Everything is in good working condition.',
   ST_MakePoint(-118.3774, 34.0394),
   'free-stuff',
-  'garden'
+  'outdoor'
 );
 
 SELECT create_seed_listing(
@@ -234,7 +234,7 @@ SELECT create_seed_listing(
   random_user_id(),
   'Computer monitor - 21 inch',
   'Upgraded to a bigger monitor. This one is 21 inches, works perfectly. Has VGA and DVI connections. Good for office work or gaming. No dead pixels.',
-  ST_MakePoint(-118.4912, 34.0736),
+  ST_MakePoint(-118.2851, 34.0466),
   'free-stuff',
   'electronics'
 );
@@ -369,7 +369,7 @@ SELECT create_seed_listing(
   random_user_id(),
   'moving day help - loading truck',
   'rented a moving truck and need 2-3 people to help load boxes and furniture. everything is packed and ready to go. should take about 90 minutes. paying $25 per person cash',
-  ST_MakePoint(-118.5951, 33.9425),
+  ST_MakePoint(-118.2589, 34.0522),
   'help-needed',
   'moving',
   '2-hours',
@@ -541,11 +541,11 @@ SELECT create_seed_user('Zoe Mitchell', 'zoe.mitchell.la@yahoo.com');
 
 -- ADDITIONAL LISTINGS (50 more diverse community listings)
 
--- MORE FREE STUFF LISTINGS (30 listings)
+-- UNIQUE FREE STUFF LISTINGS (30 new listings - replacing duplicates)
 SELECT create_seed_listing(
   random_user_id(),
-  'Free desk chair - needs minor repair',
-  'Office chair that works but the height adjustment is stuck. Still comfortable for sitting. Would be perfect if someone handy can fix it. Pick up from Van Nuys.',
+  'Free nightstand - white wood',
+  'Moving to furnished apartment and dont need this anymore. White wooden nightstand with one drawer. Minor scuffs but still functional. Matches most bedroom furniture.',
   ST_MakePoint(-118.4490, 34.1869),
   'free-stuff',
   'furniture'
@@ -553,8 +553,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'kids winter clothes size 4T-6T',
-  'my son outgrew all his winter stuff. jackets, sweaters, pants, boots. mix of brands like old navy and target. all clean and good condition',
+  'Boys clothes size 10-12',
+  'son hit a growth spurt and outgrew everything overnight. mostly athletic wear and school clothes from target and walmart. all clean and good condition',
   ST_MakePoint(-118.2554, 34.1420),
   'free-stuff',
   'clothing'
@@ -562,8 +562,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free aquarium - 20 gallon',
-  'Used to have fish but got tired of maintaining it. Tank is clean, comes with filter, heater, and decorations. Perfect for someone wanting to start with fish.',
+  'Free rabbit hutch and supplies',
+  'Our bunny went to live with my sister who has more space. Outdoor hutch, water bottle, food dishes, hay rack. Everything needed for a happy rabbit.',
   ST_MakePoint(-118.1311, 34.0969),
   'free-stuff',
   'pet-supplies'
@@ -571,8 +571,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Textbooks - nursing and medical',
-  'Finished nursing school and have books I dont need anymore. Anatomy, pharmacology, nursing fundamentals. Couple editions old but still useful for studying.',
+  'Engineering textbooks - various subjects',
+  'Graduated from UCLA engineering program. Have calculus, physics, materials science, thermodynamics books. Some older editions but concepts are timeless.',
   ST_MakePoint(-117.9473, 34.1064),
   'free-stuff',
   'books'
@@ -580,17 +580,17 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free treadmill - works but loud',
-  'This treadmill runs fine but makes noise when you use it. Probably needs lubrication or something. Free to whoever wants to fix it up. Its really heavy tho',
+  'Free rowing machine - needs adjustment',
+  'This rowing machine worked great until the resistance mechanism got stuck. Still slides smoothly, just cant adjust difficulty. Might be easy fix.',
   ST_MakePoint(-118.3640, 34.1808),
   'free-stuff',
-  'sports'
+  'fitness'
 );
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Baby high chair and booster seat',
-  'Both kids are older now so we dont need these anymore. High chair converts to booster seat. Some food stains but everything cleans up well. Smoke free home.',
+  'Infant swing and bouncer',
+  'Baby outgrew these already! Battery powered swing and bouncer seat. Both have different music and vibration settings. Great for keeping little ones happy.',
   ST_MakePoint(-118.0370, 34.0154),
   'free-stuff',
   'baby'
@@ -598,8 +598,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free firewood logs',
-  'Had some trees cut down and have good hardwood logs. They need to be split but great for fireplace or camping. You come pick them up from my driveway.',
+  'Free camping gear',
+  'Decided camping isnt for us after one trip. Sleeping bags, camp chairs, lantern, cooler. Everything you need for outdoor adventures.',
   ST_MakePoint(-118.4011, 34.2367),
   'free-stuff',
   'outdoor'
@@ -607,8 +607,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'womens business clothes size 10-12',
-  'Changed careers and dont need professional clothes anymore. blazers, dress pants, skirts, blouses. mostly ann taylor and banana republic. good condition',
+  'Scrubs and medical uniforms size medium',
+  'Changed careers from nursing. Have about 8 sets of scrubs in different colors. All Cherokee and FIGS brand. Clean and professional.',
   ST_MakePoint(-118.0808, 34.0761),
   'free-stuff',
   'clothing'
@@ -616,26 +616,26 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free sewing machine - vintage singer',
-  'This belonged to my grandmother. Its really old but still works. Perfect for someone who knows about vintage machines or wants to learn to sew.',
-  ST_MakePoint(-118.5951, 33.9425),
+  'Free rice cooker - works perfectly',
+  'Upgraded to instant pot so dont need this rice cooker anymore. Makes perfect rice every time. 6 cup capacity, great for families.',
+  ST_MakePoint(-118.2667, 34.0928),
   'free-stuff',
   'appliances'
 );
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Bike trainer for indoor cycling',
-  'Used this during lockdown but now i go to gym. Converts regular bike into stationary bike. Good condition, just needs someone to use it again.',
+  'Pull-up bar and resistance bands',
+  'Finished my home workout phase and back to gym. Door frame pull-up bar and set of resistance bands with handles. Good for strength training.',
   ST_MakePoint(-118.1553, 34.0633),
   'free-stuff',
-  'sports'
+  'fitness'
 );
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free construction paper and art supplies',
-  'Bought too much for my kids school project. Construction paper, markers, crayons, glue sticks, scissors. Perfect for teachers or parents with young kids.',
+  'Free oil painting supplies',
+  'Switched to digital art so dont need physical supplies. Oil paints, palette knives, brushes, canvas boards. Most tubes barely used.',
   ST_MakePoint(-118.0662, 33.9189),
   'free-stuff',
   'art'
@@ -643,8 +643,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Old stereo system with speakers',
-  'This is from like the 90s but still works great. CD player, radio, tape deck. Good sound quality. Just dont have room for it anymore.',
+  'Old iPhone 8 - cracked screen',
+  'Upgraded phones but this one still works despite cracked screen. Good for parts or someone who wants to fix it. Unlocked to any carrier.',
   ST_MakePoint(-118.2370, 34.1843),
   'free-stuff',
   'electronics'
@@ -652,539 +652,17 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Garden hose and sprinkler attachments',
-  'Moving to apartment so cant use these anymore. 50 foot hose plus various sprinkler heads and attachments. Some wear but still functional.',
+  'Patio furniture - needs cleaning',
+  'Moving to apartment with no patio. Plastic table and 4 chairs, umbrella with stand. Needs good cleaning but structurally sound.',
   ST_MakePoint(-117.8953, 34.1058),
-  'free-stuff',
-  'garden'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free moving boxes - different sizes',
-  'Just finished moving and have tons of boxes left over. Small, medium, large sizes. Some have tape residue but still sturdy. Save money on your move!',
-  ST_MakePoint(-118.4456, 34.0522),
-  'free-stuff',
-  'household'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'mens shoes size 11 - dress and casual',
-  'cleaned out my closet and have shoes i never wear. dress shoes, sneakers, boots. mostly black and brown. some are barely worn',
-  ST_MakePoint(-118.1937, 33.8653),
-  'free-stuff',
-  'clothing'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free cat carrier and supplies',
-  'My cat passed away and I want these to help another cat family. Carrier, food bowls, toys, scratching post. Everything is clean and ready to use.',
-  ST_MakePoint(-118.3267, 34.2078),
-  'free-stuff',
-  'pet-supplies'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Computer keyboard and mouse',
-  'Got wireless ones so dont need these anymore. Standard keyboard and optical mouse. Both work perfectly, just need someone to use them.',
-  ST_MakePoint(-118.0912, 34.0145),
-  'free-stuff',
-  'electronics'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free artificial Christmas tree',
-  'Got a real tree this year so dont need the fake one. Its about 6 feet tall, pre-lit but some lights might be burned out. Comes with stand.',
-  ST_MakePoint(-118.5315, 34.0158),
-  'free-stuff',
-  'holiday'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Maternity clothes size medium',
-  'Done having babies so these need to go to someone who needs them. Tops, pants, dresses. Mix of seasons. All clean and comfortable.',
-  ST_MakePoint(-118.1825, 34.1931),
-  'free-stuff',
-  'clothing'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free photo frames and albums',
-  'Went digital with all my photos. Have picture frames in different sizes and some photo albums. Good for someone who still prints pictures.',
-  ST_MakePoint(-117.9445, 33.8734),
-  'free-stuff',
-  'household'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Exercise bike - needs work',
-  'This bike was great but now the resistance doesnt work right. Might be an easy fix for someone handy. Too heavy for me to throw away.',
-  ST_MakePoint(-118.3871, 34.2367),
-  'free-stuff',
-  'sports'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free scrap wood for projects',
-  'Leftover lumber from home improvements. Various sizes of plywood and 2x4s. Perfect for DIY projects or small repairs. You haul away.',
-  ST_MakePoint(-118.1108, 34.1064),
-  'free-stuff',
-  'building'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Old textbooks - high school level',
-  'Found these in storage from my kids high school years. Math, science, english, history. Older editions but good for reference or homeschooling.',
-  ST_MakePoint(-118.0370, 33.9425),
-  'free-stuff',
-  'books'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free cookbooks and kitchen gadgets',
-  'Downsizing my kitchen. Have cookbooks I never use and gadgets like can openers, measuring cups, mixing bowls. Take what you need.',
-  ST_MakePoint(-118.2927, 34.2078),
-  'free-stuff',
-  'kitchen'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Car floor mats - universal fit',
-  'Bought wrong size for my car. Still in package, rubber floor mats that should fit most cars. Paid $30, free to whoever needs them.',
-  ST_MakePoint(-118.5647, 34.0158),
-  'free-stuff',
-  'automotive'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free fabric and sewing supplies',
-  'Used to sew a lot but dont have time anymore. Different fabrics, thread, buttons, zippers. Perfect for someone who enjoys sewing projects.',
-  ST_MakePoint(-118.1553, 34.1931),
-  'free-stuff',
-  'art'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Old laptop bag and accessories',
-  'Got a new laptop that came with its own bag. This one is in good shape, has lots of pockets. Also have mouse pad and USB cables.',
-  ST_MakePoint(-117.8953, 33.8734),
-  'free-stuff',
-  'electronics'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free board puzzles - 1000+ pieces',
-  'Have about 6 jigsaw puzzles that are complete. Different themes like landscapes and animals. Good for family time or stress relief.',
-  ST_MakePoint(-118.4490, 34.1420),
-  'free-stuff',
-  'toys'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Bathroom accessories - towel bars, etc',
-  'Remodeled bathroom and have leftover hardware. Towel bars, toilet paper holder, hooks. Chrome finish, good condition.',
-  ST_MakePoint(-118.2554, 34.0969),
-  'free-stuff',
-  'household'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free indoor plants - need rehoming',
-  'Moving cross country and cant take my plants. Have pothos, snake plant, spider plant. All healthy but need someone to care for them.',
-  ST_MakePoint(-118.1311, 34.0154),
-  'free-stuff',
-  'plants'
-);
-
--- HELP NEEDED LISTINGS (15 unique listings - replacing second occurrence)
-SELECT create_seed_listing(
-  random_user_id(),
-  'need transportation to airport early morning',
-  'flight leaves at 6am and need someone to drive me to LAX. live in santa monica. will pay $40 plus parking if you want to stay and drive back with me',
-  ST_MakePoint(-118.4912, 34.0194),
-  'help-needed',
-  'transportation',
-  '1-hour',
-  '{"early morning availability"}',
-  '$40 plus parking'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Help carrying bookshelf to second floor',
-  'Just bought a tall bookshelf from ikea and need help getting it upstairs. assembled it downstairs like an idiot. need 2 strong people to help me carry it up safely',
-  ST_MakePoint(-118.2851, 34.0969),
-  'help-needed',
-  'moving',
-  '45-min',
-  '{"heavy lifting", "2 people needed"}',
-  'beer and pizza'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'shower head leaking and water pressure low',
-  'shower has been acting weird for weeks. now the head is dripping constantly and barely any water comes out. tried cleaning it but didnt help. need a plumber',
-  ST_MakePoint(-118.3774, 34.0567),
-  'help-needed',
-  'repair',
-  '1-hour',
-  '{"plumbing experience"}',
-  '$75 for the job'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Need help installing ceiling fan',
-  'bought a ceiling fan but the wiring looks complicated. need someone who knows electrical work to install it safely. already have ladder and basic tools',
-  ST_MakePoint(-118.2278, 34.0928),
-  'help-needed',
-  'installation',
-  '2-hours',
-  '{"electrical knowledge", "ceiling fan experience"}',
-  '$100 cash'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'locked keys in car at grocery store',
-  'just locked my keys in my car at ralphs. car is running and i have my phone but cant get in. need someone with lockout tools or know how to help',
-  ST_MakePoint(-118.3644, 34.0394),
-  'help-needed',
-  'automotive',
-  '30-min',
-  '{"lockout tools or knowledge"}',
-  'will pay $50'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Help setting up smart home devices',
-  'bought google home, smart thermostat, and security cameras but have no idea how to connect everything. need someone tech savvy to help set it all up',
-  ST_MakePoint(-118.1445, 34.1478),
-  'help-needed',
-  'tech',
-  '2-hours',
-  '{"smart home knowledge", "wifi setup"}',
-  'dinner and $50'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'need help organizing garage sale',
-  'having a garage sale this weekend and need help pricing items and organizing everything. lots of stuff to sort through. early morning start',
-  ST_MakePoint(-118.4637, 34.0522),
-  'help-needed',
-  'organization',
-  '4-hours',
-  '{"early morning availability"}',
-  'keep 20% of sales'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'iPhone dropped in water - need data recovery',
-  'dropped my phone in the pool and now it wont turn on. really need my photos and contacts recovered if possible. willing to pay well for professional help',
-  ST_MakePoint(-118.2520, 34.0687),
-  'help-needed',
-  'tech',
-  '2-hours',
-  '{"phone repair experience", "data recovery tools"}',
-  'up to $200 if successful'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'help with grocery shopping for elderly parent',
-  'my mom is 85 and cant get around well anymore. need someone reliable to do her weekly grocery shopping. she has a list and money ready',
-  ST_MakePoint(-118.2889, 34.0224),
-  'help-needed',
-  'errands',
-  '2-hours',
-  '{"car", "patient with elderly"}',
-  '$30 per trip'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'washing machine making loud noises',
-  'washing machine sounds like its going to explode when it spins. clothes still get clean but the noise is horrible. need someone to diagnose the problem',
-  ST_MakePoint(-118.3896, 34.0736),
-  'help-needed',
-  'repair',
-  '1-hour',
-  '{"appliance repair knowledge"}',
-  'will pay diagnostic fee'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'need help building raised garden beds',
-  'want to build 3 raised beds in my backyard but have no carpentry skills. have all the materials and tools. just need someone who knows what theyre doing',
-  ST_MakePoint(-118.2566, 34.0466),
-  'help-needed',
-  'construction',
-  '5-hours',
-  '{"carpentry skills", "garden bed building"}',
-  '$150 for the day'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'backyard is completely overgrown',
-  'havent done yard work in months and now its a jungle back there. need someone with serious landscaping equipment to help tame it. big job',
-  ST_MakePoint(-118.4456, 34.0598),
-  'help-needed',
-  'yard-work',
-  '6-hours',
-  '{"landscaping equipment", "heavy yard work"}',
-  '$25/hour'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'need dog walker for injured dog',
-  'my dog hurt his leg and cant go on long walks but still needs gentle exercise. need someone experienced with injured pets to walk him slowly',
-  ST_MakePoint(-118.2019, 34.0522),
-  'help-needed',
-  'pet-care',
-  '30-min daily',
-  '{"experience with injured pets"}',
-  '$20 per walk'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Help moving piano to new house',
-  'need experienced piano movers to help relocate my upright piano. its really heavy and i dont want to damage it. professional job needed',
-  ST_MakePoint(-118.3311, 34.0981),
-  'help-needed',
-  'moving',
-  '2-hours',
-  '{"piano moving experience", "specialized equipment"}',
-  '$300 for the job'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'help learning to use computer for senior',
-  'just got my first computer at age 72 and feel completely lost. need someone very patient to teach me email, internet, and basic stuff. willing to pay for lessons',
-  ST_MakePoint(-118.2889, 34.0677),
-  'help-needed',
-  'tech',
-  '2-hours',
-  '{"computer teaching", "patience with seniors"}',
-  '$40 per lesson'
-);
-
--- SKILLS OFFERED LISTINGS (5 unique listings - replacing second occurrence)
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free guitar lessons for beginners',
-  'Been playing guitar for 15 years and want to share the love of music. Offering free beginner lessons on weekends. Bring your own guitar or I have extras.',
-  ST_MakePoint(-118.2623, 34.1341),
-  'skills-offered',
-  'music'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Resume writing help - no charge',
-  'HR professional offering free resume reviews and rewrites. Helped many people land jobs. Just want to give back to the community during tough times.',
-  ST_MakePoint(-118.2437, 34.0736),
-  'skills-offered',
-  'career'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'bicycle repair and maintenance',
-  'learning bike mechanics and need practice. can help with basic repairs like flat tires, brake adjustments, tune-ups. you just pay for any parts needed',
-  ST_MakePoint(-118.3774, 34.0394),
-  'skills-offered',
-  'bicycle'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free photography sessions for families',
-  'Building my portrait photography portfolio and need families to practice with. Free photo sessions, you get digital copies of all the good shots.',
-  ST_MakePoint(-118.2851, 34.0522),
-  'skills-offered',
-  'photography'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Math tutoring for middle and high school',
-  'Retired math teacher with 30 years experience. Happy to help students struggling with algebra, geometry, or pre-calc. Free tutoring at local library.',
-  ST_MakePoint(-118.4912, 34.0736),
-  'skills-offered',
-  'tutoring'
-);
-
--- ADDITIONAL USERS FOR GREATER LA AREA (20 more users)
-SELECT create_seed_user('Luis Ramirez', 'luis.ramirez.sfv@gmail.com');
-SELECT create_seed_user('Hannah Schmidt', 'hannah.schmidt@yahoo.com');
-SELECT create_seed_user('Jake Thompson', 'jake.thompson.burbank@outlook.com');
-SELECT create_seed_user('Aria Patel', 'aria.patel@gmail.com');
-SELECT create_seed_user('Marcus Williams', 'marcus.williams.glendale@hotmail.com');
-SELECT create_seed_user('Sofia Gonzalez', 'sofia.gonzalez@gmail.com');
-SELECT create_seed_user('Ethan Park', 'ethan.park.torrance@yahoo.com');
-SELECT create_seed_user('Maya Singh', 'maya.singh@gmail.com');
-SELECT create_seed_user('Connor Brady', 'connor.brady@outlook.com');
-SELECT create_seed_user('Layla Ahmed', 'layla.ahmed.alhambra@gmail.com');
-SELECT create_seed_user('Owen Mitchell', 'owen.mitchell@yahoo.com');
-SELECT create_seed_user('Zara Khan', 'zara.khan.manhattan@hotmail.com');
-SELECT create_seed_user('Blake Rodriguez', 'blake.rodriguez@gmail.com');
-SELECT create_seed_user('Nora Chen', 'nora.chen.arcadia@outlook.com');
-SELECT create_seed_user('Ian Foster', 'ian.foster@yahoo.com');
-SELECT create_seed_user('Lily Moreno', 'lily.moreno.whittier@gmail.com');
-SELECT create_seed_user('Caleb Jones', 'caleb.jones@hotmail.com');
-SELECT create_seed_user('Ruby Nakamura', 'ruby.nakamura@gmail.com');
-SELECT create_seed_user('Mason Torres', 'mason.torres.pomona@outlook.com');
-SELECT create_seed_user('Stella Kim', 'stella.kim.monterey@yahoo.com');
-
--- ADDITIONAL LISTINGS FOR GREATER LA AREA (50 more listings)
-
--- MORE FREE STUFF LISTINGS (30 listings)
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free desk chair - needs minor repair',
-  'Office chair that works but the height adjustment is stuck. Still comfortable for sitting. Would be perfect if someone handy can fix it. Pick up from Van Nuys.',
-  ST_MakePoint(-118.4490, 34.1869),
-  'free-stuff',
-  'furniture'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'kids winter clothes size 4T-6T',
-  'my son outgrew all his winter stuff. jackets, sweaters, pants, boots. mix of brands like old navy and target. all clean and good condition',
-  ST_MakePoint(-118.2554, 34.1420),
-  'free-stuff',
-  'clothing'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free aquarium - 20 gallon',
-  'Used to have fish but got tired of maintaining it. Tank is clean, comes with filter, heater, and decorations. Perfect for someone wanting to start with fish.',
-  ST_MakePoint(-118.1311, 34.0969),
-  'free-stuff',
-  'pet-supplies'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Textbooks - nursing and medical',
-  'Finished nursing school and have books I dont need anymore. Anatomy, pharmacology, nursing fundamentals. Couple editions old but still useful for studying.',
-  ST_MakePoint(-117.9473, 34.1064),
-  'free-stuff',
-  'books'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free treadmill - works but loud',
-  'This treadmill runs fine but makes noise when you use it. Probably needs lubrication or something. Free to whoever wants to fix it up. Its really heavy tho',
-  ST_MakePoint(-118.3640, 34.1808),
-  'free-stuff',
-  'sports'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Baby high chair and booster seat',
-  'Both kids are older now so we dont need these anymore. High chair converts to booster seat. Some food stains but everything cleans up well. Smoke free home.',
-  ST_MakePoint(-118.0370, 34.0154),
-  'free-stuff',
-  'baby'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free firewood logs',
-  'Had some trees cut down and have good hardwood logs. They need to be split but great for fireplace or camping. You come pick them up from my driveway.',
-  ST_MakePoint(-118.4011, 34.2367),
   'free-stuff',
   'outdoor'
 );
 
 SELECT create_seed_listing(
   random_user_id(),
-  'womens business clothes size 10-12',
-  'Changed careers and dont need professional clothes anymore. blazers, dress pants, skirts, blouses. mostly ann taylor and banana republic. good condition',
-  ST_MakePoint(-118.0808, 34.0761),
-  'free-stuff',
-  'clothing'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free sewing machine - vintage singer',
-  'This belonged to my grandmother. Its really old but still works. Perfect for someone who knows about vintage machines or wants to learn to sew.',
-  ST_MakePoint(-118.5951, 33.9425),
-  'free-stuff',
-  'appliances'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Bike trainer for indoor cycling',
-  'Used this during lockdown but now i go to gym. Converts regular bike into stationary bike. Good condition, just needs someone to use it again.',
-  ST_MakePoint(-118.1553, 34.0633),
-  'free-stuff',
-  'sports'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free construction paper and art supplies',
-  'Bought too much for my kids school project. Construction paper, markers, crayons, glue sticks, scissors. Perfect for teachers or parents with young kids.',
-  ST_MakePoint(-118.0662, 33.9189),
-  'free-stuff',
-  'art'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Old stereo system with speakers',
-  'This is from like the 90s but still works great. CD player, radio, tape deck. Good sound quality. Just dont have room for it anymore.',
-  ST_MakePoint(-118.2370, 34.1843),
-  'free-stuff',
-  'electronics'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Garden hose and sprinkler attachments',
-  'Moving to apartment so cant use these anymore. 50 foot hose plus various sprinkler heads and attachments. Some wear but still functional.',
-  ST_MakePoint(-117.8953, 34.1058),
-  'free-stuff',
-  'garden'
-);
-
-SELECT create_seed_listing(
-  random_user_id(),
-  'Free moving boxes - different sizes',
-  'Just finished moving and have tons of boxes left over. Small, medium, large sizes. Some have tape residue but still sturdy. Save money on your move!',
+  'Free shipping boxes and mailers',
+  'Run an online business and have accumulated tons of extra packaging. Various sized boxes, bubble mailers, packing tape. Perfect for online sellers.',
   ST_MakePoint(-118.4456, 34.0522),
   'free-stuff',
   'household'
@@ -1192,8 +670,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'mens shoes size 11 - dress and casual',
-  'cleaned out my closet and have shoes i never wear. dress shoes, sneakers, boots. mostly black and brown. some are barely worn',
+  'Mens running shoes size 10',
+  'bought wrong size online and missed return window. brand new nike running shoes, never worn. still in box with tags',
   ST_MakePoint(-118.1937, 33.8653),
   'free-stuff',
   'clothing'
@@ -1201,8 +679,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free cat carrier and supplies',
-  'My cat passed away and I want these to help another cat family. Carrier, food bowls, toys, scratching post. Everything is clean and ready to use.',
+  'Free fish tank - 10 gallon',
+  'Got out of the fish hobby and tank has been empty for months. Comes with filter, heater, gravel, decorations. Perfect starter setup.',
   ST_MakePoint(-118.3267, 34.2078),
   'free-stuff',
   'pet-supplies'
@@ -1210,8 +688,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Computer keyboard and mouse',
-  'Got wireless ones so dont need these anymore. Standard keyboard and optical mouse. Both work perfectly, just need someone to use them.',
+  'Printer - inkjet, needs new cartridges',
+  'HP inkjet printer that works fine but needs new ink cartridges. Good for someone who prints occasionally and doesnt mind buying ink.',
   ST_MakePoint(-118.0912, 34.0145),
   'free-stuff',
   'electronics'
@@ -1219,8 +697,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free artificial Christmas tree',
-  'Got a real tree this year so dont need the fake one. Its about 6 feet tall, pre-lit but some lights might be burned out. Comes with stand.',
+  'Free Easter decorations',
+  'Have way too many holiday decorations. Plastic eggs, bunny figurines, pastel garland, easter basket supplies. Great for families with kids.',
   ST_MakePoint(-118.5315, 34.0158),
   'free-stuff',
   'holiday'
@@ -1228,8 +706,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Maternity clothes size medium',
-  'Done having babies so these need to go to someone who needs them. Tops, pants, dresses. Mix of seasons. All clean and comfortable.',
+  'Mens jeans size 34x32',
+  'Lost weight and these are too big now. Mix of brands like levis and wrangler. some with minor wear but still have life left',
   ST_MakePoint(-118.1825, 34.1931),
   'free-stuff',
   'clothing'
@@ -1237,8 +715,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free photo frames and albums',
-  'Went digital with all my photos. Have picture frames in different sizes and some photo albums. Good for someone who still prints pictures.',
+  'Free lamps and lighting',
+  'Updated all my lighting and have old fixtures to give away. Table lamps, floor lamp, ceiling fan light kit. Mix of styles but all work.',
   ST_MakePoint(-117.9445, 33.8734),
   'free-stuff',
   'household'
@@ -1246,17 +724,17 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Exercise bike - needs work',
-  'This bike was great but now the resistance doesnt work right. Might be an easy fix for someone handy. Too heavy for me to throw away.',
+  'Recumbent exercise bike - works great',
+  'This bike has been perfect for low impact cardio but Im moving and cant take it. Comfortable seat, multiple resistance levels.',
   ST_MakePoint(-118.3871, 34.2367),
   'free-stuff',
-  'sports'
+  'fitness'
 );
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free scrap wood for projects',
-  'Leftover lumber from home improvements. Various sizes of plywood and 2x4s. Perfect for DIY projects or small repairs. You haul away.',
+  'Free tile samples and grout',
+  'Leftover materials from bathroom renovation. Various ceramic tiles, grout, spacers, tile adhesive. Perfect for small DIY projects.',
   ST_MakePoint(-118.1108, 34.1064),
   'free-stuff',
   'building'
@@ -1264,8 +742,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Old textbooks - high school level',
-  'Found these in storage from my kids high school years. Math, science, english, history. Older editions but good for reference or homeschooling.',
+  'Young adult novels - fantasy series',
+  'Daughter is in college now and doesnt read YA anymore. Hunger Games, Divergent, Percy Jackson series. All paperback in good condition.',
   ST_MakePoint(-118.0370, 33.9425),
   'free-stuff',
   'books'
@@ -1273,17 +751,17 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free cookbooks and kitchen gadgets',
-  'Downsizing my kitchen. Have cookbooks I never use and gadgets like can openers, measuring cups, mixing bowls. Take what you need.',
+  'Free juicer and smoothie maker',
+  'Went through a health kick phase and bought too many appliances. Centrifugal juicer and personal blender. Both work great for healthy drinks.',
   ST_MakePoint(-118.2927, 34.2078),
   'free-stuff',
-  'kitchen'
+  'appliances'
 );
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Car floor mats - universal fit',
-  'Bought wrong size for my car. Still in package, rubber floor mats that should fit most cars. Paid $30, free to whoever needs them.',
+  'Motorcycle helmet and jacket',
+  'Sold my bike but still have safety gear. DOT approved helmet size large, leather jacket size medium. Both in good condition.',
   ST_MakePoint(-118.5647, 34.0158),
   'free-stuff',
   'automotive'
@@ -1291,8 +769,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free fabric and sewing supplies',
-  'Used to sew a lot but dont have time anymore. Different fabrics, thread, buttons, zippers. Perfect for someone who enjoys sewing projects.',
+  'Free scrapbooking supplies',
+  'Used to scrapbook but went digital. Decorative paper, stickers, albums, cutting tools, photo corners. Tons of supplies for memory keeping.',
   ST_MakePoint(-118.1553, 34.1931),
   'free-stuff',
   'art'
@@ -1300,8 +778,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Old laptop bag and accessories',
-  'Got a new laptop that came with its own bag. This one is in good shape, has lots of pockets. Also have mouse pad and USB cables.',
+  'Phone accessories - various models',
+  'Accumulated phone cases and chargers over the years. Mix of iPhone and Android accessories. Some may fit current models.',
   ST_MakePoint(-117.8953, 33.8734),
   'free-stuff',
   'electronics'
@@ -1309,8 +787,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free board puzzles - 1000+ pieces',
-  'Have about 6 jigsaw puzzles that are complete. Different themes like landscapes and animals. Good for family time or stress relief.',
+  'Free jigsaw puzzles - 1000 pieces',
+  'Have completed puzzle collection taking up storage space. All 1000+ piece puzzles with nature and travel themes. Perfect for puzzle enthusiasts.',
   ST_MakePoint(-118.4490, 34.1420),
   'free-stuff',
   'toys'
@@ -1318,8 +796,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Bathroom accessories - towel bars, etc',
-  'Remodeled bathroom and have leftover hardware. Towel bars, toilet paper holder, hooks. Chrome finish, good condition.',
+  'Vanity mirror and makeup organizer',
+  'Simplified my beauty routine and dont need these anymore. Lighted vanity mirror and acrylic makeup organizer with compartments.',
   ST_MakePoint(-118.2554, 34.0969),
   'free-stuff',
   'household'
@@ -1327,8 +805,8 @@ SELECT create_seed_listing(
 
 SELECT create_seed_listing(
   random_user_id(),
-  'Free indoor plants - need rehoming',
-  'Moving cross country and cant take my plants. Have pothos, snake plant, spider plant. All healthy but need someone to care for them.',
+  'Free succulent cuttings',
+  'My succulent garden is overflowing! Have cuttings from various plants ready to root. Perfect for starting your own succulent collection.',
   ST_MakePoint(-118.1311, 34.0154),
   'free-stuff',
   'plants'
@@ -1410,7 +888,7 @@ SELECT create_seed_listing(
   random_user_id(),
   'moving day help - loading truck',
   'rented a moving truck and need 2-3 people to help load boxes and furniture. everything is packed and ready to go. should take about 90 minutes. paying $25 per person cash',
-  ST_MakePoint(-118.5951, 33.9425),
+  ST_MakePoint(-118.2589, 34.0522),
   'help-needed',
   'moving',
   '2-hours',

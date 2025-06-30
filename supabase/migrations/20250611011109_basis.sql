@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS listings (
       '1-hour',
       '2-hours',
       '4-hours',
+      '6-hours',
+      '12-hours',
       '1-day',
       'multiple-days'
     )
