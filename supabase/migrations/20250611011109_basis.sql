@@ -303,7 +303,7 @@ BEGIN
     l.location IS NOT NULL
     AND ST_Intersects(l.location::geography, bounds_geom::geography)
     AND (p_search IS NULL OR (to_tsvector(l.title || ' ' || l.description || ' ' || l.category || ' ' || l.subcategory || coalesce(array_to_string(l.skills_required, ' '), '')) @@ to_tsquery(p_search)))
-    AND (p_active IS NULL OR l.active = p_active)
+    AND (p_active IS NULL OR (p_active = true AND l.active = p_active))
     AND (p_category IS NULL OR l.category = p_category)
     AND (p_subcategory IS NULL OR l.subcategory = p_subcategory)
   ORDER BY distance_meters ASC
