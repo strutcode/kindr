@@ -22,22 +22,10 @@ export const useReputationStore = defineStore('reputation', () => {
     }
 
     const total = rep.positive_points + rep.negative_points
-    const isUnknown = total < 100
 
-    if (isUnknown) {
-      return {
-        status: 'unknown' as const,
-        positive: rep.positive_points,
-        negative: rep.negative_points,
-        total,
-        positivePercentage: 0,
-        negativePercentage: 0,
-        unknownPercentage: 100,
-      }
-    }
-
-    const positivePercentage = (rep.positive_points / total) * 100
-    const negativePercentage = (rep.negative_points / total) * 100
+    const positivePercentage = (rep.positive_points / Math.max(total, 10)) * 100
+    const negativePercentage = (rep.negative_points / Math.max(total, 10)) * 100
+    const unknownPercentage = 100 - (positivePercentage + negativePercentage)
 
     return {
       status: 'known' as const,
@@ -46,7 +34,7 @@ export const useReputationStore = defineStore('reputation', () => {
       total,
       positivePercentage,
       negativePercentage,
-      unknownPercentage: 0,
+      unknownPercentage,
     }
   }
 
@@ -71,12 +59,14 @@ export const useReputationStore = defineStore('reputation', () => {
         // Create initial reputation record
         const { data: newRep, error: createError } = await supabase
           .from('reputation')
-          .insert([{
-            user_id: userId,
-            positive_points: 0,
-            negative_points: 0,
-            total_interactions: 0,
-          }])
+          .insert([
+            {
+              user_id: userId,
+              positive_points: 0,
+              negative_points: 0,
+              total_interactions: 0,
+            },
+          ])
           .select()
           .single()
 

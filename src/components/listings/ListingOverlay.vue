@@ -91,9 +91,13 @@
         <Button variant="outline" :link="{ name: 'show', params: { id: listing.id } }"
           >Details</Button
         >
-        <Button variant="primary" @click="emit('contact', listing)">
+        <Button v-if="authStore.isAuthenticated" variant="primary" @click="contactUser">
           <Icon icon="mdi:message" class="w-4 h-4 mr-2" />
           Contact
+        </Button>
+        <Button v-else variant="primary" :link="{ name: 'auth' }">
+          <Icon icon="mdi:message" class="w-4 h-4 mr-2" />
+          Log in or Sign Up To Connect
         </Button>
       </div>
     </div>
@@ -105,6 +109,8 @@
   import { Icon } from '@iconify/vue'
   import { useRouter } from 'vue-router'
 
+  import { useAuthStore } from '@/stores/auth'
+  import { useChatStore } from '@/stores/chat'
   import type { Listing } from '@/types'
   import { CATEGORIES, DURATION_OPTIONS } from '@/constants'
 
@@ -118,6 +124,9 @@
 
   const props = defineProps<Props>()
   const router = useRouter()
+
+  const authStore = useAuthStore()
+  const chatStore = useChatStore()
 
   const emit = defineEmits<{
     (e: 'close'): void
@@ -151,6 +160,27 @@
 
   const formatLocation = (location: { lat: number; lng: number }) => {
     return `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`
+  }
+
+  const contactUser = async () => {
+    if (!authStore.user || !props.listing) return
+
+    // Check if user is trying to contact themselves
+    if (authStore.user.id === props.listing.user_id) {
+      alert('You cannot start a chat with yourself')
+      return
+    }
+
+    try {
+      // Get or create chat for this listing
+      const chatId = await chatStore.getOrCreateChat(props.listing.id)
+
+      // Navigate to the chat
+      router.push({ name: 'chat', params: { id: chatId } })
+    } catch (error) {
+      console.error('Failed to start chat:', error)
+      alert('Failed to start chat. Please try again.')
+    }
   }
 </script>
 

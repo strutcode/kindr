@@ -138,8 +138,8 @@ BEGIN
       v_time
     );
 
-  v_positive_points := trunc(random() * 50);
-  v_negative_points := trunc(random() * 50);
+  v_positive_points := trunc(random() * 14);
+  v_negative_points := trunc(random() * 14);
 
   INSERT INTO
     public.reputation (

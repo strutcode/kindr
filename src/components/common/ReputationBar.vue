@@ -4,29 +4,13 @@
       <span class="text-gray-600">Reputation</span>
     </div>
 
-    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-      <div class="h-full flex">
-        <!-- Positive section -->
-        <div
-          v-if="reputation.positivePercentage > 0"
-          class="bg-primary-500 transition-all duration-300"
-          :style="{ width: `${reputation.positivePercentage}%` }"
-        />
-
-        <!-- Negative section -->
-        <div
-          v-if="reputation.negativePercentage > 0"
-          class="bg-error-500 transition-all duration-300"
-          :style="{ width: `${reputation.negativePercentage}%` }"
-        />
-
-        <!-- Unknown section -->
-        <div
-          v-if="reputation.unknownPercentage > 0"
-          class="bg-gray-400 transition-all duration-300"
-          :style="{ width: `${reputation.unknownPercentage}%` }"
-        />
-      </div>
+    <div class="w-full flex space-x-1">
+      <div
+        v-for="segment in segments"
+        :key="segment.index"
+        class="flex-1 h-3 rounded-full transition-all duration-300"
+        :class="segment.colorClass"
+      />
     </div>
 
     <div class="flex items-center justify-between text-xs text-gray-500">
@@ -49,6 +33,8 @@
 </template>
 
 <script setup lang="ts">
+  import { computed } from 'vue'
+
   interface Props {
     reputation: {
       status: 'known' | 'unknown'
@@ -61,5 +47,33 @@
     }
   }
 
-  defineProps<Props>()
+  const props = defineProps<Props>()
+
+  const segments = computed(() => {
+    const segmentArray = []
+    const positive = Math.round(props.reputation.positivePercentage / 10)
+    const negative = Math.round(props.reputation.negativePercentage / 10)
+    const unknown = 10 - positive - negative
+
+    for (let i = 0; i < positive; i++) {
+      segmentArray.push({
+        index: i,
+        colorClass: 'bg-primary-500',
+      })
+    }
+    for (let i = 0; i < negative; i++) {
+      segmentArray.push({
+        index: i,
+        colorClass: 'bg-error-500',
+      })
+    }
+    for (let i = 0; i < unknown; i++) {
+      segmentArray.push({
+        index: i,
+        colorClass: 'bg-gray-400',
+      })
+    }
+
+    return segmentArray
+  })
 </script>

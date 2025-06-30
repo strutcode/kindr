@@ -117,7 +117,7 @@
           </div>
 
           <!-- Details card -->
-          <div class="details-card">
+          <div v-if="showDetails" class="details-card">
             <h3 class="sidebar-title">Details</h3>
             <div class="details-list">
               <div v-if="listing.duration_estimate" class="detail-row">
@@ -149,28 +149,19 @@
           <!-- User card -->
           <div v-if="listing.user" class="user-card">
             <h3 class="sidebar-title">Posted by</h3>
-            <div class="user-info">
-              <img
-                v-if="listing.user.avatar_url"
-                :src="listing.user.avatar_url"
-                :alt="listing.user.full_name || 'User'"
-                class="user-avatar"
-              />
-              <div v-else class="user-avatar-placeholder">
-                <Icon icon="mdi:account" class="avatar-icon" />
-              </div>
-              <div class="user-details">
-                <h4 class="user-name">{{ listing.user.full_name || 'Anonymous User' }}</h4>
-                <p class="user-email">{{ listing.user.email }}</p>
-              </div>
-            </div>
+            <UserDisplay :user="listing.user" />
             <Button
+              v-if="authStore.isAuthenticated"
               variant="primary"
               @click="contactUser"
-              icon-left="mdi:message"
               class="contact-button"
             >
+              <Icon icon="mdi:message" class="w-4 h-4 mr-2" />
               Contact
+            </Button>
+            <Button v-else variant="primary" :link="{ name: 'auth' }" class="contact-button">
+              <Icon icon="mdi:message" class="w-4 h-4 mr-2" />
+              Log in or Sign Up To Connect
             </Button>
           </div>
         </div>
@@ -192,6 +183,7 @@
   import Map from '@/components/geo/Map.vue'
   import ListingPills from '@/components/listings/ListingPills.vue'
   import Button from '@/components/widgets/Button.vue'
+  import UserDisplay from '@/components/widgets/UserDisplay.vue'
 
   const route = useRoute()
   const router = useRouter()
@@ -237,6 +229,12 @@
         color: categoryColor.value,
       },
     ]
+  })
+
+  const showDetails = computed(() => {
+    return (
+      listing.value?.duration_estimate || listing.value?.compensation || listing.value?.expires_at
+    )
   })
 
   const formatDate = (dateString: string) => {
