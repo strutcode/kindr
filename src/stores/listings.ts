@@ -29,7 +29,7 @@ export const useListingsStore = defineStore('listings', () => {
       const res = await supabase
         .from('listings')
         .select(`*, user:users!listings_user_id_fkey(id, full_name, avatar_url)`)
-        .eq('active', true) // Assuming you want only active listings
+        .eq('active', true)
         .order('created_at', { ascending: false })
 
       if (res.error) {
@@ -130,7 +130,7 @@ export const useListingsStore = defineStore('listings', () => {
         p_category: category || null,
         p_subcategory: (category && subcategory) || null,
         p_active: activeOnly,
-        p_limit: 200,
+        p_limit: 99,
       })
 
       if (error) {
