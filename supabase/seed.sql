@@ -419,7 +419,7 @@ SELECT create_seed_listing(
   ST_MakePoint(-118.0370, 34.0154),
   'help-needed',
   'assembly',
-  '3-hours',
+  '2-hours',
   '{"patience", "assembly experience"}',
   'pizza and beer'
 );
@@ -431,7 +431,7 @@ SELECT create_seed_listing(
   ST_MakePoint(-118.2927, 34.2078),
   'help-needed',
   'yard-work',
-  '3-hours',
+  '2-hours',
   '{"gardening tools", "yard work experience"}',
   '$20/hour'
 );
@@ -443,7 +443,7 @@ SELECT create_seed_listing(
   ST_MakePoint(-118.5647, 34.0158),
   'help-needed',
   'pet-care',
-  '2-days',
+  'multiple-days',
   '{"comfortable with cats"}',
   '$40 for the weekend'
 );
@@ -880,7 +880,7 @@ SELECT create_seed_listing(
   ST_MakePoint(-118.1445, 34.1478),
   'help-needed',
   'tech',
-  '3-hours',
+  '2-hours',
   '{"smart home knowledge", "wifi setup"}',
   'dinner and $50'
 );
@@ -976,7 +976,7 @@ SELECT create_seed_listing(
   ST_MakePoint(-118.3311, 34.0981),
   'help-needed',
   'moving',
-  '3-hours',
+  '2-hours',
   '{"piano moving experience", "specialized equipment"}',
   '$300 for the job'
 );
@@ -1460,7 +1460,7 @@ SELECT create_seed_listing(
   ST_MakePoint(-118.0370, 34.0154),
   'help-needed',
   'assembly',
-  '3-hours',
+  '2-hours',
   '{"patience", "assembly experience"}',
   'pizza and beer'
 );
@@ -1472,7 +1472,7 @@ SELECT create_seed_listing(
   ST_MakePoint(-118.2927, 34.2078),
   'help-needed',
   'yard-work',
-  '3-hours',
+  '2-hours',
   '{"gardening tools", "yard work experience"}',
   '$20/hour'
 );
@@ -1484,7 +1484,7 @@ SELECT create_seed_listing(
   ST_MakePoint(-118.5647, 34.0158),
   'help-needed',
   'pet-care',
-  '2-days',
+  'multiple-days',
   '{"comfortable with cats"}',
   '$40 for the weekend'
 );

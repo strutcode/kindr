@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS listings (
     duration_estimate IN (
       '15-min',
       '30-min',
+      '45-min',
       '1-hour',
       '2-hours',
       '4-hours',
