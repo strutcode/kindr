@@ -106,6 +106,20 @@
   const pinLayer = new VectorLayer({
     source: new VectorSource(),
     zIndex: 10,
+    renderOrder: (feature1, feature2) => {
+      // Sort by Y coordinate (latitude) - features with lower Y (further south) render on top
+      const geom1 = feature1.getGeometry() as Point
+      const geom2 = feature2.getGeometry() as Point
+
+      if (!geom1 || !geom2) return 0
+
+      const coord1 = geom1.getCoordinates()
+      const coord2 = geom2.getCoordinates()
+
+      // Higher Y coordinate (further north) should render first (behind)
+      // Lower Y coordinate (further south) should render last (on top)
+      return coord2[1] - coord1[1]
+    },
   })
 
   const createMarkerSVG = (color: string, index: number, isHovered = false): string => {
