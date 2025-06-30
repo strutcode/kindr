@@ -7,7 +7,7 @@
         </Button>
         <h2 class="form-title grow">Create New Alert</h2>
       </div>
-      <AlertForm :loading="alertsStore.loading" @submit="handleSubmit" />
+      <AlertForm :loading="alertsStore.loading" :useMiles="true" @submit="handleSubmit" />
     </div>
 
     <!-- Error Message -->

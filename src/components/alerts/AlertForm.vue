@@ -43,8 +43,10 @@
           :disabled="loading"
         />
         <div class="flex justify-between text-xs text-gray-500 mt-1">
-          <span>500m</span>
-          <span>50km</span>
+          <span v-if="props.useMiles">1640ft</span>
+          <span v-else>500m</span>
+          <span v-if="props.useMiles">31mi</span>
+          <span v-else>50km</span>
         </div>
         <p class="mt-1 text-sm text-gray-500">
           You'll be notified about new listings within this distance from your location.
@@ -111,6 +113,7 @@
   interface Props {
     alert?: Alert | null
     loading?: boolean
+    useMiles?: boolean
   }
 
   interface Emits {
@@ -129,6 +132,7 @@
   const props = withDefaults(defineProps<Props>(), {
     alert: null,
     loading: false,
+    useMiles: false,
   })
 
   const emit = defineEmits<Emits>()
@@ -138,7 +142,10 @@
 
   const form = reactive({
     name: '',
-    location: { lat: 0, lng: 0 } as Location,
+    location: {
+      lng: -118.2437,
+      lat: 34.0522,
+    } as Location,
     radius_meters: 5000, // Default 5km
     category: '', // Empty string means all categories
   })
@@ -146,8 +153,13 @@
   const isEditing = computed(() => !!props.alert)
 
   const radiusDisplay = computed(() => {
-    const km = form.radius_meters / 1000
-    return km < 1 ? `${form.radius_meters}m` : `${km.toFixed(1)}km`
+    if (props.useMiles) {
+      const miles = form.radius_meters * 0.000621371 // Convert meters to miles
+      return miles < 1 ? `${Math.round(form.radius_meters * 3.28084)}ft` : `${miles.toFixed(1)}mi`
+    } else {
+      const km = form.radius_meters / 1000
+      return km < 1 ? `${form.radius_meters}m` : `${km.toFixed(1)}km`
+    }
   })
 
   const isFormValid = computed(() => {
