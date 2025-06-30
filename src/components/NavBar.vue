@@ -11,8 +11,14 @@
     </router-link>
 
     <Button variant="ghost" :link="{ name: 'browse' }" class="nav-item">Browse</Button>
-    <Button variant="ghost" :link="{ name: 'create' }" class="nav-item">Create</Button>
-    <Button variant="ghost" :link="{ name: 'browse' }" class="nav-item">Help</Button>
+    <Button
+      v-if="authStore.isAuthenticated"
+      variant="ghost"
+      :link="{ name: 'chats' }"
+      class="nav-item"
+      >Messages</Button
+    >
+    <Button variant="ghost" :link="{ name: 'help' }" class="nav-item">Help</Button>
 
     <div class="flex justify-end items-center space-x-4">
       <!-- Notifications bell icon with unread indicator -->

@@ -87,6 +87,11 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/help',
+      name: 'help',
+      component: () => import('@/views/HelpView.vue'),
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: '404',
       component: () => import('@/views/NotFoundView.vue'),
