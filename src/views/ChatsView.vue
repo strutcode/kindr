@@ -3,7 +3,10 @@
     <!-- Desktop Layout -->
     <div class="hidden md:flex h-full">
       <!-- Chat List Sidebar -->
-      <div class="w-80 border-r border-gray-200 flex flex-col bg-white">
+      <div
+        class="w-80 border-r border-gray-200 flex flex-col bg-white"
+        @contextmenu.prevent="demoMode"
+      >
         <ChatList
           :chats="chatStore.sortedChats"
           :loading="chatStore.loading"
@@ -91,10 +94,12 @@
   import ChatWindow from '@/components/chat/ChatWindow.vue'
   import { Icon } from '@iconify/vue'
   import Button from '@/components/widgets/Button.vue'
+  import { useAuthStore } from '@/stores/auth'
 
   const route = useRoute()
   const router = useRouter()
   const chatStore = useChatStore()
+  const auth = useAuthStore()
 
   const selectedChatId = ref<string | null>(null)
 
@@ -141,6 +146,92 @@
   onMounted(() => {
     chatStore.initialize()
   })
+
+  const demoMode = async () => {
+    const timer = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+    const chat = {
+      id: 'demo-chat',
+      other_user: {
+        id: 'demo-user23',
+        full_name: 'Ashley Williams',
+      },
+      listing: {
+        id: 'demo-listing',
+        title: 'Bathroom stuff - towels, shower curtain',
+        description:
+          'Redecorated my bathroom and have extra stuff. 4 bath towels (blue), 2 hand towels, and a shower curtain with hooks. Everything is clean and good quality.',
+        category: 'free-stuff',
+        subcategory: 'household',
+        location: { lat: 0, lng: 0 },
+      },
+      messages: [],
+    }
+
+    chatStore.chats.push(chat)
+
+    selectedChatId.value = 'demo-chat'
+    chatStore.state.messages['demo-chat'] ??= []
+
+    chatStore.state.messages['demo-chat'].unshift({
+      id: 'msg1',
+      chat_id: 'demo-chat',
+      sender_id: 'demo-user23',
+      sender_name: 'Ashley Williams',
+      message_type: 'text',
+      content: 'Hi! I saw your listing for towels and stuff. Is it still available?',
+      created_at: new Date('2025-06-30T09:13:43').toISOString(),
+    })
+
+    // await timer(3000)
+
+    chatStore.state.messages['demo-chat'].unshift({
+      id: 'msg2',
+      chat_id: 'demo-chat',
+      sender_id: auth.user?.id ?? '',
+      sender_name: 'You',
+      message_type: 'text',
+      content: 'Yes, it is! Would you like to pick it up?',
+      created_at: new Date('2025-06-30T09:15:20').toISOString(),
+    })
+
+    // await timer(2445)
+
+    chatStore.state.messages['demo-chat'].unshift({
+      id: 'msg1',
+      chat_id: 'demo-chat',
+      sender_id: 'demo-user23',
+      sender_name: 'Ashley Williams',
+      message_type: 'text',
+      content: 'Yes! I can come by tomorrow afternoon. What time works for you?',
+      created_at: new Date('2025-06-30T09:19:19').toISOString(),
+    })
+
+    // await timer(1342)
+
+    chatStore.state.messages['demo-chat'].unshift({
+      id: 'msg2',
+      chat_id: 'demo-chat',
+      sender_id: auth.user?.id ?? '',
+      sender_name: 'You',
+      message_type: 'text',
+      content: 'Tomorrow afternoon works great! How about 3pm?',
+      created_at: new Date('2025-06-30T09:24:43').toISOString(),
+    })
+
+    // await timer(1000)
+
+    chatStore.state.messages['demo-chat'].unshift({
+      id: 'msg3',
+      chat_id: 'demo-chat',
+      sender_id: 'demo-user23',
+      sender_name: 'Ashley Williams',
+      message_type: 'text',
+      content: 'Perfect! I’ll see you then.',
+      created_at: new Date('2025-06-30T09:27:43').toISOString(),
+    })
+    console.log(chatStore.state.messages)
+  }
 </script>
 
 <style scoped>

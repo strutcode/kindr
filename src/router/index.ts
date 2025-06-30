@@ -59,7 +59,7 @@ const router = createRouter({
     {
       path: '/alerts/:id/edit',
       name: 'alerts-update',
-      component: () => import('@/views/AlertCreateView.vue'),
+      component: () => import('@/views/AlertUpdateView.vue'),
       meta: { requiresAuth: true },
     },
     {

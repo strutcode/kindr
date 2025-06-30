@@ -1,13 +1,26 @@
 <template>
   <div>
-    <div class="form-section">
+    <div v-if="alert" class="form-section">
       <div class="form-header">
         <Button variant="ghost" :link="{ name: 'alerts' }" class="hover:bg-gray-100 mr-3">
           <Icon icon="tabler:chevron-left" class="w-6 h-6 text-gray-500" />
         </Button>
-        <h2 class="form-title grow">Create New Alert</h2>
+        <h2 class="form-title grow">Editing {{ alert.name }}</h2>
       </div>
-      <AlertForm :loading="alertsStore.loading" :useMiles="true" @submit="handleSubmit" />
+      <AlertForm
+        :alert="alert"
+        :loading="alertsStore.loading"
+        :useMiles="true"
+        @submit="handleSubmit"
+      />
+    </div>
+    <div v-else>
+      <div class="form-header">
+        <Button variant="ghost" :link="{ name: 'alerts' }" class="hover:bg-gray-100 mr-3">
+          <Icon icon="tabler:chevron-left" class="w-6 h-6 text-gray-500" />
+        </Button>
+        <h2 class="form-title grow">Loading Alert...</h2>
+      </div>
     </div>
 
     <!-- Error Message -->
@@ -26,27 +39,36 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted } from 'vue'
+  import { onMounted, ref } from 'vue'
   import { Icon } from '@iconify/vue'
   import { useAlertsStore } from '@/stores/alerts'
   import AlertForm from '@/components/alerts/AlertForm.vue'
   import Button from '@/components/widgets/Button.vue'
   import router from '@/router'
+  import { Alert } from '@/types'
+  import { useRoute } from 'vue-router'
 
   const alertsStore = useAlertsStore()
+  const route = useRoute()
+
+  const alert = ref<Alert | null>(null)
 
   const handleSubmit = async (data: any) => {
     try {
-      await alertsStore.createAlert(data)
+      if (!alert.value) {
+        throw new Error('Alert not found')
+      }
+
+      await alertsStore.updateAlert(alert.value.id, data)
       router.push({ name: 'alerts' })
     } catch (error) {
       // Error is handled by the store
     }
   }
 
-  onMounted(() => {
-    // Reset any previous error when the component mounts
-    alertsStore.clearError()
+  onMounted(async () => {
+    await alertsStore.fetchAlerts()
+    alert.value = alertsStore.alerts.find(alert => alert.id === route.params.id) ?? null
   })
 </script>
 

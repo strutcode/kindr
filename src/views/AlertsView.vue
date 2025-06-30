@@ -98,18 +98,15 @@
   import { useAlertsStore } from '@/stores/alerts'
   import AlertCard from '@/components/alerts/AlertCard.vue'
   import Button from '@/components/widgets/Button.vue'
-  import { useRoute } from 'vue-router'
+  import { useRouter } from 'vue-router'
 
   const alertsStore = useAlertsStore()
-  const route = useRoute()
+  const router = useRouter()
 
-  const showCreateForm = ref(!!route.params.create)
-  const editingAlert = ref<Alert | null>(null)
   const alertToDelete = ref<Alert | null>(null)
 
   const handleEdit = (alert: Alert) => {
-    editingAlert.value = alert
-    showCreateForm.value = false
+    router.push({ name: 'alerts-update', params: { id: alert.id } })
   }
 
   const handleDelete = (alert: Alert) => {

@@ -449,6 +449,7 @@ export const useChatStore = defineStore('chat', () => {
     currentChat,
     currentMessages,
     sortedChats,
+    state,
 
     // Actions
     initialize,
