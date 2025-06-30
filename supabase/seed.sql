@@ -1,4 +1,3 @@
--- Users data (20 diverse LA users)
 SELECT create_seed_user('Maria Rodriguez', 'maria.rodriguez@gmail.com');
 SELECT create_seed_user('James Chen', 'james.chen@yahoo.com');
 SELECT create_seed_user('Sarah Johnson', 'sarah.j.johnson@outlook.com');
@@ -19,10 +18,47 @@ SELECT create_seed_user('Isabella Hernandez', 'isabella.hernandez@gmail.com');
 SELECT create_seed_user('Kevin Wong', 'kevin.wong.la@gmail.com');
 SELECT create_seed_user('Rachel Green', 'rachel.green.la@hotmail.com');
 SELECT create_seed_user('Antonio Lopez', 'antonio.lopez@gmail.com');
+SELECT create_seed_user('Miguel Santos', 'miguel.santos@gmail.com');
+SELECT create_seed_user('Grace Kim', 'grace.kim.lb@yahoo.com');
+SELECT create_seed_user('Brandon Miller', 'brandon.miller@outlook.com');
+SELECT create_seed_user('Priya Patel', 'priya.patel.la@gmail.com');
+SELECT create_seed_user('Jordan Washington', 'jordan.washington@hotmail.com');
+SELECT create_seed_user('Elena Morales', 'elena.morales@gmail.com');
+SELECT create_seed_user('Ryan O''Connor', 'ryan.oconnor.lb@yahoo.com');
+SELECT create_seed_user('Fatima Al-Hassan', 'fatima.alhassan@gmail.com');
+SELECT create_seed_user('Marcus Johnson', 'marcus.johnson.la@outlook.com');
+SELECT create_seed_user('Carmen Ruiz', 'carmen.ruiz@gmail.com');
+SELECT create_seed_user('Trevor Chang', 'trevor.chang@yahoo.com');
+SELECT create_seed_user('Aaliyah Brown', 'aaliyah.brown.lb@gmail.com');
+SELECT create_seed_user('Diego Flores', 'diego.flores@hotmail.com');
+SELECT create_seed_user('Nina Volkov', 'nina.volkov@gmail.com');
+SELECT create_seed_user('Jamal Roberts', 'jamal.roberts.la@yahoo.com');
+SELECT create_seed_user('Samantha Lee', 'samantha.lee@outlook.com');
+SELECT create_seed_user('Ahmed Hassan', 'ahmed.hassan@gmail.com');
+SELECT create_seed_user('Chloe Davis', 'chloe.davis.lb@hotmail.com');
+SELECT create_seed_user('Victor Gonzales', 'victor.gonzales@gmail.com');
+SELECT create_seed_user('Zoe Mitchell', 'zoe.mitchell.la@yahoo.com');
+SELECT create_seed_user('Isaiah Thompson', 'isaiah.thompson@gmail.com');
+SELECT create_seed_user('Sophia Chen', 'sophia.chen.sgv@yahoo.com');
+SELECT create_seed_user('Andre Williams', 'andre.williams@outlook.com');
+SELECT create_seed_user('Maya Singh', 'maya.singh@gmail.com');
+SELECT create_seed_user('Carlos Vasquez', 'carlos.vasquez.whittier@hotmail.com');
+SELECT create_seed_user('Jasmine Foster', 'jasmine.foster@gmail.com');
+SELECT create_seed_user('Daniel Park', 'daniel.park.ktown@yahoo.com');
+SELECT create_seed_user('Olivia Martinez', 'olivia.martinez@outlook.com');
+SELECT create_seed_user('Ethan Rodriguez', 'ethan.rodriguez.oc@gmail.com');
+SELECT create_seed_user('Aisha Johnson', 'aisha.johnson@hotmail.com');
+SELECT create_seed_user('Liam O''Brien', 'liam.obrien.redondo@gmail.com');
+SELECT create_seed_user('Ava Nguyen', 'ava.nguyen.westminster@yahoo.com');
+SELECT create_seed_user('Noah Garcia', 'noah.garcia.azusa@outlook.com');
+SELECT create_seed_user('Mia Lopez', 'mia.lopez.el-monte@gmail.com');
+SELECT create_seed_user('Lucas Smith', 'lucas.smith.manhattan-beach@hotmail.com');
+SELECT create_seed_user('Emma Davis', 'emma.davis.torrance@gmail.com');
+SELECT create_seed_user('Jackson Brown', 'jackson.brown.lakewood@yahoo.com');
+SELECT create_seed_user('Isabella Wilson', 'isabella.wilson.norwalk@outlook.com');
+SELECT create_seed_user('Mason Torres', 'mason.torres.bellflower@gmail.com');
+SELECT create_seed_user('Zara Ahmed', 'zara.ahmed.anaheim@hotmail.com');
 
--- Listings data (50 diverse community listings)
-
--- FREE STUFF LISTINGS (30 listings)
 SELECT create_seed_listing(
   random_user_id(),
   'Free couch - good condition!',
@@ -293,7 +329,6 @@ SELECT create_seed_listing(
   'kitchen'
 );
 
--- HELP NEEDED LISTINGS (15 listings)
 SELECT create_seed_listing(
   random_user_id(),
   'need ride home from medical procedure',
@@ -471,7 +506,6 @@ SELECT create_seed_listing(
   '{"smartphone knowledge", "patience with seniors"}'
 );
 
--- SKILLS OFFERED LISTINGS (5 listings)
 SELECT create_seed_listing(
   random_user_id(),
   'Free help with small electrical jobs',
@@ -517,31 +551,6 @@ SELECT create_seed_listing(
   'pet-grooming'
 );
 
--- ADDITIONAL USERS (20 more diverse LA/Long Beach users)
-SELECT create_seed_user('Miguel Santos', 'miguel.santos@gmail.com');
-SELECT create_seed_user('Grace Kim', 'grace.kim.lb@yahoo.com');
-SELECT create_seed_user('Brandon Miller', 'brandon.miller@outlook.com');
-SELECT create_seed_user('Priya Patel', 'priya.patel.la@gmail.com');
-SELECT create_seed_user('Jordan Washington', 'jordan.washington@hotmail.com');
-SELECT create_seed_user('Elena Morales', 'elena.morales@gmail.com');
-SELECT create_seed_user('Ryan O''Connor', 'ryan.oconnor.lb@yahoo.com');
-SELECT create_seed_user('Fatima Al-Hassan', 'fatima.alhassan@gmail.com');
-SELECT create_seed_user('Marcus Johnson', 'marcus.johnson.la@outlook.com');
-SELECT create_seed_user('Carmen Ruiz', 'carmen.ruiz@gmail.com');
-SELECT create_seed_user('Trevor Chang', 'trevor.chang@yahoo.com');
-SELECT create_seed_user('Aaliyah Brown', 'aaliyah.brown.lb@gmail.com');
-SELECT create_seed_user('Diego Flores', 'diego.flores@hotmail.com');
-SELECT create_seed_user('Nina Volkov', 'nina.volkov@gmail.com');
-SELECT create_seed_user('Jamal Roberts', 'jamal.roberts.la@yahoo.com');
-SELECT create_seed_user('Samantha Lee', 'samantha.lee@outlook.com');
-SELECT create_seed_user('Ahmed Hassan', 'ahmed.hassan@gmail.com');
-SELECT create_seed_user('Chloe Davis', 'chloe.davis.lb@hotmail.com');
-SELECT create_seed_user('Victor Gonzales', 'victor.gonzales@gmail.com');
-SELECT create_seed_user('Zoe Mitchell', 'zoe.mitchell.la@yahoo.com');
-
--- ADDITIONAL LISTINGS (50 more diverse community listings)
-
--- UNIQUE FREE STUFF LISTINGS (30 new listings - replacing duplicates)
 SELECT create_seed_listing(
   random_user_id(),
   'Free nightstand - white wood',
@@ -810,4 +819,442 @@ SELECT create_seed_listing(
   ST_MakePoint(-118.1311, 34.0154),
   'free-stuff',
   'plants'
+);
+
+-- MORE HELP-NEEDED LISTINGS
+SELECT create_seed_listing(
+  random_user_id(),
+  'Need dog walker for busy work week',
+  'Working long hours this week and my golden retriever needs more exercise than I can give. Need someone to walk him 2-3 times this week. Hes very friendly and well-behaved.',
+  ST_MakePoint(-118.1937, 33.8653),
+  'help-needed',
+  'pet-care',
+  '1-hour',
+  '{"comfortable with large dogs"}',
+  '$15 per walk'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Help organizing garage sale',
+  'Having a garage sale this weekend and need help pricing items and setting up tables. Early Saturday morning work but can split profits from items we price together.',
+  ST_MakePoint(-118.3267, 34.2078),
+  'help-needed',
+  'organizing',
+  '2-hours',
+  '{"early riser", "pricing knowledge"}',
+  'split of profits'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Computer virus - need malware removal',
+  'My laptop is running super slow and getting pop-ups everywhere. Think I have malware but dont know how to clean it properly. Need someone with tech skills.',
+  ST_MakePoint(-118.0912, 34.0145),
+  'help-needed',
+  'tech',
+  '2-hours',
+  '{"virus removal", "computer security"}',
+  '$40'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Help hanging Christmas lights',
+  'Want to decorate house for holidays but Im afraid of heights. Need someone comfortable on ladder to help hang lights on roof line and trees.',
+  ST_MakePoint(-118.1825, 34.1931),
+  'help-needed',
+  'holiday',
+  '2-hours',
+  '{"comfortable with heights", "ladder work"}',
+  '$50 plus hot chocolate'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Senior needs help with smartphone apps',
+  'My 75 year old mom got a new phone and is frustrated with apps like Uber and grocery delivery. Need patient person to teach her the basics.',
+  ST_MakePoint(-117.9445, 33.8734),
+  'help-needed',
+  'tech',
+  '1-hour',
+  '{"patience with seniors", "smartphone knowledge"}',
+  '$25'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Clogged kitchen drain emergency',
+  'Kitchen sink completely backed up and water wont go down at all. Tried everything I can think of. Need emergency plumbing help tonight if possible.',
+  ST_MakePoint(-118.3871, 34.2367),
+  'help-needed',
+  'repair',
+  '1-hour',
+  '{"plumbing tools", "drain cleaning"}',
+  'will pay well for quick help'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Help installing car stereo',
+  'Bought aftermarket stereo for my Honda but wiring looks complicated. Need someone who knows car audio to help install it properly.',
+  ST_MakePoint(-118.1108, 34.1064),
+  'help-needed',
+  'automotive',
+  '2-hours',
+  '{"car audio experience", "wiring knowledge"}',
+  '$75'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Need babysitter for date night',
+  'Husband and I havent had date night in months. Need reliable babysitter for 6 year old daughter this Saturday evening. Very well behaved kid.',
+  ST_MakePoint(-118.0370, 33.9425),
+  'help-needed',
+  'childcare',
+  '4-hours',
+  '{"childcare experience", "references"}',
+  '$15/hour'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Apartment deep cleaning before move-out',
+  'Moving out next week and need help with deep cleaning to get deposit back. Bathrooms, kitchen, floors, walls. Cleaning supplies provided.',
+  ST_MakePoint(-118.2927, 34.2078),
+  'help-needed',
+  'cleaning',
+  '4-hours',
+  '{"cleaning experience", "attention to detail"}',
+  '$100'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'PowerPoint presentation help',
+  'Have important work presentation Monday but Im terrible with PowerPoint. Need someone to help make it look professional with good graphics and layout.',
+  ST_MakePoint(-118.4490, 34.1869),
+  'help-needed',
+  'design',
+  '2-hours',
+  '{"PowerPoint skills", "design sense"}',
+  '$60'
+);
+
+-- MORE SKILLS-OFFERED LISTINGS
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free tax preparation help',
+  'CPA offering free tax prep for low-income families and seniors. Simple returns only (W-2, basic deductions). Giving back to community during tax season.',
+  ST_MakePoint(-118.2554, 34.1420),
+  'skills-offered',
+  'accounting'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Guitar lessons for beginners',
+  'Music teacher offering free beginner guitar lessons for kids and adults. Have extra guitars to borrow. Just want to share love of music with others.',
+  ST_MakePoint(-118.1311, 34.0969),
+  'skills-offered',
+  'music'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Photography sessions - building portfolio',
+  'Photography student needing to build portfolio. Free portrait sessions, family photos, pet photos. You get edited photos, I get practice.',
+  ST_MakePoint(-117.9473, 34.1064),
+  'skills-offered',
+  'photography'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Resume writing and job search help',
+  'HR professional with 15 years experience. Offering free resume reviews and job search advice for people getting back into workforce.',
+  ST_MakePoint(-118.3640, 34.1808),
+  'skills-offered',
+  'career'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free math tutoring - middle school level',
+  'Retired math teacher missing the classroom. Happy to tutor middle school students struggling with algebra and geometry. Patient and encouraging.',
+  ST_MakePoint(-118.0370, 34.0154),
+  'skills-offered',
+  'tutoring'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Sewing machine repair and maintenance',
+  'Experienced seamstress offering sewing machine tune-ups and minor repairs. Most common issues are easy fixes. Just pay for parts if needed.',
+  ST_MakePoint(-118.4011, 34.2367),
+  'skills-offered',
+  'repair'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Dog training - basic obedience',
+  'Professional dog trainer offering free basic obedience lessons for rescue dogs. Sit, stay, come, walking on leash. Want to help dogs find forever homes.',
+  ST_MakePoint(-118.0808, 34.0761),
+  'skills-offered',
+  'pet-training'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Spanish conversation practice',
+  'Native Spanish speaker offering conversation practice for English speakers learning Spanish. Can meet at coffee shops or library. All levels welcome.',
+  ST_MakePoint(-118.2370, 34.1843),
+  'skills-offered',
+  'language'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Home organization consulting',
+  'Professional organizer starting own business. Offering free consultations to build client base. Help with closets, pantries, home offices.',
+  ST_MakePoint(-117.8953, 34.1058),
+  'skills-offered',
+  'organizing'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Senior citizen tech support',
+  'Patient young person who loves helping seniors with technology. Smartphones, tablets, computers, smart TVs. Will come to your home.',
+  ST_MakePoint(-118.4456, 34.0522),
+  'skills-offered',
+  'tech-support'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free legal advice - tenant rights',
+  'Law student specializing in housing law. Offering free consultations about tenant rights, security deposits, lease issues. Not formal representation.',
+  ST_MakePoint(-118.1937, 33.8653),
+  'skills-offered',
+  'legal'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Cooking lessons - Mexican cuisine',
+  'Grandmother who loves to cook offering to teach traditional Mexican recipes. Tamales, mole, pozole. Bring ingredients and learn family secrets.',
+  ST_MakePoint(-118.3267, 34.2078),
+  'skills-offered',
+  'cooking'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Garden design consultation',
+  'Landscape designer offering free garden consultations for beginners. Plant selection, layout ideas, seasonal care tips. Help make your yard beautiful.',
+  ST_MakePoint(-118.0912, 34.0145),
+  'skills-offered',
+  'gardening'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Excel spreadsheet training',
+  'Accountant offering free Excel training for small business owners. Formulas, pivot tables, budgeting templates. Make your business more efficient.',
+  ST_MakePoint(-118.1825, 34.1931),
+  'skills-offered',
+  'business'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free makeup application lessons',
+  'Makeup artist building portfolio. Free makeup lessons and application for special events. Learn techniques for everyday and special occasion looks.',
+  ST_MakePoint(-117.9445, 33.8734),
+  'skills-offered',
+  'beauty'
+);
+
+-- MORE FREE-STUFF LISTINGS  
+SELECT create_seed_listing(
+  random_user_id(),
+  'Vintage vinyl records - classic rock',
+  'Found box of dads old records in attic. Classic rock from 60s-80s. Some scratches but many still playable. Rather give to music lover than throw away.',
+  ST_MakePoint(-118.3871, 34.2367),
+  'free-stuff',
+  'music'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free yarn and knitting supplies',
+  'Grandmother passed away and left huge yarn collection. Every color imaginable plus knitting needles, patterns, project bags. Too much for one person.',
+  ST_MakePoint(-118.1108, 34.1064),
+  'free-stuff',
+  'crafts'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Dining table - seats 6',
+  'Upgrading to bigger table for holidays. This oak table seats 6 comfortably. Some water rings on surface but structurally very solid.',
+  ST_MakePoint(-118.0370, 33.9425),
+  'free-stuff',
+  'furniture'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Computer desk with drawers',
+  'Work from home setup changed and dont need this desk anymore. Has keyboard tray and filing drawers. Perfect for home office or student.',
+  ST_MakePoint(-118.2927, 34.2078),
+  'free-stuff',
+  'furniture'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Halloween costume collection',
+  'Kids outgrew their dress-up clothes. Princesses, superheroes, animals, pirates. Mix of store-bought and homemade. Hours of imaginative play.',
+  ST_MakePoint(-118.4490, 34.1869),
+  'free-stuff',
+  'clothing'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Professional business suits size 8',
+  'Career change means no more corporate wardrobe needed. 5 complete suits in navy, black, gray. Perfect for job interviews or office work.',
+  ST_MakePoint(-118.2554, 34.1420),
+  'free-stuff',
+  'clothing'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free ceramic plant pots',
+  'Downsizing plant collection and have extra pots. Various sizes from small herb pots to large floor planters. Some have saucers included.',
+  ST_MakePoint(-118.1311, 34.0969),
+  'free-stuff',
+  'outdoor'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Wedding decorations - white and gold',
+  'Wedding was last year and dont need decorations anymore. Centerpieces, candles, fairy lights, table runners. Perfect for elegant events.',
+  ST_MakePoint(-117.9473, 34.1064),
+  'free-stuff',
+  'party'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Science fair project supplies',
+  'Kids are done with science fairs. Have poster boards, markers, lab equipment, microscope slides. Great for curious kids or teachers.',
+  ST_MakePoint(-118.3640, 34.1808),
+  'free-stuff',
+  'educational'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free moving boxes - various sizes',
+  'Just finished moving and have clean boxes in great condition. Small, medium, large sizes plus packing paper and bubble wrap.',
+  ST_MakePoint(-118.0370, 34.0154),
+  'free-stuff',
+  'moving'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Basketball hoop - adjustable height',
+  'Kids lost interest in basketball and moved on to soccer. Portable hoop with adjustable height from 7-10 feet. Base needs sand or water.',
+  ST_MakePoint(-118.4011, 34.2367),
+  'free-stuff',
+  'sports'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free meditation cushions and yoga blocks',
+  'Yoga studio closed and owner is giving away supplies. Meditation cushions, yoga blocks, straps, bolsters. Perfect for home practice.',
+  ST_MakePoint(-118.0808, 34.0761),
+  'free-stuff',
+  'fitness'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Aquarium decorations and accessories',
+  'Switched to saltwater tank and freshwater decorations dont work. Artificial plants, caves, colorful gravel, air pump, tubing.',
+  ST_MakePoint(-118.2370, 34.1843),
+  'free-stuff',
+  'pet-supplies'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free photo albums and scrapbooks',
+  'Going digital with all photos and dont need physical albums anymore. Various sizes and styles, some with photos that can be removed.',
+  ST_MakePoint(-117.8953, 34.1058),
+  'free-stuff',
+  'household'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Maternity clothes size medium',
+  'Done having babies and these clothes are just taking up space. Pants, tops, dresses for all seasons. Motherhood Maternity and Target brands.',
+  ST_MakePoint(-118.4456, 34.0522),
+  'free-stuff',
+  'clothing'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free metal filing cabinets',
+  'Office renovation left us with extra filing cabinets. 2-drawer and 4-drawer options. Some scratches but locks and drawers work perfectly.',
+  ST_MakePoint(-118.1937, 33.8653),
+  'free-stuff',
+  'office'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Outdoor Christmas decorations',
+  'Moved to apartment with no yard space for outdoor decorations. Inflatable Santa, light-up reindeer, projector lights, extension cords.',
+  ST_MakePoint(-118.3267, 34.2078),
+  'free-stuff',
+  'holiday'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free piano sheet music collection',
+  'Piano teacher retiring and giving away music library. Classical, popular, beginner to advanced levels. Perfect for students and teachers.',
+  ST_MakePoint(-118.0912, 34.0145),
+  'free-stuff',
+  'music'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Womens work shoes sizes 7-8',
+  'Career change from office to work-from-home. Professional pumps, flats, boots in black and brown. Comfortable brands like Clarks and Naturalizer.',
+  ST_MakePoint(-118.1825, 34.1931),
+  'free-stuff',
+  'clothing'
+);
+
+SELECT create_seed_listing(
+  random_user_id(),
+  'Free baking supplies and equipment',
+  'Moved to smaller kitchen and cant fit all my baking stuff. Mixing bowls, measuring cups, cake pans, cookie sheets, decorating supplies.',
+  ST_MakePoint(-117.9445, 33.8734),
+  'free-stuff',
+  'kitchen'
 );
