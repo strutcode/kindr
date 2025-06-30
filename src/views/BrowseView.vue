@@ -25,6 +25,7 @@
         :pins="mapPins"
         @view-change="mapViewChanged"
         @bounds-change="mapBoundsChanged"
+        @pin-click="selectedListing = $event.listing"
       />
       <div class="listing-controls">
         <Text

@@ -18,7 +18,7 @@ export const CATEGORIES: CategoryOption[] = [
   {
     value: 'help-needed',
     label: 'Help Needed',
-    color: '#0ea5e9',
+    color: '#f97316',
     subcategories: [
       { value: 'transportation', label: 'Transportation' },
       { value: 'moving', label: 'Moving & Delivery' },
@@ -33,7 +33,7 @@ export const CATEGORIES: CategoryOption[] = [
   {
     value: 'skills-offered',
     label: 'Skills Offered',
-    color: '#f97316',
+    color: '#0ea5e9',
     subcategories: [
       { value: 'tutoring', label: 'Tutoring & Teaching' },
       { value: 'handyman', label: 'Handyman Services' },

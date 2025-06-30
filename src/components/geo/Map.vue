@@ -15,7 +15,7 @@
   import OSM from 'ol/source/OSM'
   import 'ol/ol.css'
   import { fromLonLat, toLonLat, transformExtent } from 'ol/proj'
-  import type { Location, MapBounds, MapView } from '@/types'
+  import type { Listing, Location, MapBounds, MapView } from '@/types'
   import VectorLayer from 'ol/layer/Vector'
   import { Point } from 'ol/geom'
   import { Icon, Style } from 'ol/style'
@@ -29,6 +29,7 @@
     lat: number
     lng: number
     color: string
+    listing: Listing
   }
 
   interface Props {
@@ -57,6 +58,7 @@
     (e: 'view-change', view: MapView): void
     (e: 'bounds-change', view: MapBounds): void
     (e: 'map-click', location: { lat: number; lng: number }): void
+    (e: 'pin-click', pin: MapPin): void
   }>()
 
   const resetView = () => {
@@ -131,6 +133,7 @@
       const feature = new Feature({
         geometry: new Point(fromLonLat([pin.lng, pin.lat])),
         index: pin.index,
+        pinData: pin, // Store the full pin data for retrieval on click
       })
 
       feature.setStyle(
@@ -201,7 +204,18 @@
     map.value.on('singleclick', event => {
       const coordinate = event.coordinate
       const [lng, lat] = toLonLat(coordinate)
-      emit('map-click', { lat, lng })
+
+      // Check if a pin was clicked
+      const pixelFeature = map.value?.forEachFeatureAtPixel(event.pixel, feature => feature)
+
+      if (pixelFeature && pixelFeature.get('pinData')) {
+        // A pin was clicked, emit pin-click event
+        const pinData = pixelFeature.get('pinData') as MapPin
+        emit('pin-click', pinData)
+      } else {
+        // No pin was clicked, emit regular map-click event
+        emit('map-click', { lat, lng })
+      }
     })
   })
 
