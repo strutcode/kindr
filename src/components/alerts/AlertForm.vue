@@ -103,7 +103,7 @@
   import { ref, reactive, computed, onMounted } from 'vue'
   import { Icon } from '@iconify/vue'
   import type { Alert, Location } from '@/types'
-  import { CATEGORIES } from '@/constants/categories'
+  import { CATEGORIES } from '@/constants'
   import Button from '@/components/widgets/Button.vue'
   import LocationSelector from '@/components/widgets/LocationSelector.vue'
   import { useLocationStore } from '@/stores/location'

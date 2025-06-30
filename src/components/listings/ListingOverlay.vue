@@ -120,7 +120,7 @@
   import { useRouter } from 'vue-router'
 
   import type { Listing } from '@/types'
-  import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
+  import { CATEGORIES, DURATION_OPTIONS } from '@/constants'
 
   import ListingPills from './ListingPills.vue'
   import Button from '@/components/widgets/Button.vue'

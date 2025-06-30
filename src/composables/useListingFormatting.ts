@@ -1,4 +1,4 @@
-import { CATEGORIES, DURATION_OPTIONS } from '@/constants/categories'
+import { CATEGORIES, DURATION_OPTIONS } from '@/constants'
 import { formatDistanceToNow } from 'date-fns'
 
 export function useListingFormatting() {

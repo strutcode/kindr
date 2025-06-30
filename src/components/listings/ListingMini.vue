@@ -50,7 +50,8 @@
 
 <style scoped>
   .listing-mini {
-    @apply hover:cursor-pointer;
+    @apply bg-white p-4;
+    @apply hover:cursor-pointer hover:bg-gray-100;
   }
 
   .listing-mini .index {

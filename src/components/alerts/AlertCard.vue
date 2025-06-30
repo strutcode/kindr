@@ -47,7 +47,7 @@
   import { computed } from 'vue'
   import { Icon } from '@iconify/vue'
   import type { Alert, RequestCategory } from '@/types'
-  import { CATEGORIES } from '@/constants/categories'
+  import { CATEGORIES } from '@/constants'
   import Button from '@/components/widgets/Button.vue'
   import Chip from '@/components/widgets/Chip.vue'
 

@@ -1,9 +1,9 @@
 <template>
   <div class="browse-view" v-if="!locating">
     <div class="sidebar">
-      <div class="w-full p-4">
-        <h2 class="text-lg font-semibold">Listings</h2>
-        <ul class="space-y-8 mt-4">
+      <div class="w-full">
+        <h2 class="text-lg font-semibold p-4">Listings</h2>
+        <ul>
           <ListingMini
             v-for="pin in mapPins"
             :key="pin.listing.id"
@@ -101,7 +101,7 @@
   import { ListingFilters, type Listing, type MapBounds, type MapView } from '@/types'
   import { debounce } from 'lodash'
 
-  import { CATEGORIES } from '@/constants/categories'
+  import { CATEGORIES } from '@/constants'
   import { useLocationStore } from '@/stores/location'
   import { useListingsStore } from '@/stores/listings'
 
@@ -229,7 +229,7 @@
 
   .sidebar {
     @apply w-96 collapse overflow-y-scroll;
-    @apply relative bg-gray-100 border-r border-gray-300 shadow-lg z-10;
+    @apply relative bg-white border-r border-gray-300 shadow-lg z-10;
     @apply md:visible;
   }
 

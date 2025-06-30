@@ -28,7 +28,7 @@
   import { computed } from 'vue'
   import { Icon } from '@iconify/vue'
   import type { Notification } from '@/types'
-  import { CATEGORIES } from '@/constants/categories'
+  import { CATEGORIES } from '@/constants'
   import Chip from '@/components/widgets/Chip.vue'
 
   interface Props {
